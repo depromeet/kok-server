@@ -1,0 +1,6 @@
+rootProject.name = "kok-server"
+
+include("kok-core", "kok-api")
+
+project(":kok-core").projectDir = file("kok-core")
+project(":kok-api").projectDir = file("kok-api")

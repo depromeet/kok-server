@@ -1,0 +1,11 @@
+# IntelliJ IDEA settings
+.idea/
+
+# Gradle 관련 파일
+.gradle/
+gradle/
+gradlew
+gradlew.bat
+
+# Build artifacts
+/build/
