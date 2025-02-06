@@ -14,7 +14,7 @@ body:
     validations:
       required: true
 
-  - type: checkboxes
+  - type: textarea
     id: task-details
     attributes:
       label: 🏗️ 작업 상세
