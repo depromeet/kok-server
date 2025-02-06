@@ -1,5 +1,5 @@
 ---
-name: "🛫 DEPLOY"
+name: "\U0001F6EB DEPLOY"
 about: 배포와 관련된 사항을 적어주세요
 title: "[DEPLOY]"
 labels: ''

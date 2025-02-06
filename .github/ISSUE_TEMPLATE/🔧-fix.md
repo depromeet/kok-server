@@ -1,5 +1,5 @@
 ---
-name: "🔧 FIX"
+name: "\U0001F527 FIX"
 about: 수정과 관련된 사항을 적어주세요
 title: "[FIX]"
 labels: ''
