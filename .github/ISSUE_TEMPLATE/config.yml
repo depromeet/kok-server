@@ -1,0 +1,21 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "✨ Feature 요청"
+    url: https://github.com/kok-server/issues/new?template=✅-feature.yml
+    about: "새로운 기능을 요청하려면 클릭하세요."
+
+  - name: "🛠️ Bug 수정 (Fix)"
+    url: https://github.com/kok-server/issues/new?template=🔧-fix.yml
+    about: "버그를 수정하려면 클릭하세요."
+
+  - name: "🛫 배포 관련 (Deploy)"
+    url: https://github.com/kok-server/issues/new?template=🛫-deploy.yml
+    about: "배포 관련 이슈를 생성하려면 클릭하세요."
+
+  - name: "🧹 기타 작업 (Chore)"
+    url: https://github.com/kok-server/issues/new?template=🧹-chore.yml
+    about: "기타 작업(문서 정리 등)이 필요할 경우 클릭하세요."
+
+  - name: "🚧 설정 관련 (Config)"
+    url: https://github.com/kok-server/issues/new?template=🚧-config.yml
+    about: "설정관련 이슈를 생성하려면 경우 클릭하세요."
