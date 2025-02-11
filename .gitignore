@@ -1,11 +1,23 @@
 # IntelliJ IDEA settings
-.idea/
+/.idea/
+/*.iml
+/.vscode/
 
 # Gradle 관련 파일
 .gradle/
 gradle/
-gradlew
-gradlew.bat
+!gradle/wrapper/
+!gradlew
+!gradlew.bat
 
 # Build artifacts
 /build/
+*/build/
+out/
+
+# 환경 설정 및 OS ###
+*.log
+*.swp
+*.DS_Store
+*.class
+*.jar
