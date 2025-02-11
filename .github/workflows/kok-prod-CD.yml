@@ -1,0 +1,79 @@
+name: kok-prod-CD (Deploy to Prod - Blue-Green Auto)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Create SSH key file
+        run: echo "${{ secrets.NCP_KEY }}" > /tmp/NCP_KEY.pem
+
+      - name: Set permissions for SSH key file
+        run: chmod 600 /tmp/NCP_KEY.pem
+
+      - name: Upload `docker-compose.yml` & `nginx.conf` to NCP
+        run: |
+          scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-prod.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+          scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/nginx/nginx.conf ${{ secrets.NCP_USER }}@${{ secrets.NCP_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}/nginx.conf
+
+      - name: Deploy to NCP (Blue-Green Auto Switch)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.NCP_HOST }}
+          username: ${{ secrets.NCP_USER }}
+          key: ${{ secrets.NCP_KEY }}
+          script: |
+            cd ${{ secrets.COMPOSE_FILE_PATH }}
+
+            # 현재 사용 중인 Blue/Green 환경 감지
+            CURRENT_ENV=$(grep -o 'server kok-[a-z]\+' nginx.conf | awk '{print $2}')
+            echo "현재 사용 중인 환경: $CURRENT_ENV"
+              
+            if [[ "$CURRENT_ENV" == "kok-blue" ]]; then
+              NEW_ENV="kok-green"
+              OLD_ENV="kok-blue"
+              COMPOSE_FILE="docker-compose-green.yml"
+              NEW_PORT=8082
+            else
+              NEW_ENV="kok-blue"
+              OLD_ENV="kok-green"
+              COMPOSE_FILE="docker-compose-blue.yml"
+              NEW_PORT=8081
+            fi
+            
+            echo "새로운 환경으로 배포: $NEW_ENV"
+            
+            # 새로운 환경에 컨테이너 배포
+            sudo docker compose -f $COMPOSE_FILE pull
+            sudo docker compose -f $COMPOSE_FILE up -d
+              
+            # Health Check 실행
+            echo "🚀 Health Check 실행 중..."
+            sleep 30
+            if ! curl -s http://localhost:$NEW_PORT/health_check | grep "Success"; then
+              echo "🚨 Health Check 실패! 롤백을 실행합니다."
+              sudo docker compose stop $NEW_ENV
+              sudo docker compose rm -f $NEW_ENV
+              exit 1
+            fi
+              
+            # ✅ Nginx 설정 파일 자동 수정 (트래픽을 새로운 환경으로 변경)
+            echo "✅ 트래픽을 $NEW_ENV로 변경 중..."
+            sudo sed -i "s/server $OLD_ENV:8080/server $NEW_ENV:8080/" nginx.conf
+            
+            # ✅ 무중단으로 Nginx 설정 반영
+            echo "🔄 Nginx 설정을 무중단으로 적용..."
+            sudo docker exec kok-nginx nginx -s reload
+            
+            # ✅ 기존 환경 중지 및 정리
+            echo "🛑 기존 환경($OLD_ENV) 중지..."
+            sudo docker compose stop $OLD_ENV
+            sudo docker compose rm -f $OLD_ENV
