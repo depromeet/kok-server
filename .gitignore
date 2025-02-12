@@ -1,15 +1,3 @@
-# IntelliJ IDEA settings
-.idea/
-
-# Gradle 관련 파일
-.gradle/
-gradle/
-gradlew
-gradlew.bat
-
-# Build artifacts
-/build/
-
 # Created by https://www.toptal.com/developers/gitignore/api/windows,macos,intellij,eclipse,visualstudiocode,redis,gradle,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,intellij,eclipse,visualstudiocode,redis,gradle,java
 
@@ -330,3 +318,13 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,intellij,eclipse,visualstudiocode,redis,gradle,java
 
+=======
+*/build/
+out/
+
+# 환경 설정 및 OS ###
+*.log
+*.swp
+*.DS_Store
+*.class
+*.jar
