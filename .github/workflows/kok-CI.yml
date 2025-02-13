@@ -37,7 +37,7 @@ jobs:
           ./gradlew clean build -x test
 
       - name: Save Build Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifact
           path: kok-api/build/libs/*.jar
