@@ -40,6 +40,8 @@ jobs:
           else
             echo "IMAGE_TAG=dev" >> $GITHUB_ENV
           fi
+          
+          echo "🏷 IMAGE_TAG: $IMAGE_TAG"
 
       - name: Build with Gradle (멀티모듈)
         run: |
@@ -72,9 +74,9 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          source $GITHUB_ENV  # 환경 변수 강제 로드
+          export $(grep -v '^#' $GITHUB_ENV | xargs)
+          echo "✅ 로드된 IMAGE_TAG 값: $IMAGE_TAG"
           IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/kok-${IMAGE_TAG}"
-          
           echo "🚀 Building Docker Image: $IMAGE_NAME:$GITHUB_SHA"
           
           if [[ -z "$IMAGE_TAG" ]]; then
