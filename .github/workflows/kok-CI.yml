@@ -26,7 +26,9 @@ jobs:
       - name: Determine Image Tag (prod/dev)
         id: determine-tag
         run: |
-          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+          echo "현재 GITHUB_REF_NAME 값: $GITHUB_REF_NAME"
+          
+          if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             echo "IMAGE_TAG=prod" >> $GITHUB_ENV
           else
             echo "IMAGE_TAG=dev" >> $GITHUB_ENV
@@ -65,7 +67,7 @@ jobs:
         run: |
           # 환경 변수 로드
           IMAGE_TAG="${{ env.IMAGE_TAG }}"
-          IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/kok_${IMAGE_TAG}"
+          IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/kok-${IMAGE_TAG}"
       
           echo "🚀 Building Docker Image: $IMAGE_NAME:$GITHUB_SHA"
           
