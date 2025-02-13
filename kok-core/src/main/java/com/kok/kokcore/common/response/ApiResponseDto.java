@@ -1,16 +1,10 @@
 package com.kok.kokcore.common.response;
 
-import com.kok.kokcore.error.ErrorCode;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+
+import com.kok.kokcore.common.error.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-@Getter
-@AllArgsConstructor
-public class ApiResponseDto<T> {
-    private final int code;
-    private final String message;
-    private final T data;
+public record ApiResponseDto<T>(int code, String message, T data) {
 
     public static <T> ApiResponseDto<T> success(T data) {
         return new ApiResponseDto<>(HttpStatus.OK.value(), "Success", data);
