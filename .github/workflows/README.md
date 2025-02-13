@@ -2,25 +2,26 @@
 이 프로젝트는 **GitHub Actions + Docker + Nginx + Blue-Green Deployment**를 사용하여 **자동화된 CI/CD**를 수행합니다.
 
 ### ✅ CI (Continuous Integration)
-- `kock-api`를 빌드하고 Docker 이미지를 생성하여 **Docker Hub에 푸시**합니다.
+| 브랜치                              | 동작                                        |
+|----------------------------------|-------------------------------------------|
+| `feature/*, bugfix/*, hotfix/*`  | **빌드 & Docker Push** (`kok-CI.yml`)       |
 
 ### ✅ CD (Continuous Deployment)
-| 브랜치 | 동작                                            |
-|--------|-----------------------------------------------|
-| `develop` | **개발 서버** 배포 (`kok-dev-CD.yml`)               |
-| `main` | **운영 서버 (Blue-Green 배포)** (`kok-prod-CD.yml`) |
-| `kok-api` | **API 빌드 & Docker Push** (`kok-CI.yml`)       |
+| 브랜치       | 동작                                        |
+|-----------|-------------------------------------------|
+| `develop` | **개발 서버** 배포 (`kok-dev-CD.yml`)           |
+| `main`    | **운영 서버 (Blue-Green 배포)** (`kok-prod-CD.yml`) |
 
 ---
 
 ## 📂 CI/CD 워크플로우 파일 설명
 
-| 파일명                     | 설명                       |
-|-------------------------|--------------------------|
-| `kok-CI.yml`            | `kok-api` 빌드 및 Docker 배포 |
-| `kok-dev-CD.yml`        | 개발 서버 배포                 |
-| `kok-prod-CD.yml`       | 운영 서버 (Blue-Green) 배포    |
-| `blue-green-Nginx.conf` | Nginx 설정 (트래픽 스위칭)       |
+| 파일명                     | 설명                 |
+|-------------------------|--------------------|
+| `kok-CI.yml`            | 빌드 및 Docker 배포     |
+| `kok-dev-CD.yml`        | 개발 서버 배포           |
+| `kok-prod-CD.yml`       | 운영 서버 (Blue-Green) 배포 |
+| `blue-green-Nginx.conf` | Nginx 설정 (트래픽 스위칭) |
 
 ---
 
@@ -39,15 +40,19 @@
 
 ## 🛠️ GitHub Actions 실행 방법
 
-### 1️⃣ **수동 실행 (`workflow_dispatch`)**
+### 1️⃣ **수동 실행 for Prod(`workflow_dispatch`)**
 GitHub Actions에서 `Run Workflow` 버튼을 눌러 배포할 수 있습니다.
 
-### 2️⃣ **자동 실행 (브랜치 Push)**
-| 브랜치       | 실행되는 워크플로우                   |
-|-----------|------------------------------|
-| `*`       | `kok-CI.yml` (빌드 & Docker 배포) |
-| `develop` | `kok-dev-CD.yml` (개발 서버 배포)  |
-| `main`    | `kok-prod-CD.yml` (운영 서버 배포) |
+| 브랜치  | 실행 워크플로우|
+|---------|-----------------------------|
+| `main`  | `kok-prod-CD.yml` (운영 서버 배포) |
+
+### 2️⃣ **자동 실행 for Dev & CI**
+| 브랜치 | 트리거    | 실행되는 워크플로우                   |
+|-----|--------|------------------------------|
+| `feature/*, bugfix/*, hotfix/*`    | `PR`   | `kok-CI.yml` (빌드 & Docker 배포) |
+| `develop` | `Push` | `kok-dev-CD.yml` (개발 서버 배포)  |
+| `main` | `Push`  | `kok-prod-CD.yml` (운영 서버 배포) |
 
 ---
 
@@ -55,7 +60,7 @@ GitHub Actions에서 `Run Workflow` 버튼을 눌러 배포할 수 있습니다.
 운영 배포는 **Blue-Green Deployment** 방식을 사용하여 **무중단 배포**를 수행합니다.
 
 ### **1️⃣ 배포 트리거**
-- `main` 브랜치에 코드가 푸시되면 `kok-prod-CD.yml`이 실행됩니다.
+- `main` 브랜치에 코드를 푸시하고 난 후, 수동으로 (`workflow_dispatch`) 배포를 시작합니다.
 - GitHub Actions가 `docker-compose-prod.yml`을 서버에 업로드하고 배포를 시작합니다.
 
 ### **2️⃣ 현재 실행 중인 서비스 확인**
