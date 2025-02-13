@@ -1,0 +1,35 @@
+name: kok-dev-CD (Deploy to Dev)
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Create SSH key file
+        run: echo "${{ secrets.NCP_KEY }}" > /tmp/NCP_KEY.pem
+
+      - name: Set permissions for SSH key file
+        run: chmod 600 /tmp/NCP_KEY.pem
+
+      - name: Upload `docker-compose.yml` to NCP
+        run: |
+          scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-dev.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+
+      - name: Deploy to Dev Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.NCP_HOST }}
+          username: ${{ secrets.NCP_USER }}
+          key: ${{ secrets.NCP_KEY }}
+          script: |
+            cd ${{ secrets.COMPOSE_FILE_PATH }}
+            sudo docker compose pull
+            sudo docker compose down
+            sudo docker compose -f docker-compose-dev.yml up -d
