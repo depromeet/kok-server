@@ -1,9 +1,6 @@
 name: kok-prod-CD (Deploy to Prod - Blue-Green Auto)
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:

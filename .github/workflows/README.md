@@ -1,16 +1,19 @@
 ## 📌 CI/CD 개요
 이 프로젝트는 **GitHub Actions + Docker + Nginx + Blue-Green Deployment**를 사용하여 **자동화된 CI/CD**를 수행합니다.
 
-### ✅ CI (Continuous Integration)
-| 브랜치                              | 동작                                        |
-|----------------------------------|-------------------------------------------|
-| `feature/*, bugfix/*, hotfix/*`  | **빌드 & Docker Push** (`kok-CI.yml`)       |
+## ✅ CI (Continuous Integration)
+| 브랜치                             | 동작                                        |
+|---------------------------------|-------------------------------------------|
+| `feature/*, bugfix/*, hotfix/*` | **빌드 & Docker Push** (`kok-CI.yml`)       |
+| `develop`                       | **빌드 & Docker Push** (`kok-CI.yml`)       |
 
-### ✅ CD (Continuous Deployment)
+---
+
+## ✅ CD (Continuous Deployment)
 | 브랜치       | 동작                                        |
 |-----------|-------------------------------------------|
 | `develop` | **개발 서버** 배포 (`kok-dev-CD.yml`)           |
-| `main`    | **운영 서버 (Blue-Green 배포)** (`kok-prod-CD.yml`) |
+| `main`    | **운영 서버 (Blue-Green 배포, 수동 실행)** (`kok-prod-CD.yml`) |
 
 ---
 
@@ -48,11 +51,12 @@ GitHub Actions에서 `Run Workflow` 버튼을 눌러 배포할 수 있습니다.
 | `main`  | `kok-prod-CD.yml` (운영 서버 배포) |
 
 ### 2️⃣ **자동 실행 for Dev & CI**
-| 브랜치 | 트리거    | 실행되는 워크플로우                   |
-|-----|--------|------------------------------|
-| `feature/*, bugfix/*, hotfix/*`    | `PR`   | `kok-CI.yml` (빌드 & Docker 배포) |
+| 브랜치       | 트리거    | 실행되는 워크플로우                   |
+|-----------|--------|------------------------------|
+| `feature/*, bugfix/*, hotfix/*` | `PR`   | `kok-CI.yml` (빌드 & Docker 배포) |
+| `develop` | `PR`   | `kok-CI.yml` (빌드 & Docker 배포) |
+| `develop` | `Push` | `kok-CI.yml` (빌드 & Docker 배포) |
 | `develop` | `Push` | `kok-dev-CD.yml` (개발 서버 배포)  |
-| `main` | `Push`  | `kok-prod-CD.yml` (운영 서버 배포) |
 
 ---
 
