@@ -26,9 +26,16 @@ jobs:
       - name: Determine Image Tag (prod/dev)
         id: determine-tag
         run: |
-          echo "현재 GITHUB_REF_NAME 값: $GITHUB_REF_NAME"
-          
-          if [[ "$GITHUB_REF_NAME" == "main" ]]; then
+          # PR인지 일반 Push인지 확인
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            BRANCH_NAME="$GITHUB_BASE_REF"
+          else
+            BRANCH_NAME="$GITHUB_REF_NAME"
+          fi
+      
+          echo "🔍 현재 브랜치: $BRANCH_NAME"
+      
+          if [[ "$BRANCH_NAME" == "main" ]]; then
             echo "IMAGE_TAG=prod" >> $GITHUB_ENV
           else
             echo "IMAGE_TAG=dev" >> $GITHUB_ENV
@@ -65,11 +72,15 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          # 환경 변수 로드
-          IMAGE_TAG="${{ env.IMAGE_TAG }}"
+          source $GITHUB_ENV  # 환경 변수 강제 로드
           IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/kok-${IMAGE_TAG}"
-      
+          
           echo "🚀 Building Docker Image: $IMAGE_NAME:$GITHUB_SHA"
+          
+          if [[ -z "$IMAGE_TAG" ]]; then
+            echo "🚨 ERROR: IMAGE_TAG 값이 비어 있음!"
+            exit 1
+          fi
           
           # Docker Build & Push
           docker build -t $IMAGE_NAME:$GITHUB_SHA -f Dockerfile .
