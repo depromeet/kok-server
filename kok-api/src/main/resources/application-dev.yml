@@ -12,6 +12,9 @@ spring:
         show_sql: true
         format_sql: true
     open-in-view: false
+    defer-datasource-initialization: true
+  flyway:
+    enabled: false
   data:
     redis:
       host: ${REDIS_HOST}
