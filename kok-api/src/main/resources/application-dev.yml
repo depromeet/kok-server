@@ -21,3 +21,11 @@ springdoc:
   default-produces-media-type: application/json;charset=UTF-8
   swagger-ui:
     path: /swagger
+# open-api: http://data.seoul.go.kr/dataList/OA-21232/S/1/datasetView.do
+station:
+  base-url: http://openapi.seoul.go.kr:8088
+  secret-key: ${STATION_SECRET_KEY}
+  service: subwayStationMaster
+  format: json
+  start-idx: 1
+  end-idx: 1000
