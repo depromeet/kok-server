@@ -1,7 +1,7 @@
 package com.kok.kokapi.station.adapter.outbound.external;
 
 import com.kok.kokapi.station.adapter.outbound.external.dto.StationResponses;
-import com.kok.kokcore.station.application.port.outbound.ReadStationsPort;
+import com.kok.kokcore.station.application.port.outbound.LoadStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;
 import java.util.StringJoiner;
@@ -14,7 +14,7 @@ import org.springframework.web.client.RestClient;
 
 @Component
 @EnableConfigurationProperties(StationClientProperties.class)
-public class StationClient implements ReadStationsPort {
+public class StationClient implements LoadStationsPort {
 
     private static final String DELIMITER = "/";
 
@@ -39,7 +39,7 @@ public class StationClient implements ReadStationsPort {
     }
 
     @Override
-    public List<Station> readAllStation() {
+    public List<Station> loadAllStations() {
         StationResponses responses = restClient.get()
             .uri(getTargetUri())
             .retrieve()

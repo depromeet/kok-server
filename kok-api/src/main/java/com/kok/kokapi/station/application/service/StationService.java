@@ -1,6 +1,6 @@
 package com.kok.kokapi.station.application.service;
 
-import com.kok.kokcore.station.application.port.outbound.ReadStationsPort;
+import com.kok.kokcore.station.application.port.outbound.LoadStationsPort;
 import com.kok.kokcore.station.application.port.outbound.SaveStationsPort;
 import com.kok.kokcore.station.application.usecase.SaveStationUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class StationService implements SaveStationUseCase {
 
-    private final ReadStationsPort readStationsPort;
+    private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
 
     @Override
     public void saveStations() {
-        List<Station> stations = readStationsPort.readAllStation();
+        List<Station> stations = loadStationsPort.loadAllStations();
         saveStationsPort.saveStations(stations);
     }
 }
