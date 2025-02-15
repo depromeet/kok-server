@@ -1,7 +1,7 @@
-package com.kok.kokcore.common.response;
+package com.kok.kokapi.common.response;
 
 
-import com.kok.kokcore.common.error.ErrorCode;
+import com.kok.kokapi.common.error.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 public record ApiResponseDto<T>(int code, String message, T data) {

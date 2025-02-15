@@ -1,4 +1,4 @@
-package com.kok.kokcore.common.error;
+package com.kok.kokapi.common.error;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

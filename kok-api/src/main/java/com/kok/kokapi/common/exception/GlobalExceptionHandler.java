@@ -1,7 +1,7 @@
-package com.kok.kokcore.common.exception;
+package com.kok.kokapi.common.exception;
 
-import com.kok.kokcore.common.response.ApiResponseDto;
-import com.kok.kokcore.common.error.ErrorCode;
+import com.kok.kokapi.common.response.ApiResponseDto;
+import com.kok.kokapi.common.error.ErrorCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
