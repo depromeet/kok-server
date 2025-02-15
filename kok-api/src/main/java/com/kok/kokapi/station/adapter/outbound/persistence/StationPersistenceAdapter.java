@@ -13,7 +13,7 @@ public class StationPersistenceAdapter implements SaveStationsPort {
     private final StationRepository stationRepository;
 
     @Override
-    public void saveAll(List<Station> stations) {
+    public void saveStations(List<Station> stations) {
         stationRepository.saveAll(stations);
     }
 }

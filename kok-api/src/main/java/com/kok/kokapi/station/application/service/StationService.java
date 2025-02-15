@@ -18,6 +18,6 @@ public class StationService implements SaveStationUseCase {
     @Override
     public void saveStations() {
         List<Station> stations = readStationsPort.readAllStation();
-        saveStationsPort.saveAll(stations);
+        saveStationsPort.saveStations(stations);
     }
 }

@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface SaveStationsPort {
 
-    void saveAll(List<Station> stations);
+    void saveStations(List<Station> stations);
 }
