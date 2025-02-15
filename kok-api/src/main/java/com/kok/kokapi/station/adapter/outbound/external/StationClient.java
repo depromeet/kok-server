@@ -12,7 +12,6 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-
 @Component
 @EnableConfigurationProperties(StationClientProperties.class)
 public class StationClient implements ReadStationsPort {
@@ -23,8 +22,8 @@ public class StationClient implements ReadStationsPort {
     private final StationClientProperties properties;
 
     public StationClient(StationClientProperties properties) {
-        this.restClient = getRestClient();
         this.properties = properties;
+        this.restClient = getRestClient();
     }
 
     public RestClient getRestClient() {
