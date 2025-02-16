@@ -45,7 +45,7 @@ subprojects {
         implementation 'org.flywaydb:flyway-core'
         implementation 'org.flywaydb:flyway-mysql'
 
-        testImplementation 'junit:junit:4.13.1'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
     }
 }
