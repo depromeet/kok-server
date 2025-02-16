@@ -8,6 +8,7 @@ import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class StationService implements SaveStationUseCase {
     private final ReadStationsPort readStationsPort;
 
     @Override
+    @Transactional
     public void saveStations() {
         if(hasNoStations()) {
             List<Station> stations = loadStationsPort.loadAllStations();
