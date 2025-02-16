@@ -19,11 +19,13 @@ public class StationService implements SaveStationUseCase {
 
     @Override
     public void saveStations() {
-        List<Station> stations = loadStationsPort.loadAllStations();
-        saveStationsPort.saveStations(stations);
+        if(hasNoStations()) {
+            List<Station> stations = loadStationsPort.loadAllStations();
+            saveStationsPort.saveStations(stations);
+        }
     }
 
-    public boolean hasNoStations() {
+    private boolean hasNoStations() {
         return readStationsPort.hasNoStations();
     }
 }
