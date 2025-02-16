@@ -2,7 +2,7 @@ package com.kok.kokapi.station.adapter.outbound.persistence;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.kok.kokapi.config.DataJpaTestConfig;
+import com.kok.kokapi.common.config.DataJpaTestConfig;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
