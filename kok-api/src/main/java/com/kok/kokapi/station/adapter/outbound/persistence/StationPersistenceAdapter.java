@@ -3,19 +3,49 @@ package com.kok.kokapi.station.adapter.outbound.persistence;
 import com.kok.kokcore.station.application.port.outbound.ReadStationsPort;
 import com.kok.kokcore.station.application.port.outbound.SaveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort {
 
+    private static final String INSERT_SQL = """
+            INSERT INTO station (id, name, route, latitude, longitude)
+            VALUES (?, ?, ?, ?, ?)
+        """;
+
     private final StationRepository stationRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void saveStations(List<Station> stations) {
-        stationRepository.saveAll(stations);
+        int[] batches = jdbcTemplate.batchUpdate(INSERT_SQL, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                Station station = stations.get(i);
+                ps.setLong(1, station.getId());
+                ps.setString(2, station.getName());
+                ps.setString(3, station.getRoute());
+                ps.setBigDecimal(4, station.getLatitude());
+                ps.setBigDecimal(5, station.getLongitude());
+            }
+
+            @Override
+            public int getBatchSize() {
+                return stations.size();
+            }
+        });
+        log.info("Successfully saved a total of {} stations out of {}.",
+            Arrays.stream(batches).sum(), stations.size());
     }
 
     @Override
