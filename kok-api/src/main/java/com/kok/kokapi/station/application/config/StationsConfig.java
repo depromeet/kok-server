@@ -17,7 +17,9 @@ public class StationsConfig {
             @Override
             @Transactional
             public void run(String... args) {
-                stationService.saveStations();
+                if(stationService.hasNoStations()) {
+                    stationService.saveStations();
+                }
             }
         };
     }

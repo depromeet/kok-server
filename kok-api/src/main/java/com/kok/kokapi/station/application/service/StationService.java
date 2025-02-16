@@ -1,6 +1,7 @@
 package com.kok.kokapi.station.application.service;
 
 import com.kok.kokcore.station.application.port.outbound.LoadStationsPort;
+import com.kok.kokcore.station.application.port.outbound.ReadStationsPort;
 import com.kok.kokcore.station.application.port.outbound.SaveStationsPort;
 import com.kok.kokcore.station.application.usecase.SaveStationUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
@@ -14,10 +15,15 @@ public class StationService implements SaveStationUseCase {
 
     private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
+    private final ReadStationsPort readStationsPort;
 
     @Override
     public void saveStations() {
         List<Station> stations = loadStationsPort.loadAllStations();
         saveStationsPort.saveStations(stations);
+    }
+
+    public boolean hasNoStations() {
+        return readStationsPort.hasNoStations();
     }
 }
