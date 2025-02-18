@@ -13,9 +13,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RedisConfig {
 
+    // 추후 ConnectionFactory설정 변경을 고려. (Sentinel, Cluster, etc...)
     @Bean
-    public RedisTemplate<UUID, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<UUID, Object> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
         // Key Serializer 설정 (UUID -> String 변환)
