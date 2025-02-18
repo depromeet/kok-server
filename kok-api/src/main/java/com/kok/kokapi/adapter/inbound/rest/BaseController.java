@@ -1,4 +1,4 @@
-package com.kok.kokapi.adapter.in.web;
+package com.kok.kokapi.adapter.inbound.rest;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
