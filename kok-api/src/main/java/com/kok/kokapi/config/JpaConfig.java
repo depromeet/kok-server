@@ -1,4 +1,4 @@
-package com.kok.kokapi.common.config;
+package com.kok.kokapi.config;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Configuration;
