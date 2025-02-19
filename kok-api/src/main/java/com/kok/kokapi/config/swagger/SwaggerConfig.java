@@ -1,4 +1,4 @@
-package com.kok.kokapi.adapter.config.swagger;
+package com.kok.kokapi.config.swagger;
 
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
