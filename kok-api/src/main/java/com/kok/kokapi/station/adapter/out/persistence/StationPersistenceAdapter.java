@@ -1,7 +1,7 @@
-package com.kok.kokapi.station.adapter.outbound.persistence;
+package com.kok.kokapi.station.adapter.out.persistence;
 
-import com.kok.kokcore.station.application.port.outbound.ReadStationsPort;
-import com.kok.kokcore.station.application.port.outbound.SaveStationsPort;
+import com.kok.kokcore.station.application.port.out.ReadStationsPort;
+import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

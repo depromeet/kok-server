@@ -1,7 +1,7 @@
-package com.kok.kokapi.station.adapter.outbound.external;
+package com.kok.kokapi.station.adapter.out.external;
 
-import com.kok.kokapi.station.adapter.outbound.external.dto.StationResponses;
-import com.kok.kokcore.station.application.port.outbound.LoadStationsPort;
+import com.kok.kokapi.station.adapter.out.external.dto.StationResponses;
+import com.kok.kokcore.station.application.port.out.LoadStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;
 import java.util.StringJoiner;

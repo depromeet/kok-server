@@ -1,4 +1,4 @@
-package com.kok.kokapi.station.adapter.outbound.persistence;
+package com.kok.kokapi.station.adapter.out.persistence;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

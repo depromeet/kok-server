@@ -1,4 +1,4 @@
-package com.kok.kokapi.station.adapter.outbound.external;
+package com.kok.kokapi.station.adapter.out.external;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

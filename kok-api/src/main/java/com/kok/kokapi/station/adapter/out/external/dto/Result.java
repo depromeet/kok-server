@@ -1,4 +1,4 @@
-package com.kok.kokapi.station.adapter.outbound.external.dto;
+package com.kok.kokapi.station.adapter.out.external.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

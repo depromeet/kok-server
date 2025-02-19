@@ -1,8 +1,8 @@
 package com.kok.kokapi.station.application.service;
 
-import com.kok.kokcore.station.application.port.outbound.LoadStationsPort;
-import com.kok.kokcore.station.application.port.outbound.ReadStationsPort;
-import com.kok.kokcore.station.application.port.outbound.SaveStationsPort;
+import com.kok.kokcore.station.application.port.out.LoadStationsPort;
+import com.kok.kokcore.station.application.port.out.ReadStationsPort;
+import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.application.usecase.SaveStationUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;

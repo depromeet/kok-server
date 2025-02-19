@@ -1,7 +1,7 @@
 package com.kok.kokapi.common.config;
 
-import com.kok.kokapi.station.adapter.outbound.external.FakeStationClient;
-import com.kok.kokcore.station.application.port.outbound.LoadStationsPort;
+import com.kok.kokapi.station.adapter.out.external.FakeStationClient;
+import com.kok.kokcore.station.application.port.out.LoadStationsPort;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 

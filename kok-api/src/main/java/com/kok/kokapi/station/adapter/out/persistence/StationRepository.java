@@ -1,4 +1,4 @@
-package com.kok.kokapi.station.adapter.outbound.persistence;
+package com.kok.kokapi.station.adapter.out.persistence;
 
 import com.kok.kokcore.station.domain.entity.Station;
 import org.springframework.data.jpa.repository.JpaRepository;

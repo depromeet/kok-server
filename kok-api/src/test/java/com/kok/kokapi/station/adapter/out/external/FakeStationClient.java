@@ -1,6 +1,6 @@
-package com.kok.kokapi.station.adapter.outbound.external;
+package com.kok.kokapi.station.adapter.out.external;
 
-import com.kok.kokcore.station.application.port.outbound.LoadStationsPort;
+import com.kok.kokcore.station.application.port.out.LoadStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.math.BigDecimal;
 import java.util.List;

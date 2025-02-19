@@ -1,4 +1,4 @@
-package com.kok.kokcore.station.application.port.outbound;
+package com.kok.kokcore.station.application.port.out;
 
 public interface ReadStationsPort {
 
