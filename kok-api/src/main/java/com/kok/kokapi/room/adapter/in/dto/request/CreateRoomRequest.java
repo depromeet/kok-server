@@ -1,4 +1,4 @@
-package com.kok.kokapi.room.adapter.in.dto;
+package com.kok.kokapi.room.adapter.in.dto.request;
 
 
 import jakarta.validation.constraints.Min;
