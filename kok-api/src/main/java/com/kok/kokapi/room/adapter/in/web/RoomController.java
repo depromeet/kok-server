@@ -23,10 +23,10 @@ public class RoomController {
     @PostMapping("/create")
     public ResponseEntity<ApiResponseDto<RoomResponse>> createRoom(@Valid @RequestBody CreateRoomRequest request) {
         Room room = createRoomUseCase.createRoom(
-                request.getRoomName(),
-                request.getCapacity(),
-                request.getHostProfile(),
-                request.getPassword()
+                request.roomName(),
+                request.capacity(),
+                request.hostProfile(),
+                request.password()
         );
 
         var response = RoomResponse.from(room);
