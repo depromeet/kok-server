@@ -1,4 +1,4 @@
-package com.kok.kokapi.config;
+package com.kok.kokapi.config.usecase;
 
 import com.kok.kokapi.room.application.service.RoomService;
 import com.kok.kokcore.application.port.outbound.RoomRepository;
