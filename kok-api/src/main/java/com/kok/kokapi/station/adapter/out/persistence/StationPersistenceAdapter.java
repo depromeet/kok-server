@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort {
 
     private static final String INSERT_SQL = """
-            INSERT INTO station (id, name, route, latitude, longitude)
+            INSERT INTO station (station_id, name, route, latitude, longitude)
             VALUES (?, ?, ?, ?, ?)
         """;
 
@@ -32,7 +32,7 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 Station station = stations.get(i);
-                ps.setLong(1, station.getId());
+                ps.setLong(1, station.getStationId());
                 ps.setString(2, station.getName());
                 ps.setString(3, station.getRoute());
                 ps.setBigDecimal(4, station.getLatitude());
