@@ -329,3 +329,6 @@ out/
 *.DS_Store
 *.class
 *.jar
+
+**/application-local.yml
+/infra/docker-compose-local.yml
