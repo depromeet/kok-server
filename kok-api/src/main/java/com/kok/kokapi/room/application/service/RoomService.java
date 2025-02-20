@@ -1,6 +1,6 @@
 package com.kok.kokapi.room.application.service;
 
-import com.kok.kokcore.application.port.outbound.RoomRepository;
+import com.kok.kokcore.application.port.out.RoomRepository;
 import com.kok.kokcore.domain.Room;
 import com.kok.kokcore.usecase.CreateRoomUseCase;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.kok.kokapi.room.adapter.inbound.dto;
+package com.kok.kokapi.room.adapter.in.dto;
 
 
 import lombok.AllArgsConstructor;

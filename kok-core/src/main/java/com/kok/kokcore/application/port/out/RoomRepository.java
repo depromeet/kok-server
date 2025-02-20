@@ -1,4 +1,4 @@
-package com.kok.kokcore.application.port.outbound;
+package com.kok.kokcore.application.port.out;
 
 import com.kok.kokcore.domain.Room;
 

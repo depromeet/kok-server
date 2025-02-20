@@ -1,6 +1,6 @@
-package com.kok.kokapi.room.adapter.outbound.persistence;
+package com.kok.kokapi.room.adapter.out.persistence;
 
-import com.kok.kokcore.application.port.outbound.RoomRepository;
+import com.kok.kokcore.application.port.out.RoomRepository;
 import com.kok.kokcore.domain.Room;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;

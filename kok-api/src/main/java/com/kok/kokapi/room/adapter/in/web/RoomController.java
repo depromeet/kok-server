@@ -1,6 +1,6 @@
-package com.kok.kokapi.room.adapter.inbound.rest;
+package com.kok.kokapi.room.adapter.in.web;
 
-import com.kok.kokapi.room.adapter.inbound.dto.CreateRoomRequest;
+import com.kok.kokapi.room.adapter.in.dto.CreateRoomRequest;
 import com.kok.kokcore.domain.Room;
 import com.kok.kokcore.usecase.CreateRoomUseCase;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.kok.kokapi.adapter.inbound.rest;
+package com.kok.kokapi.adapter.in.web;
 
 import com.kok.kokapi.application.usecase.HealthCheckUseCase;
 import com.kok.kokapi.common.response.ApiResponseDto;
