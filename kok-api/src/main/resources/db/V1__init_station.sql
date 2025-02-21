@@ -6,5 +6,6 @@ CREATE TABLE station
     route      VARCHAR(255)    NOT NULL,
     latitude   DECIMAL(16, 14) NOT NULL,
     longitude  DECIMAL(17, 14) NOT NULL,
+    priority BIGINT NOT NULL,
     PRIMARY KEY (id)
 );

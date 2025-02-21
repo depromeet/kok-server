@@ -38,7 +38,7 @@ class StationServiceTest {
     @Test
     void doesNotSaveStationsIfAlreadyExists() {
         //given
-        stationRepository.save(new Station(1, "서울역", "1호선", BigDecimal.ONE, BigDecimal.ONE));
+        stationRepository.save(new Station(1L, "서울역", "1호선", BigDecimal.ONE, BigDecimal.ONE, 0));
 
         // when
         stationService.saveStations();

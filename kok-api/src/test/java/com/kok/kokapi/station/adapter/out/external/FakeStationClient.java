@@ -10,8 +10,8 @@ public class FakeStationClient implements LoadStationsPort {
     @Override
     public List<Station> loadAllStations() {
         return List.of(
-            new Station(1, "서울역", "1호선", BigDecimal.ONE, BigDecimal.ONE),
-            new Station(2, "합정역", "2호선", BigDecimal.TEN, BigDecimal.TEN)
+            new Station(1L, "서울역", "1호선", BigDecimal.ONE, BigDecimal.ONE, 0),
+            new Station(2L, "합정역", "2호선", BigDecimal.TEN, BigDecimal.TEN, 5)
         );
     }
 }

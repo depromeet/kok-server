@@ -28,6 +28,8 @@ public class Station {
     private BigDecimal latitude;
     @Column(nullable = false, columnDefinition = "DECIMAL(17, 14)")
     private BigDecimal longitude;
+    @Column(nullable = false)
+    private Long priority;
 
     public Station(Long id, Long stationId, String name, String route, BigDecimal latitude,
         BigDecimal longitude) {
@@ -39,11 +41,16 @@ public class Station {
         this.longitude = longitude;
     }
 
-    public Station(Long stationId, String name, String route, String latitude, String longitude) {
+    public Station(Long stationId, String name, String route, BigDecimal latitude, BigDecimal longitude, long priority) {
         this.stationId = stationId;
         this.name = name;
         this.route = route;
-        this.latitude = new BigDecimal(latitude);
-        this.longitude = new BigDecimal(longitude);
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.priority = priority;
+    }
+
+    public Station(Long stationId, String name, String route, String latitude, String longitude) {
+        this(stationId, name, route, new BigDecimal(latitude),new BigDecimal(longitude), 0);
     }
 }
