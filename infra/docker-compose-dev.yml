@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  kok-dev:
+    container_name: kok-dev
+    image: ${DOCKERHUB_USERNAME}/kok_dev:latest
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    ports:
+      - "8080:8080"
+    networks:
+      - kok-network
+
+networks:
+  kok-network:
+    driver: bridge

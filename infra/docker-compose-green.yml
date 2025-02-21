@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  kok-green:
+    container_name: kok-green
+    image: ${DOCKERHUB_USERNAME}/kok_prod:latest
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8082:8080"
+    networks:
+      - kok-network
+
+networks:
+  kok-network:
+    driver: bridge
