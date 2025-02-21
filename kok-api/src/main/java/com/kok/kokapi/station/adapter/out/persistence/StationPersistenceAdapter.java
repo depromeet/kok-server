@@ -28,6 +28,10 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
 
     @Override
     public void saveStations(List<Station> stations) {
+        if (stations.isEmpty()) {
+            log.info("No stations to save.");
+            return;
+        }
         int[] batches = jdbcTemplate.batchUpdate(INSERT_SQL, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
