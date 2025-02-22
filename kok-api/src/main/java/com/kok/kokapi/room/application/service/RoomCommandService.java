@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RoomService implements CreateRoomUseCase {
+public class RoomCommandService implements CreateRoomUseCase {
 
     private final SaveRoomPort saveRoomPort;
 
