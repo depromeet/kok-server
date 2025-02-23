@@ -1,6 +1,6 @@
 package com.kok.kokapi.room.adapter.in.web;
 
-import com.kok.kokapi.adapter.in.web.BaseController;
+import com.kok.kokapi.common.adapter.in.web.BaseController;
 import com.kok.kokapi.common.response.ApiResponseDto;
 import com.kok.kokapi.room.adapter.in.dto.request.CreateRoomRequest;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomResponse;

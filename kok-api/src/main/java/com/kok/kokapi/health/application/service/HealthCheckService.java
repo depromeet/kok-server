@@ -1,4 +1,4 @@
-package com.kok.kokapi.application.service;
+package com.kok.kokapi.health.application.service;
 
 import org.springframework.stereotype.Service;
 
