@@ -2,8 +2,8 @@ package com.kok.kokapi.room.adapter.out.persistence;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kok.kokcore.application.port.out.SaveRoomPort;
-import com.kok.kokcore.domain.Room;
+import com.kok.kokcore.room.application.port.out.SaveRoomPort;
+import com.kok.kokcore.room.domain.Room;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;

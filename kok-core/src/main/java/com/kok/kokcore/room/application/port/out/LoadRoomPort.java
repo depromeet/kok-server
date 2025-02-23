@@ -1,6 +1,6 @@
-package com.kok.kokcore.application.port.out;
+package com.kok.kokcore.room.application.port.out;
 
-import com.kok.kokcore.domain.Room;
+import com.kok.kokcore.room.domain.Room;
 
 import java.util.Optional;
 

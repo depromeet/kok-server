@@ -1,6 +1,6 @@
 package com.kok.kokapi.room.adapter.in.dto.response;
 
-import com.kok.kokcore.domain.Room;
+import com.kok.kokcore.room.domain.Room;
 
 public record RoomResponse(
         String id,

@@ -1,8 +1,8 @@
 package com.kok.kokapi.room.application.service;
 
-import com.kok.kokcore.application.port.out.SaveRoomPort;
-import com.kok.kokcore.domain.Room;
-import com.kok.kokcore.usecase.CreateRoomUseCase;
+import com.kok.kokcore.room.application.port.out.SaveRoomPort;
+import com.kok.kokcore.room.domain.Room;
+import com.kok.kokcore.room.usecase.CreateRoomUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

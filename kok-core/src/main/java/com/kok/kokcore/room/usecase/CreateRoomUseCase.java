@@ -1,6 +1,6 @@
-package com.kok.kokcore.usecase;
+package com.kok.kokcore.room.usecase;
 
-import com.kok.kokcore.domain.Room;
+import com.kok.kokcore.room.domain.Room;
 
 public interface CreateRoomUseCase {
     Room createRoom(String roomName, int capacity, String hostProfile, String password);

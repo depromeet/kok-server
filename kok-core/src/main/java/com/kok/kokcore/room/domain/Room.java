@@ -1,4 +1,4 @@
-package com.kok.kokcore.domain;
+package com.kok.kokcore.room.domain;
 
 import lombok.*;
 
