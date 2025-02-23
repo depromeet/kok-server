@@ -20,9 +20,10 @@ public class RoomController {
     private final GetRoomUseCase getRoomUseCase;
 
     @GetMapping("{roomId}")
-    public ResponseEntity<ApiResponseDto<Room>> getRoomDetail(@PathVariable String roomId) {
+    public ResponseEntity<ApiResponseDto<RoomResponse>> getRoomDetail(@PathVariable String roomId) {
         Room room = getRoomUseCase.getRoomById(roomId);
-        return ResponseEntity.ok(ApiResponseDto.success(room));
+        var response = RoomResponse.from(room);
+        return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
     @PostMapping("/create")
