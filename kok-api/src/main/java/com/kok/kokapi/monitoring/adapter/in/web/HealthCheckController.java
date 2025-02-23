@@ -1,6 +1,6 @@
-package com.kok.kokapi.health.adapter.in.web;
+package com.kok.kokapi.monitoring.adapter.in.web;
 
-import com.kok.kokapi.health.application.service.HealthCheckService;
+import com.kok.kokapi.monitoring.application.service.HealthCheckService;
 import com.kok.kokapi.common.adapter.in.web.BaseController;
 import com.kok.kokapi.common.response.ApiResponseDto;
 import lombok.RequiredArgsConstructor;
