@@ -6,8 +6,6 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "com.kok.kokapi.*")
-@EntityScan(basePackages = "com.kok.kokcore.application.domain.entity")
 public class KokApiApplication {
 
 	public static void main(String[] args) {

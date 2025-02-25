@@ -1,4 +1,4 @@
-package com.kok.kokapi.centroid.adapter.outbound.persistence;
+package com.kok.kokapi.centroid.adapter.out.persistence;
 
 
 import com.kok.kokcore.application.domain.entity.Location;

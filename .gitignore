@@ -120,7 +120,6 @@ cmake-build-*/
 *.iws
 
 # IntelliJ
-out/
 .idea/
 
 # mpeltonen/sbt-idea plugin
@@ -321,7 +320,6 @@ gradle-app.setting
 
 =======
 */build/
-out/
 
 # 환경 설정 및 OS ###
 *.log
@@ -329,6 +327,9 @@ out/
 *.DS_Store
 *.class
 *.jar
+
+## 키 ##
+*.pem
 
 **/application-local.yml
 /infra/docker-compose-local.yml

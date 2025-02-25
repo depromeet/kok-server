@@ -1,4 +1,4 @@
-package com.kok.kokcore.application.port.outbound;
+package com.kok.kokcore.application.port.out;
 
 import com.kok.kokcore.application.domain.entity.Location;
 

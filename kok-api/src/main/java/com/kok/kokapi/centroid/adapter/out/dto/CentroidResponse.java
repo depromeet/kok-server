@@ -1,4 +1,4 @@
-package com.kok.kokapi.centroid.adapter.outbound.dto;
+package com.kok.kokapi.centroid.adapter.out.dto;
 
 import java.math.BigDecimal;
 

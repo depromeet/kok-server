@@ -1,6 +1,6 @@
 package com.kok.kokapi.centroid.application.service;
 
-import com.kok.kokapi.centroid.adapter.outbound.persistence.LocationPersistenceAdapter;
+import com.kok.kokapi.centroid.adapter.out.persistence.LocationPersistenceAdapter;
 import com.kok.kokcore.application.domain.entity.Location;
 import com.kok.kokcore.application.usecase.CreateLocationUsecase;
 import com.kok.kokcore.application.usecase.ReadCentroidUsecase;

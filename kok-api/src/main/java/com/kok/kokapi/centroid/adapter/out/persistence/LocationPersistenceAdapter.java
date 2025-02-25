@@ -1,10 +1,10 @@
-package com.kok.kokapi.centroid.adapter.outbound.persistence;
+package com.kok.kokapi.centroid.adapter.out.persistence;
 
 
 import com.kok.kokcore.application.domain.entity.Location;
-import com.kok.kokcore.application.port.outbound.ReadCentroidPort;
-import com.kok.kokcore.application.port.outbound.ReadLocationPort;
-import com.kok.kokcore.application.port.outbound.SaveLocationPort;
+import com.kok.kokcore.application.port.out.ReadCentroidPort;
+import com.kok.kokcore.application.port.out.ReadLocationPort;
+import com.kok.kokcore.application.port.out.SaveLocationPort;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Repository;

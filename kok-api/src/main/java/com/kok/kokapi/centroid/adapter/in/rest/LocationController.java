@@ -1,8 +1,8 @@
-package com.kok.kokapi.centroid.adapter.inbound.rest;
+package com.kok.kokapi.centroid.adapter.in.rest;
 
-import com.kok.kokapi.centroid.adapter.inbound.dto.LocationRequest;
-import com.kok.kokapi.centroid.adapter.outbound.dto.CentroidResponse;
-import com.kok.kokapi.centroid.adapter.outbound.dto.LocationResponse;
+import com.kok.kokapi.centroid.adapter.in.dto.LocationRequest;
+import com.kok.kokapi.centroid.adapter.out.dto.CentroidResponse;
+import com.kok.kokapi.centroid.adapter.out.dto.LocationResponse;
 import com.kok.kokapi.common.response.ApiResponseDto;
 import com.kok.kokapi.config.geometry.GeometryConfig;
 import com.kok.kokcore.application.domain.entity.Location;
