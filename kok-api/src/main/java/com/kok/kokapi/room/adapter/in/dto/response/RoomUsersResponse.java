@@ -1,6 +1,6 @@
 package com.kok.kokapi.room.adapter.in.dto.response;
 
-public record ParticipantResponse(
+public record RoomUsersResponse(
         String profile,
         String role
 ) {}

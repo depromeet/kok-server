@@ -16,18 +16,18 @@ public class RoomSaveRedisAdapter implements SaveRoomPort {
 
     private static final String ROOM_KEY_PREFIX = "room";
     private static final Duration ROOM_TTL = Duration.ofDays(3);
+
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
     @Override
     public Room save(Room room) {
         String key = buildKey(room.getId());
-
         try {
             String roomJson = objectMapper.writeValueAsString(room);
             redisTemplate.opsForValue().set(key, roomJson, ROOM_TTL);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("failed to save room to Redis");
+            throw new RuntimeException("failed to save room to Redis", e);
         }
         return room;
     }

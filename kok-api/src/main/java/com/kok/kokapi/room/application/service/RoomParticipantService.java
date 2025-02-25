@@ -15,7 +15,7 @@ public class RoomParticipantService implements JoinRoomUseCase {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Override
-    public void addParticipant(String roomId, String profile) {
+    public void joinRoom(String roomId, String profile) {
         String key = PARTICIPANT_KEY_PREFIX + roomId;
         redisTemplate.opsForList().rightPush(key, profile);
     }

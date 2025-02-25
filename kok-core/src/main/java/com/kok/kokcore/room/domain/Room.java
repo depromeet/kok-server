@@ -20,7 +20,7 @@ public class Room implements Serializable {
     private final String password;         // 방 비밀번호 (옵션)
     private final String roomLinkUrl;      // 생성된 약속방 입장 링크
 
-    public Room(String id, String roomName, int capacity, String hostProfile,
+    private Room(String id, String roomName, int capacity, String hostProfile,
                 String password, String roomLinkUrl) {
         this.id = id;
         this.roomName = roomName;
@@ -31,6 +31,15 @@ public class Room implements Serializable {
     }
 
     public static Room create(String roomName, int capacity, String hostProfile, String password) {
+        validateParameter(roomName, capacity, hostProfile);
+
+        String roomId = UUID.randomUUID().toString();
+        String roomLinkUrl = ROOM_LINK_URL + roomId;
+
+        return new Room(roomId, roomName, capacity, hostProfile, password, roomLinkUrl);
+    }
+
+    private static void validateParameter(String roomName, int capacity, String hostProfile) {
         if (roomName == null || roomName.trim().isEmpty()) {
             throw new IllegalArgumentException("Room name is required");
         }
@@ -40,10 +49,5 @@ public class Room implements Serializable {
         if (hostProfile == null || hostProfile.trim().isEmpty()) {
             throw new IllegalArgumentException("Host profile is required");
         }
-
-        String roomId = UUID.randomUUID().toString();
-        String roomLinkUrl = ROOM_LINK_URL + roomId;
-
-        return new Room(roomId, roomName, capacity, hostProfile, password, roomLinkUrl);
     }
 }

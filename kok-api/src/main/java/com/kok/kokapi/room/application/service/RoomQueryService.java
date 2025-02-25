@@ -13,7 +13,7 @@ public class RoomQueryService implements GetRoomUseCase {
     private final LoadRoomPort loadRoomPort;
 
     @Override
-    public Room getRoomById(String roomId) {
+    public Room findRoomById(String roomId) {
         return loadRoomPort.findRoomById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room not found with id: " + roomId));
     }

@@ -21,12 +21,11 @@ public class RoomQueryRedisAdapter implements LoadRoomPort {
     @Override
     public Optional<Room> findRoomById(String roomId) {
         String key = buildKey(roomId);
-        String roomJson = redisTemplate.opsForValue().get(key);
+        return Optional.ofNullable(redisTemplate.opsForValue().get(key))
+                .flatMap(this::deserializeRoom);
+    }
 
-        if (roomJson == null) {
-            return Optional.empty();
-        }
-
+    private Optional<Room> deserializeRoom(String roomJson) {
         try {
             Room room = objectMapper.readValue(roomJson, Room.class);
             return Optional.of(room);
