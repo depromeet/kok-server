@@ -1,6 +1,7 @@
-package com.kok.kokapi.adapter.in.web;
+package com.kok.kokapi.monitoring.adapter.in.web;
 
-import com.kok.kokapi.application.service.HealthCheckService;
+import com.kok.kokapi.monitoring.application.service.HealthCheckService;
+import com.kok.kokapi.common.adapter.in.web.BaseController;
 import com.kok.kokapi.common.response.ApiResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
