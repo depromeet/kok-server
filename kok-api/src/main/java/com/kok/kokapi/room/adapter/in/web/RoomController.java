@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ public class RoomController extends BaseController {
     }
 
     @Operation(summary = "약속방 생성", description = "Create a new room with the provided details.")
-    @PostMapping("/rooms/create")
+    @PostMapping("/rooms")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> createRoom(@Valid @RequestBody CreateRoomRequest request) {
         Room room = createRoomUseCase.createRoom(
                 request.roomName(),
@@ -62,7 +61,7 @@ public class RoomController extends BaseController {
                 .map(profile -> new RoomUsersResponse(
                         profile,
                         profile.equals(room.getHostProfile()) ? "Leader" : "Participant"
-                )).collect(Collectors.toList());
+                )).toList();
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
