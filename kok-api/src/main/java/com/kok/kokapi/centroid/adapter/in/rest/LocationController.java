@@ -1,5 +1,6 @@
 package com.kok.kokapi.centroid.adapter.in.rest;
 
+import com.kok.kokapi.adapter.in.web.BaseController;
 import com.kok.kokapi.centroid.adapter.in.dto.LocationRequest;
 import com.kok.kokapi.centroid.adapter.out.dto.CentroidResponse;
 import com.kok.kokapi.centroid.adapter.out.dto.LocationResponse;
@@ -9,6 +10,7 @@ import com.kok.kokcore.application.domain.entity.Location;
 import com.kok.kokcore.application.usecase.CreateLocationUsecase;
 import com.kok.kokcore.application.usecase.ReadCentroidUsecase;
 import com.kok.kokcore.application.usecase.ReadLocationUsecase;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/location")
-public class LocationController {
+public class LocationController extends BaseController {
 
     private final CreateLocationUsecase createLocationUsecase;
     private final ReadCentroidUsecase readCentroidUsecase;
@@ -28,7 +30,7 @@ public class LocationController {
     private final GeometryConfig.PointConverter pointConverter;
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponseDto<CentroidResponse>> createLocation(@RequestBody LocationRequest locationRequest) {
+    public ResponseEntity<ApiResponseDto<CentroidResponse>> createLocation(@Valid @RequestBody LocationRequest locationRequest) {
         Location location = createLocationUsecase.createLocation(
                 locationRequest.uuid(),
                 locationRequest.memberId(),
@@ -99,7 +101,7 @@ public class LocationController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<ApiResponseDto<LocationResponse>> updateLocation(@RequestBody LocationRequest locationRequest) {
+    public ResponseEntity<ApiResponseDto<LocationResponse>> updateLocation(@Valid @RequestBody LocationRequest locationRequest) {
         Location location = createLocationUsecase.UpdateLocation(
                 locationRequest.uuid(),
                 locationRequest.memberId(),
