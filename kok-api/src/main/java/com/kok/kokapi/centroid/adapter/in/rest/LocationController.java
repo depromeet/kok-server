@@ -38,7 +38,6 @@ public class LocationController extends BaseController {
                 locationRequest.longitude()
         );
 
-        // 🔥 변환 로직을 서비스에서 수행하도록 변경
         Pair<BigDecimal, BigDecimal> centroid = readCentroidUsecase.readCentroidCoordinates(locationRequest.uuid());
 
         return ResponseEntity.ok(ApiResponseDto.success(
@@ -77,11 +76,9 @@ public class LocationController extends BaseController {
                 locationRequest.latitude(),
                 locationRequest.longitude()
         );
-        Pair<BigDecimal, BigDecimal> locationPair = readCentroidUsecase.readCentroidCoordinates(locationRequest.uuid());
+        LocationResponse response = locationMapper.toResponse(location);
 
-        return ResponseEntity.ok(ApiResponseDto.success(
-                LocationResponse.of(locationRequest.uuid(), locationRequest.memberId(), locationPair.getFirst(), locationPair.getSecond())
-        ));
+        return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 }
 
