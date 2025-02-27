@@ -4,8 +4,8 @@ import com.kok.kokapi.adapter.in.web.BaseController;
 import com.kok.kokapi.centroid.adapter.in.dto.LocationRequest;
 import com.kok.kokapi.centroid.adapter.out.dto.CentroidResponse;
 import com.kok.kokapi.centroid.adapter.out.dto.LocationResponse;
+import com.kok.kokapi.centroid.adapter.out.mapper.LocationMapper;
 import com.kok.kokapi.common.response.ApiResponseDto;
-import com.kok.kokapi.config.geometry.GeometryConfig;
 import com.kok.kokcore.application.domain.entity.Location;
 import com.kok.kokcore.application.usecase.CreateLocationUsecase;
 import com.kok.kokcore.application.usecase.ReadCentroidUsecase;
@@ -27,23 +27,19 @@ public class LocationController extends BaseController {
     private final CreateLocationUsecase createLocationUsecase;
     private final ReadCentroidUsecase readCentroidUsecase;
     private final ReadLocationUsecase readLocationUsecase;
-    private final GeometryConfig.PointConverter pointConverter;
+    private final LocationMapper locationMapper;
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponseDto<CentroidResponse>> createLocation(@Valid @RequestBody LocationRequest locationRequest) {
-        Location location = createLocationUsecase.createLocation(
+        createLocationUsecase.createLocation(
                 locationRequest.uuid(),
                 locationRequest.memberId(),
-                pointConverter.fromCoordinates(
-                        locationRequest.latitude(),
-                        locationRequest.longitude()
-                )
+                locationRequest.latitude(),
+                locationRequest.longitude()
         );
-        if (location == null) {
-            throw new IllegalArgumentException("위치 생성에 실패했습니다.");
-        }
 
-        Pair<BigDecimal, BigDecimal> centroid = pointConverter.toCoordinates(readCentroidUsecase.readCentroid(locationRequest.uuid()));
+        // 🔥 변환 로직을 서비스에서 수행하도록 변경
+        Pair<BigDecimal, BigDecimal> centroid = readCentroidUsecase.readCentroidCoordinates(locationRequest.uuid());
 
         return ResponseEntity.ok(ApiResponseDto.success(
                 CentroidResponse.of(locationRequest.uuid(), centroid.getFirst(), centroid.getSecond())
@@ -52,11 +48,7 @@ public class LocationController extends BaseController {
 
     @GetMapping("/centroid/{uuid}")
     public ResponseEntity<ApiResponseDto<CentroidResponse>> getCentroid(@PathVariable String uuid) {
-        Pair<BigDecimal, BigDecimal> centroid = pointConverter.toCoordinates(readCentroidUsecase.readCentroid(uuid));
-
-        if (centroid == null) {
-            throw new IllegalArgumentException("해당 UUID에 대한 중심점을 찾을 수 없습니다.");
-        }
+        Pair<BigDecimal, BigDecimal> centroid = readCentroidUsecase.readCentroidCoordinates(uuid);
 
         return ResponseEntity.ok(ApiResponseDto.success(
                 CentroidResponse.of(uuid, centroid.getFirst(), centroid.getSecond())
@@ -66,54 +58,30 @@ public class LocationController extends BaseController {
     @GetMapping("/{uuid}/{memberId}")
     public ResponseEntity<ApiResponseDto<LocationResponse>> getLocation(@PathVariable String uuid, @PathVariable Integer memberId) {
         Location location = readLocationUsecase.readLocation(uuid, memberId);
-        if (location == null) {
-            throw new IllegalArgumentException("해당 멤버의 위치를 찾을 수 없습니다.");
-        }
 
-        Pair<BigDecimal, BigDecimal> locationPair = pointConverter.toCoordinates(location.getPoint());
-
-        return ResponseEntity.ok(ApiResponseDto.success(
-                LocationResponse.of(uuid, memberId, locationPair.getFirst(), locationPair.getSecond())
-        ));
+        return ResponseEntity.ok(ApiResponseDto.success(locationMapper.toResponse(location)));
     }
 
     @GetMapping("/{uuid}")
     public ResponseEntity<ApiResponseDto<List<LocationResponse>>> getLocations(@PathVariable String uuid) {
-        List<Location> locations = readLocationUsecase.readLocations(uuid);
-
-        if (locations.isEmpty()) {
-            throw new IllegalArgumentException("해당 UUID에 대한 위치들을 찾을 수 없습니다.");
-        }
-
-        List<LocationResponse> responses = locations.stream()
-                .map(location -> {
-                    Pair<BigDecimal, BigDecimal> coordinates = pointConverter.toCoordinates(location.getPoint());
-                    return LocationResponse.of(
-                            uuid,
-                            location.getMemberId(),
-                            coordinates.getFirst(),
-                            coordinates.getSecond()
-                    );
-                })
-                .toList();
+        List<LocationResponse> responses = locationMapper.toResponseList(readLocationUsecase.readLocations(uuid));
 
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 
     @PutMapping("/update")
     public ResponseEntity<ApiResponseDto<LocationResponse>> updateLocation(@Valid @RequestBody LocationRequest locationRequest) {
-        Location location = createLocationUsecase.UpdateLocation(
+        Location location = createLocationUsecase.updateLocation(
                 locationRequest.uuid(),
                 locationRequest.memberId(),
-                pointConverter.fromCoordinates(
-                        locationRequest.latitude(),
-                        locationRequest.longitude()
-                )
+                locationRequest.latitude(),
+                locationRequest.longitude()
         );
-        Pair<BigDecimal, BigDecimal> locationPair = pointConverter.toCoordinates(location.getPoint());
+        Pair<BigDecimal, BigDecimal> locationPair = readCentroidUsecase.readCentroidCoordinates(locationRequest.uuid());
 
         return ResponseEntity.ok(ApiResponseDto.success(
                 LocationResponse.of(locationRequest.uuid(), locationRequest.memberId(), locationPair.getFirst(), locationPair.getSecond())
         ));
     }
 }
+
