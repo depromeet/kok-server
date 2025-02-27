@@ -13,6 +13,7 @@ import com.kok.kokcore.room.usecase.JoinRoomUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,14 +46,15 @@ public class RoomController extends BaseController {
         );
 
         var response = RoomDetailResponse.from(room);
-        return ResponseEntity.ok(ApiResponseDto.success(response));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponseDto.success(response));
     }
 
     @Operation(summary = "약속방 참여자 프로필 목록 조회", description = "Retrieve the list of participant profiles for the room.")
     @GetMapping("/rooms/{roomId}/participants")
     public ResponseEntity<ApiResponseDto<List<RoomUsersResponse>>> getParticipants(@PathVariable String roomId) {
         Room room = getRoomUseCase.findRoomById(roomId);
-        List<String> profiles = joinRoomUseCase.getParticipants(roomId);
+        List<String> profiles = getRoomUseCase.getParticipants(roomId);
         if (!profiles.contains(room.getHostProfile())) {
             profiles.addFirst(room.getHostProfile());
         }

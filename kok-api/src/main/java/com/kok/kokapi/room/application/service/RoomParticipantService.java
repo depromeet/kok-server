@@ -19,10 +19,4 @@ public class RoomParticipantService implements JoinRoomUseCase {
         String key = PARTICIPANT_KEY_PREFIX + roomId;
         redisTemplate.opsForList().rightPush(key, profile);
     }
-
-    @Override
-    public List<String> getParticipants(String roomId) {
-        String key = PARTICIPANT_KEY_PREFIX + roomId;
-        return redisTemplate.opsForList().range(key, 0, -1);
-    }
 }
