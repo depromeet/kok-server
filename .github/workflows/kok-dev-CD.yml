@@ -17,6 +17,7 @@ jobs:
         id: latest_tag
         run: |
           LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/kok-dev/tags" | jq -r '.results[0].name')
+          cd ${{ secrets.COMPOSE_FILE_PATH }}
           sed -i '/^KOK_DEV_TAG=/d' .env
           echo "KOK_DEV_TAG = ${{ env.LATEST_TAG }}" >> .env
 
