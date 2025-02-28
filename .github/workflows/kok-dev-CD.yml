@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - deploy/dev_cd # 배포 테스트 브랜치
 
 jobs:
   deploy:
@@ -16,7 +17,7 @@ jobs:
         run: echo "${{ secrets.NCP_KEY }}" > /tmp/NCP_KEY.pem
 
       - name: Set permissions for SSH key file
-        run: chmod 600 /tmp/NCP_KEY.pem
+        run: chmod 400 /tmp/NCP_KEY.pem
 
       - name: Upload `docker-compose.yml` to NCP
         run: |
@@ -27,7 +28,6 @@ jobs:
         with:
           host: ${{ secrets.NCP_HOST }}
           username: ${{ secrets.NCP_USER }}
-          password: ${{ secrets.NCP_PASSWORD }}
           key: ${{ secrets.NCP_KEY }}
           script: |
             cd ${{ secrets.COMPOSE_FILE_PATH }}
