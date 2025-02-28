@@ -1,15 +1,15 @@
 package com.kok.kokapi.centroid.adapter.in.rest;
 
-import com.kok.kokapi.adapter.in.web.BaseController;
+import com.kok.kokapi.common.adapter.in.web.BaseController;
 import com.kok.kokapi.centroid.adapter.in.dto.LocationRequest;
 import com.kok.kokapi.centroid.adapter.out.dto.CentroidResponse;
 import com.kok.kokapi.centroid.adapter.out.dto.LocationResponse;
 import com.kok.kokapi.centroid.adapter.out.mapper.LocationMapper;
 import com.kok.kokapi.common.response.ApiResponseDto;
-import com.kok.kokcore.application.domain.entity.Location;
-import com.kok.kokcore.application.usecase.CreateLocationUsecase;
-import com.kok.kokcore.application.usecase.ReadCentroidUsecase;
-import com.kok.kokcore.application.usecase.ReadLocationUsecase;
+import com.kok.kokcore.location.domain.Location;
+import com.kok.kokcore.location.usecase.CreateLocationUsecase;
+import com.kok.kokcore.location.usecase.ReadCentroidUsecase;
+import com.kok.kokcore.location.usecase.ReadLocationUsecase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;

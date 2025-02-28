@@ -1,10 +1,10 @@
 package com.kok.kokapi.centroid.application.service;
 
 import com.kok.kokapi.config.geometry.PointConverter;
-import com.kok.kokcore.application.domain.entity.Location;
-import com.kok.kokcore.application.port.out.ReadLocationPort;
-import com.kok.kokcore.application.port.out.SaveLocationPort;
-import com.kok.kokcore.application.usecase.CreateLocationUsecase;
+import com.kok.kokcore.location.domain.Location;
+import com.kok.kokcore.location.application.port.out.ReadLocationPort;
+import com.kok.kokcore.location.application.port.out.SaveLocationPort;
+import com.kok.kokcore.location.usecase.CreateLocationUsecase;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;

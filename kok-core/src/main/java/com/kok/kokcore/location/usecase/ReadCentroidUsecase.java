@@ -1,4 +1,4 @@
-package com.kok.kokcore.application.usecase;
+package com.kok.kokcore.location.usecase;
 
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.util.Pair;

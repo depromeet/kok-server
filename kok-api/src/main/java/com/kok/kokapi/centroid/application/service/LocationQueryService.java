@@ -1,8 +1,8 @@
 package com.kok.kokapi.centroid.application.service;
 
-import com.kok.kokcore.application.domain.entity.Location;
-import com.kok.kokcore.application.port.out.ReadLocationPort;
-import com.kok.kokcore.application.usecase.ReadLocationUsecase;
+import com.kok.kokcore.location.domain.Location;
+import com.kok.kokcore.location.application.port.out.ReadLocationPort;
+import com.kok.kokcore.location.usecase.ReadLocationUsecase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,6 @@
-package com.kok.kokcore.application.port.out;
+package com.kok.kokcore.location.application.port.out;
 
-import com.kok.kokcore.application.domain.entity.Location;
+import com.kok.kokcore.location.domain.Location;
 
 import java.util.List;
 import java.util.Optional;
