@@ -15,6 +15,9 @@ public record CreateRoomRequest(
 
         String hostProfile,
 
+        @NotBlank(message = "방장 이름(닉네임)은 필수 입력값입니다.")
+        String hostNickname,
+
         @NotBlank(message = "비밀번호는 필수 입력값입니다.")
         String password
 ) {}

@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 
 public record JoinRoomParticipantRequest(
         @NotBlank(message = "프로필 정보는 필수입니다.")
-        String profile
+        String profile,
+
+        @NotBlank(message = "닉네임 정보는 필수입니다.")
+        String nickname
 ) {}
 

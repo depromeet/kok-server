@@ -1,10 +1,7 @@
 package com.kok.kokcore.room.usecase;
 
+import com.kok.kokcore.room.domain.Member;
+
 public interface JoinRoomUseCase {
-    /**
-     * 참여자가 약속방에 참여한다.
-     * @param roomId
-     * @param profile
-     */
-    void joinRoom(String roomId, String profile);
+    void joinRoom(String roomId, Member member);
 }

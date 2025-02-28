@@ -16,38 +16,35 @@ public class Room implements Serializable {
     private final String id;               // 약속방 ID (UUID)
     private final String roomName;         // 약속방 이름
     private final int capacity;            // 참여인원 수 (최소 2명 이상)
-    private final String hostProfile;      // 방장 프로필 정보
     private final String password;         // 방 비밀번호 (옵션)
+    private final Member member;             // 방 참여자
     private final String roomLinkUrl;      // 생성된 약속방 입장 링크
 
-    private Room(String id, String roomName, int capacity, String hostProfile,
+    private Room(String id, String roomName, int capacity, Member member,
                 String password, String roomLinkUrl) {
         this.id = id;
         this.roomName = roomName;
         this.capacity = capacity;
-        this.hostProfile = hostProfile;
+        this.member = member;
         this.password = password;
         this.roomLinkUrl = roomLinkUrl;
     }
 
-    public static Room create(String roomName, int capacity, String hostProfile, String password) {
-        validateParameter(roomName, capacity, hostProfile);
+    public static Room create(String roomName, int capacity, Member host, String password) {
+        validateParameter(roomName, capacity, host);
 
         String roomId = UUID.randomUUID().toString();
         String roomLinkUrl = ROOM_LINK_URL + roomId;
 
-        return new Room(roomId, roomName, capacity, hostProfile, password, roomLinkUrl);
+        return new Room(roomId, roomName, capacity, host, password, roomLinkUrl);
     }
 
-    private static void validateParameter(String roomName, int capacity, String hostProfile) {
+    private static void validateParameter(String roomName, int capacity, Member host) {
         if (roomName == null || roomName.trim().isEmpty()) {
             throw new IllegalArgumentException("Room name is required");
         }
         if (capacity < REQUIRED_CAPACITY) {
             throw new IllegalArgumentException("At least 2 participants are required");
-        }
-        if (hostProfile == null || hostProfile.trim().isEmpty()) {
-            throw new IllegalArgumentException("Host profile is required");
         }
     }
 }

@@ -14,18 +14,23 @@ class RoomTest {
         String roomName = "Test Room";
         int capacity = 4;
         String hostProfile = "hostProfile";
+        String hostNickname = "test";
         String password = "secret";
+        Member host = new Member(hostNickname, hostProfile, "Leader");
 
         // When
-        Room room = Room.create(roomName, capacity, hostProfile, password);
+        Room room = Room.create(roomName, capacity, host, password);
 
         // Then
-        assertNotNull(room);
-        assertNotNull(room.getId());
-        assertEquals(roomName, room.getRoomName());
-        assertEquals(capacity, room.getCapacity());
-        assertEquals(hostProfile, room.getHostProfile());
-        assertEquals(password, room.getPassword());
+        assertAll("약속방 생성",
+                () -> assertNotNull(room.getId(), "ID는 null이 아니어야 합니다."),
+                () -> assertEquals(roomName, room.getRoomName(), "방 이름이 일치해야 합니다."),
+                () -> assertEquals(capacity, room.getCapacity(), "참여 인원 수가 일치해야 합니다."),
+                () -> assertEquals(hostNickname, room.getMember().getNickname(), "방장 닉네임이 일치해야 합니다."),
+                () -> assertEquals(hostProfile, room.getMember().getProfile(), "방장 프로필이 일치해야 합니다."),
+                () -> assertEquals("Leader", room.getMember().getRole(), "방장 역할은 Leader여야 합니다."),
+                () -> assertEquals(password, room.getPassword(), "비밀번호가 일치해야 합니다.")
+        );
     }
 
     @DisplayName("약속방 생성 실패 - 약속방 이름이 없는 경우 약속방이 생성되지 않는다.")
@@ -34,12 +39,14 @@ class RoomTest {
         // Given
         String roomName = " ";
         int capacity = 4;
+        String hostNickname = "hostNickname";
         String hostProfile = "hostProfile";
         String password = "secret";
+        Member host = new Member(hostNickname, hostProfile, "Leader");
 
         // When & Then
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> Room.create(roomName, capacity, hostProfile, password));
+                assertThrows(IllegalArgumentException.class, () -> Room.create(roomName, capacity, host, password));
         assertTrue(exception.getMessage().contains("Room name is required"));
     }
 
@@ -49,27 +56,14 @@ class RoomTest {
         // Given
         String roomName = "Test Room";
         int capacity = 1;
+        String hostNickname = "hostNickname";
         String hostProfile = "hostProfile";
         String password = "secret";
+        Member host = new Member(hostNickname, hostProfile, "Leader");
 
         // When & Then
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> Room.create(roomName, capacity, hostProfile, password));
+                assertThrows(IllegalArgumentException.class, () -> Room.create(roomName, capacity, host, password));
         assertTrue(exception.getMessage().contains("At least 2 participants are required"));
-    }
-
-    @DisplayName("약속방 생성 실패 - 방장 프로필 입력되지 않음")
-    @Test
-    void createRoomWIthEmptyHostProfile() {
-        // Given
-        String roomName = "Test Room";
-        int capacity = 4;
-        String hostProfile = " ";
-        String password = "secret";
-
-        // When & Then
-        IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> Room.create(roomName, capacity, hostProfile, password));
-        assertTrue((exception.getMessage().contains("Host profile is required")));
     }
 }

@@ -6,7 +6,7 @@ public record RoomDetailResponse(
         String id,
         String roomName,
         int capacity,
-        String hostProfile,
+        MemberResponse member,
         String roomLinkUrl
 ) {
     public static RoomDetailResponse from(Room room) {
@@ -14,7 +14,7 @@ public record RoomDetailResponse(
                 room.getId(),
                 room.getRoomName(),
                 room.getCapacity(),
-                room.getHostProfile(),
+                MemberResponse.from(room.getMember()),
                 room.getRoomLinkUrl()
         );
     }

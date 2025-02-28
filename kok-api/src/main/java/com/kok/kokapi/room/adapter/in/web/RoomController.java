@@ -4,8 +4,9 @@ import com.kok.kokapi.common.adapter.in.web.BaseController;
 import com.kok.kokapi.common.response.ApiResponseDto;
 import com.kok.kokapi.room.adapter.in.dto.request.CreateRoomRequest;
 import com.kok.kokapi.room.adapter.in.dto.request.JoinRoomParticipantRequest;
-import com.kok.kokapi.room.adapter.in.dto.response.RoomUsersResponse;
+import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomDetailResponse;
+import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.CreateRoomUseCase;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
@@ -38,10 +39,11 @@ public class RoomController extends BaseController {
     @Operation(summary = "약속방 생성", description = "Create a new room with the provided details.")
     @PostMapping("/rooms")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> createRoom(@Valid @RequestBody CreateRoomRequest request) {
+        Member host = new Member(request.hostNickname(), request.hostProfile(), "Leader");
         Room room = createRoomUseCase.createRoom(
                 request.roomName(),
                 request.capacity(),
-                request.hostProfile(),
+                host,
                 request.password()
         );
 
@@ -52,17 +54,15 @@ public class RoomController extends BaseController {
 
     @Operation(summary = "약속방 참여자 프로필 목록 조회", description = "Retrieve the list of participant profiles for the room.")
     @GetMapping("/rooms/{roomId}/participants")
-    public ResponseEntity<ApiResponseDto<List<RoomUsersResponse>>> getParticipants(@PathVariable String roomId) {
+    public ResponseEntity<ApiResponseDto<List<RoomMembersResponse>>> getParticipants(@PathVariable String roomId) {
         Room room = getRoomUseCase.findRoomById(roomId);
-        List<String> profiles = getRoomUseCase.getParticipants(roomId);
-        if (!profiles.contains(room.getHostProfile())) {
-            profiles.addFirst(room.getHostProfile());
-        }
+        List<Member> participants = getRoomUseCase.getParticipants(room.getId());
 
-        var response = profiles.stream()
-                .map(profile -> new RoomUsersResponse(
-                        profile,
-                        profile.equals(room.getHostProfile()) ? "Leader" : "Participant"
+        var response = participants.stream()
+                .map(member -> new RoomMembersResponse(
+                        member.getProfile(),
+                        member.getNickname(),
+                        member.getRole()
                 )).toList();
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
@@ -72,7 +72,8 @@ public class RoomController extends BaseController {
     public ResponseEntity<ApiResponseDto<String>> joinRoom(@PathVariable String roomId,
                                                            @Valid @RequestBody JoinRoomParticipantRequest request) {
         getRoomUseCase.findRoomById(roomId);
-        joinRoomUseCase.joinRoom(roomId, request.profile());
+        Member participant = new Member(request.nickname(), request.profile(), "Follower");
+        joinRoomUseCase.joinRoom(roomId, participant);
         return ResponseEntity.ok(ApiResponseDto.success("약속방 참여가 완료되었습니다."));
     }
 }
