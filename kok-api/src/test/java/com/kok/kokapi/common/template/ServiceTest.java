@@ -16,4 +16,3 @@ import org.springframework.test.context.TestPropertySource;
 public abstract class ServiceTest extends ContainerBaseTest{
 
 }
-

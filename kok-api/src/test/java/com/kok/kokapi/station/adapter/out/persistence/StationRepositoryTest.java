@@ -2,18 +2,14 @@ package com.kok.kokapi.station.adapter.out.persistence;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.kok.kokapi.config.DataJpaTestConfig;
+import com.kok.kokapi.common.template.RepositoryTest;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 
-@DataJpaTest
-@Import({DataJpaTestConfig.class})
-class StationRepositoryTest {
+class StationRepositoryTest extends RepositoryTest {
 
     @Autowired
     private StationRepository stationRepository;
