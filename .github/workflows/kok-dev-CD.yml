@@ -17,9 +17,7 @@ jobs:
         id: latest_tag
         run: |
           LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/kok-dev/tags" | jq -r '.results[0].name')
-          cd ${{ secrets.COMPOSE_FILE_PATH }}
-          sed -i '/^KOK_DEV_TAG=/d' .env
-          echo "KOK_DEV_TAG = ${{ env.LATEST_TAG }}" >> .env
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
 
 
       - name: Create SSH key file
@@ -41,7 +39,8 @@ jobs:
           script: |
             cd ${{ secrets.COMPOSE_FILE_PATH }}
             
-            echo "KOK_DEV_TAG=${{ env.LATEST_TAG }}" > .env
+            sed -i '/^KOK_DEV_TAG=/d' .env
+            echo "KOK_DEV_TAG=${{ env.LATEST_TAG }}" >> .env
             sudo docker compose pull
             sudo docker compose down
             sudo docker compose -f docker-compose-dev.yml up -d
