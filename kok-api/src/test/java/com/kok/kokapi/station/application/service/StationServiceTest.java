@@ -2,22 +2,15 @@ package com.kok.kokapi.station.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.kok.kokapi.config.ServiceTestConfig;
-import com.kok.kokapi.common.util.DatabaseCleanerExtension;
+import com.kok.kokapi.common.template.ServiceTest;
 import com.kok.kokapi.station.adapter.out.persistence.StationRepository;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 
-@ExtendWith(DatabaseCleanerExtension.class)
-@Import({ServiceTestConfig.class})
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-class StationServiceTest {
+class StationServiceTest extends ServiceTest {
 
     @Autowired
     private StationRepository stationRepository;
