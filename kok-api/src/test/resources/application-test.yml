@@ -11,6 +11,8 @@ spring:
         format_sql: true
     defer-datasource-initialization: false
     open-in-view: false
+    hibernate:
+      ddl-auto: create
   flyway:
     enabled: true
 
