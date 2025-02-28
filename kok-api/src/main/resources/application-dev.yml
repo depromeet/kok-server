@@ -11,7 +11,7 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
-        dialect: org.hibernate.spatial.dialect.mysql.MySQL8SpatialDialect
+        dialect: org.hibernate.spatial.dialect.mysql.MySQLSpatialDialect
     open-in-view: false
     defer-datasource-initialization: true
   flyway:
