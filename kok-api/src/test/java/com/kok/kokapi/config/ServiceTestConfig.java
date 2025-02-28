@@ -1,4 +1,4 @@
-package com.kok.kokapi.common.config;
+package com.kok.kokapi.config;
 
 import com.kok.kokapi.station.adapter.out.external.FakeStationClient;
 import com.kok.kokcore.station.application.port.out.LoadStationsPort;

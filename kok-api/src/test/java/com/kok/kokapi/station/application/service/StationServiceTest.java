@@ -2,7 +2,7 @@ package com.kok.kokapi.station.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.kok.kokapi.common.config.ServiceTestConfig;
+import com.kok.kokapi.config.ServiceTestConfig;
 import com.kok.kokapi.common.util.DatabaseCleanerExtension;
 import com.kok.kokapi.station.adapter.out.persistence.StationRepository;
 import com.kok.kokcore.station.domain.entity.Station;
