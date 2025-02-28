@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    active: test
+  sql:
+    init:
+      mode: always
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    defer-datasource-initialization: false
+    open-in-view: false
+  flyway:
+    enabled: true
+
