@@ -1,4 +1,4 @@
-package com.kok.kokcore.application.port.out;
+package com.kok.kokcore.location.application.port.out;
 
 import org.locationtech.jts.geom.Point;
 

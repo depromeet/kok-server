@@ -1,6 +1,6 @@
-package com.kok.kokcore.application.usecase;
+package com.kok.kokcore.location.usecase;
 
-import com.kok.kokcore.application.domain.entity.Location;
+import com.kok.kokcore.location.domain.Location;
 
 import java.util.List;
 

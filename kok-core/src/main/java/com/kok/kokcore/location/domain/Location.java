@@ -1,4 +1,4 @@
-package com.kok.kokcore.application.domain.entity;
+package com.kok.kokcore.location.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
