@@ -39,14 +39,16 @@ subprojects {
         implementation 'org.hibernate:hibernate-spatial:6.4.4.Final'
         implementation 'org.locationtech.jts:jts-core:1.18.2'
 
-
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
         runtimeOnly 'com.h2database:h2'
         runtimeOnly 'com.mysql:mysql-connector-j'
 
-        testImplementation 'junit:junit:4.13.1'
+        implementation 'org.flywaydb:flyway-core'
+        implementation 'org.flywaydb:flyway-mysql'
+
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
     }
 }

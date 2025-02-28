@@ -13,6 +13,9 @@ spring:
         format_sql: true
         dialect: org.hibernate.spatial.dialect.mysql.MySQL8SpatialDialect
     open-in-view: false
+    defer-datasource-initialization: true
+  flyway:
+    enabled: false
   data:
     redis:
       cluster:
@@ -35,3 +38,11 @@ springdoc:
   swagger-ui:
     enabled: false
     path: /swagger
+# open-api: http://data.seoul.go.kr/dataList/OA-21232/S/1/datasetView.do
+station:
+  base-url: http://openapi.seoul.go.kr:8088
+  secret-key: ${STATION_SECRET_KEY}
+  service: subwayStationMaster
+  format: json
+  start-idx: 1
+  end-idx: 1000
