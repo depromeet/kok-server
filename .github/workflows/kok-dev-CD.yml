@@ -13,6 +13,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Get Latest Docker Image Tag
+        id: latest_tag
+        run: |
+          LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/kok-dev/tags" | jq -r '.results[0].name')
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
       - name: Create SSH key file
         run: echo "${{ secrets.NCP_KEY }}" > /tmp/NCP_KEY.pem
 
@@ -31,6 +37,8 @@ jobs:
           key: ${{ secrets.NCP_KEY }}
           script: |
             cd ${{ secrets.COMPOSE_FILE_PATH }}
+            
+            echo "KOK_DEV_TAG=${{ env.LATEST_TAG }}" > .env
             sudo docker compose pull
             sudo docker compose down
             sudo docker compose -f docker-compose-dev.yml up -d
