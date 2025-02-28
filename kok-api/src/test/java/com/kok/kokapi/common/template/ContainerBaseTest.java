@@ -9,8 +9,10 @@ public abstract class ContainerBaseTest {
 
     private static final int REDIS_PORT = 6379;
 
-    private static final MySQLContainer<?> mysqlContainer = new MySQLContainer<>(
-        MySQLContainer.NAME);
+    private static final MySQLContainer<?> mysqlContainer = new MySQLContainer<>(MySQLContainer.NAME)
+        .withDatabaseName("kok")
+        .withUsername("root")
+        .withPassword("1234");
 
     private static final RedisContainer redisContainer = new RedisContainer(
         RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG)
