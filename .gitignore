@@ -327,3 +327,9 @@ gradle-app.setting
 *.DS_Store
 *.class
 *.jar
+
+## 키 ##
+*.pem
+
+**/application-local.yml
+/infra/docker-compose-local.yml

@@ -5,6 +5,8 @@ services:
     container_name: kok-green
     image: ${DOCKERHUB_USERNAME}/kok_prod:latest
     restart: always
+    env_file:
+      - .env
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     ports:
