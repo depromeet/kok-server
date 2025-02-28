@@ -17,7 +17,9 @@ jobs:
         id: latest_tag
         run: |
           LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/kok-dev/tags" | jq -r '.results[0].name')
-          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+          sed -i '/^KOK_DEV_TAG=/d' .env
+          echo "KOK_DEV_TAG = ${{ env.LATEST_TAG }}" >> .env
+
 
       - name: Create SSH key file
         run: echo "${{ secrets.NCP_KEY }}" > /tmp/NCP_KEY.pem
