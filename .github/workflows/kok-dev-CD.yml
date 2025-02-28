@@ -39,8 +39,8 @@ jobs:
           script: |
             cd ${{ secrets.COMPOSE_FILE_PATH }}
             
-            sed -i '/^KOK_DEV_TAG=/d' .env
+            sed -i '/^KOK_DEV_TAG = /d' .env
             echo "KOK_DEV_TAG=${{ env.LATEST_TAG }}" >> .env
-            sudo docker compose pull
-            sudo docker compose down
+            sudo docker compose -f docker-compose-dev.yml pull
+            sudo docker compose -f docker-compose-dev.yml down
             sudo docker compose -f docker-compose-dev.yml up -d
