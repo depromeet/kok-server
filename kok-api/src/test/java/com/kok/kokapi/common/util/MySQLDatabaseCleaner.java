@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class DatabaseCleaner {
+public class MySQLDatabaseCleaner {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -16,14 +16,14 @@ public class DatabaseCleaner {
     @Transactional
     public void cleanUp() {
         entityManager.flush();
-        entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
+        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
         for (String tableName : getTableNames()) {
             entityManager.createNativeQuery("TRUNCATE TABLE " + tableName).executeUpdate();
             entityManager.createNativeQuery(
-                    "ALTER TABLE " + tableName + " ALTER COLUMN ID RESTART WITH 1")
+                    "ALTER TABLE " + tableName + " AUTO_INCREMENT = 1")
                 .executeUpdate();
         }
-        entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
+        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
     }
 
     private List<String> getTableNames() {
