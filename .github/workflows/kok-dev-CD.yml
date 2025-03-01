@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - deploy/dev_cd # 배포 테스트 브랜치
 
 jobs:
   deploy:
@@ -12,11 +13,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Get Latest Docker Image Tag
+        id: latest_tag
+        run: |
+          LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/kok-dev/tags" | jq -r '.results[0].name')
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+
       - name: Create SSH key file
         run: echo "${{ secrets.NCP_KEY }}" > /tmp/NCP_KEY.pem
 
       - name: Set permissions for SSH key file
-        run: chmod 600 /tmp/NCP_KEY.pem
+        run: chmod 400 /tmp/NCP_KEY.pem
 
       - name: Upload `docker-compose.yml` to NCP
         run: |
@@ -30,6 +38,9 @@ jobs:
           key: ${{ secrets.NCP_KEY }}
           script: |
             cd ${{ secrets.COMPOSE_FILE_PATH }}
-            sudo docker compose pull
-            sudo docker compose down
+            
+            sed -i '/^KOK_DEV_TAG = /d' .env
+            echo "KOK_DEV_TAG=${{ env.LATEST_TAG }}" >> .env
+            sudo docker compose -f docker-compose-dev.yml pull
+            sudo docker compose -f docker-compose-dev.yml down
             sudo docker compose -f docker-compose-dev.yml up -d

@@ -3,8 +3,10 @@ version: '3.8'
 services:
   kok-dev:
     container_name: kok-dev
-    image: ${DOCKERHUB_USERNAME}/kok_dev:latest
+    image: ${DOCKERHUB_USERNAME}/kok-dev:${KOK_DEV_TAG}
     restart: always
+    env_file:
+      - .env
     environment:
       - SPRING_PROFILES_ACTIVE=dev
     ports:

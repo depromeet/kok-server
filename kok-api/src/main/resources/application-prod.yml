@@ -11,14 +11,20 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
+        dialect: org.hibernate.spatial.dialect.mysql.MySQLSpatialDialect
     open-in-view: false
     defer-datasource-initialization: false
   flyway:
     enabled: true
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
+      cluster:
+        nodes:
+          - ${REDIS_HOST1}:${REDIS_PORT}
+          - ${REDIS_HOST2}:${REDIS_PORT}
+          - ${REDIS_HOST3}:${REDIS_PORT}
+        max-redirects: 3
+      timeout: 5000
 #      sentinel:
 #        master: ${REDIS_SENTINEL_MASTER}
 #        nodes:

@@ -26,6 +26,7 @@ jobs:
         with:
           host: ${{ secrets.NCP_HOST }}
           username: ${{ secrets.NCP_USER }}
+          password: ${{ secrets.NCP_PASSWORD }}
           key: ${{ secrets.NCP_KEY }}
           script: |
             cd ${{ secrets.COMPOSE_FILE_PATH }}
