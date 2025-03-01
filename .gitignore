@@ -330,6 +330,7 @@ gradle-app.setting
 
 ## 키 ##
 *.pem
+*.pub
 
 **/application-local.yml
 /infra/docker-compose-local.yml

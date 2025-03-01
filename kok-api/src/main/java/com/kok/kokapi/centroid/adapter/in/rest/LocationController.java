@@ -10,6 +10,7 @@ import com.kok.kokcore.location.domain.Location;
 import com.kok.kokcore.location.usecase.CreateLocationUsecase;
 import com.kok.kokcore.location.usecase.ReadCentroidUsecase;
 import com.kok.kokcore.location.usecase.ReadLocationUsecase;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
@@ -29,6 +30,7 @@ public class LocationController extends BaseController {
     private final ReadLocationUsecase readLocationUsecase;
     private final LocationMapper locationMapper;
 
+    @Operation(summary = "위치 입력", description = "Create a new location with the provided details.")
     @PostMapping("/create")
     public ResponseEntity<ApiResponseDto<CentroidResponse>> createLocation(@Valid @RequestBody LocationRequest locationRequest) {
         createLocationUsecase.createLocation(
@@ -45,6 +47,7 @@ public class LocationController extends BaseController {
         ));
     }
 
+    @Operation(summary = "중심 좌표 조회", description = "Retrieve the centroid coordinates for a location using its UUID")
     @GetMapping("/centroid/{uuid}")
     public ResponseEntity<ApiResponseDto<CentroidResponse>> getCentroid(@PathVariable String uuid) {
         Pair<BigDecimal, BigDecimal> centroid = readCentroidUsecase.readCentroidCoordinates(uuid);
@@ -54,6 +57,7 @@ public class LocationController extends BaseController {
         ));
     }
 
+    @Operation(summary = "위치 조회", description = "Retrieve detailed information for a location using its UUID and member ID")
     @GetMapping("/{uuid}/{memberId}")
     public ResponseEntity<ApiResponseDto<LocationResponse>> getLocation(@PathVariable String uuid, @PathVariable Integer memberId) {
         Location location = readLocationUsecase.readLocation(uuid, memberId);
@@ -61,6 +65,7 @@ public class LocationController extends BaseController {
         return ResponseEntity.ok(ApiResponseDto.success(locationMapper.toResponse(location)));
     }
 
+    @Operation(summary = "위치 목록 조회", description = "Retrieve the list of locations for a UUID")
     @GetMapping("/{uuid}")
     public ResponseEntity<ApiResponseDto<List<LocationResponse>>> getLocations(@PathVariable String uuid) {
         List<LocationResponse> responses = locationMapper.toResponseList(readLocationUsecase.readLocations(uuid));
@@ -68,6 +73,7 @@ public class LocationController extends BaseController {
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 
+    @Operation(summary = "위치 수정", description = "Update the location with the provided details.")
     @PutMapping("/update")
     public ResponseEntity<ApiResponseDto<LocationResponse>> updateLocation(@Valid @RequestBody LocationRequest locationRequest) {
         Location location = createLocationUsecase.updateLocation(

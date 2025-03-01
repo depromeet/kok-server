@@ -3,7 +3,7 @@ version: '3.8'
 services:
   kok-blue:
     container_name: kok-blue
-    image: ${DOCKERHUB_USERNAME}/kok_prod:latest
+    image: ${DOCKERHUB_USERNAME}/kok-prod:latest
     restart: always
     env_file:
       - .env
