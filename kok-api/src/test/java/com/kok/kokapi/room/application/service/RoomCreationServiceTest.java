@@ -1,37 +1,20 @@
 package com.kok.kokapi.room.application.service;
 
-import com.kok.kokapi.common.config.ServiceTestConfig;
-import com.kok.kokcore.room.application.port.out.SaveRoomPort;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import com.kok.kokapi.common.template.ServiceTest;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
-import com.kok.kokcore.room.usecase.JoinRoomUseCase;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-@Import({ServiceTestConfig.class})
-@SpringBootTest(classes = {RoomCreationService.class})
-class RoomCreationServiceTest {
-    private SaveRoomPort saveRoomPort;
-    private JoinRoomUseCase joinRoomUseCase;
+class RoomCreationServiceTest extends ServiceTest {
 
     @Autowired
     private RoomCreationService roomCreationService;
-
-    @BeforeEach
-    void setUp() {
-        saveRoomPort = mock(SaveRoomPort.class);
-        joinRoomUseCase = mock(JoinRoomUseCase.class);
-        roomCreationService = new RoomCreationService(saveRoomPort, joinRoomUseCase);
-    }
 
     @DisplayName("약속방이 정상적으로 생성된다.")
     @Test
@@ -43,7 +26,6 @@ class RoomCreationServiceTest {
         String password = "secret";
         Member host = new Member(hostNickname, hostProfile, "Leader");
 
-        when(saveRoomPort.save(any(Room.class))).thenAnswer(invocation -> invocation.getArgument(0));
         Room createdRoom = roomCreationService.createRoom(roomName, capacity, host, password);
 
         assertAll("Room Create Test",
