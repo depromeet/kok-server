@@ -4,6 +4,9 @@ spring:
   sql:
     init:
       mode: always
+  flyway:
+    enabled: true
+    connect-retries: 30
   jpa:
     show-sql: true
     properties:
@@ -13,6 +16,3 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: create
-  flyway:
-    enabled: true
-
