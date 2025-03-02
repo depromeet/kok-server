@@ -16,6 +16,7 @@ spring:
     defer-datasource-initialization: false
   flyway:
     enabled: true
+    baseline-on-migrate: true
   data:
     redis:
       cluster:
