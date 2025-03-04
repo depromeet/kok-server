@@ -19,8 +19,8 @@ spring:
     baseline-on-migrate: true
   data:
     redis:
-      host: localhost # redis도 서버 내부에서 처리.
-      port: 6379
+      host: ${REDIS_HOST} # redis도 서버 내부에서 처리.
+      port: ${REDIS_PORT}
       timeout: 5000
 
 springdoc:
