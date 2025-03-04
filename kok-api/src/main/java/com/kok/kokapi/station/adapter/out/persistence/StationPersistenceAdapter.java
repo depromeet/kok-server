@@ -1,12 +1,15 @@
 package com.kok.kokapi.station.adapter.out.persistence;
 
 import com.kok.kokcore.station.application.port.out.ReadStationsPort;
+import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -16,7 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort {
+public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort, RetrieveStationsPort {
 
     private static final String INSERT_SQL = """
             INSERT INTO station (station_id, name, route, latitude, longitude, priority)
@@ -56,5 +59,11 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
     @Override
     public boolean hasNoStations() {
         return !stationRepository.existsAny();
+    }
+
+
+    @Override
+    public Optional<Station> retrieveStation(Long stationId) {
+        return stationRepository.findStationByStationId(stationId);
     }
 }
