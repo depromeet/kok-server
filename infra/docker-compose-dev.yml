@@ -25,6 +25,9 @@ services:
     networks:
       - kok-network
 
+volumes:
+  redis_data:
+
 networks:
   kok-network:
     driver: bridge
