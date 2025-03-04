@@ -14,6 +14,17 @@ services:
     networks:
       - kok-network
 
+  # Redis 설정
+  redis:
+    image: redis:7.0
+    container_name: redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - kok-network
+
 networks:
   kok-network:
     driver: bridge
