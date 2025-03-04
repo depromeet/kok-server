@@ -6,16 +6,14 @@ public record RoomDetailResponse(
         String id,
         String roomName,
         int capacity,
-        MemberResponse member,
-        String roomLinkUrl
+        MemberResponse member
 ) {
     public static RoomDetailResponse from(Room room) {
         return new RoomDetailResponse(
                 room.getId(),
                 room.getRoomName(),
                 room.getCapacity(),
-                MemberResponse.from(room.getMember()),
-                room.getRoomLinkUrl()
+                MemberResponse.from(room.getMember())
         );
     }
 }
