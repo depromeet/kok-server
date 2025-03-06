@@ -1,9 +1,8 @@
 package com.kok.kokcore.public_transfortation.usecase;
 
-import org.springframework.data.util.Pair;
-
+import java.util.List;
 
 public interface RetrievePublicTransportationUsecase {
-    // Pair<소요시간, 환승횟수>
-    Pair<Integer, Integer> retrievePublicTransportation(Long stationId, String UUID, Integer memberId);
+    // List{소요시간, 환승횟수}
+    List<Integer> retrievePublicTransportation(Long stationId, String UUID, Integer memberId);
 }
