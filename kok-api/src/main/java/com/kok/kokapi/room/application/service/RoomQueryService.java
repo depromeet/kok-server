@@ -17,8 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoomQueryService implements GetRoomUseCase {
 
-    private final LoadRoomPort loadRoomPort;
     private static final String PARTICIPANT_KEY_PREFIX = "room:participants:";
+
+    private final LoadRoomPort loadRoomPort;
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
