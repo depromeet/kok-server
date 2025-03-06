@@ -27,14 +27,14 @@ public class Room implements Serializable {
     }
 
     public static Room create(String roomName, int capacity, Member host, String password) {
-        validateParameter(roomName, capacity, host);
+        validateParameter(roomName, capacity);
 
         String roomId = UUID.randomUUID().toString();
 
         return new Room(roomId, roomName, capacity, host, password);
     }
 
-    private static void validateParameter(String roomName, int capacity, Member host) {
+    private static void validateParameter(String roomName, int capacity) {
         if (roomName == null || roomName.trim().isEmpty()) {
             throw new IllegalArgumentException("Room name is required");
         }
