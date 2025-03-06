@@ -28,7 +28,7 @@ public class RoomController {
     private final CreateRoomUseCase createRoomUseCase;
     private final JoinRoomUseCase joinRoomUseCase;
 
-    @Operation(summary = "약속방 조회", description = "Retrieve detailed information for a room using its ID")
+    @Operation(summary = "약속방 조회", description = "약속방 ID를 통해 약속방을 조회합니다.")
     @GetMapping("/rooms/{roomId}")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> getRoomDetail(@PathVariable String roomId) {
         Room room = getRoomUseCase.findRoomById(roomId);
@@ -36,7 +36,7 @@ public class RoomController {
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
-    @Operation(summary = "약속방 생성", description = "Create a new room with the provided details.")
+    @Operation(summary = "약속방 생성", description = "새로운 약속방을 생성합니다.")
     @PostMapping("/rooms")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> createRoom(@Valid @RequestBody CreateRoomRequest request) {
         Member host = new Member(request.hostNickname(), request.hostProfile(), "Leader");
@@ -52,7 +52,7 @@ public class RoomController {
                 .body(ApiResponseDto.success(response));
     }
 
-    @Operation(summary = "약속방 참여자 프로필 목록 조회", description = "Retrieve the list of participant profiles for the room.")
+    @Operation(summary = "약속방 참여자 프로필 목록 조회", description = "약속방에 참여 중인 참여자들의 프로필 목록을 반환합니다.")
     @GetMapping("/rooms/{roomId}/participants")
     public ResponseEntity<ApiResponseDto<List<RoomMembersResponse>>> getParticipants(@PathVariable String roomId) {
         Room room = getRoomUseCase.findRoomById(roomId);
@@ -67,7 +67,7 @@ public class RoomController {
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
-    @Operation(summary = "약속방 참여", description = "Register a new participant profile for the room.")
+    @Operation(summary = "약속방 참여", description = "사용자가 약속방에 참여합니다.")
     @PostMapping("/rooms/{roomId}/join")
     public ResponseEntity<ApiResponseDto<String>> joinRoom(@PathVariable String roomId,
                                                            @Valid @RequestBody JoinRoomParticipantRequest request) {
