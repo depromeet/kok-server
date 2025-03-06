@@ -1,7 +1,7 @@
 package com.kok.kokapi.public_transportation.adapter.in.web;
 
-import com.kok.kokapi.common.adapter.in.web.BaseController;
 import com.kok.kokapi.common.response.ApiResponseDto;
+import com.kok.kokapi.config.annotion.V1Controller;
 import com.kok.kokapi.public_transportation.adapter.in.dto.RouteRequest;
 import com.kok.kokapi.public_transportation.adapter.in.dto.RouteResponse;
 import com.kok.kokcore.public_transfortation.usecase.RetrievePublicTransportationUsecase;
@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@V1Controller
 @RestController
 @RequiredArgsConstructor
-public class PublicTransfortationController extends BaseController {
+public class PublicTransfortationController {
 
     private final RetrievePublicTransportationUsecase retrievePublicTransportationUsecase;
 

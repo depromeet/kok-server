@@ -1,11 +1,11 @@
 package com.kok.kokapi.centroid.adapter.in.web;
 
-import com.kok.kokapi.common.adapter.in.web.BaseController;
 import com.kok.kokapi.centroid.adapter.in.dto.request.LocationRequest;
 import com.kok.kokapi.centroid.adapter.in.dto.response.CentroidResponse;
 import com.kok.kokapi.centroid.adapter.in.dto.response.LocationResponse;
 import com.kok.kokapi.centroid.adapter.out.mapper.LocationMapper;
 import com.kok.kokapi.common.response.ApiResponseDto;
+import com.kok.kokapi.config.annotion.V1Controller;
 import com.kok.kokcore.location.domain.Location;
 import com.kok.kokcore.location.usecase.CreateLocationUsecase;
 import com.kok.kokcore.location.usecase.ReadCentroidUsecase;
@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-@RestController
+@V1Controller
 @RequiredArgsConstructor
-public class LocationController extends BaseController {
+public class LocationController {
 
     private final CreateLocationUsecase createLocationUsecase;
     private final ReadCentroidUsecase readCentroidUsecase;
