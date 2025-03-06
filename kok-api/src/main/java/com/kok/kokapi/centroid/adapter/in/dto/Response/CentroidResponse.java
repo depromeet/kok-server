@@ -1,4 +1,4 @@
-package com.kok.kokapi.centroid.adapter.out.dto;
+package com.kok.kokapi.centroid.adapter.in.dto.Response;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

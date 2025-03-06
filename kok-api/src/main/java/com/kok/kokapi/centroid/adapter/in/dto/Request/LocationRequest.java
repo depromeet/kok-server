@@ -1,4 +1,4 @@
-package com.kok.kokapi.centroid.adapter.in.dto;
+package com.kok.kokapi.centroid.adapter.in.dto.Request;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;

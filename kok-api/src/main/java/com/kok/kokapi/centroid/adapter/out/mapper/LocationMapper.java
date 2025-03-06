@@ -1,6 +1,6 @@
 package com.kok.kokapi.centroid.adapter.out.mapper;
 
-import com.kok.kokapi.centroid.adapter.out.dto.LocationResponse;
+import com.kok.kokapi.centroid.adapter.in.dto.Response.LocationResponse;
 import com.kok.kokcore.location.domain.Location;
 import com.kok.kokapi.config.geometry.PointConverter;
 import org.springframework.stereotype.Component;
