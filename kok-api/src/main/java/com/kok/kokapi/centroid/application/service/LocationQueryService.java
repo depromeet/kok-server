@@ -1,6 +1,5 @@
 package com.kok.kokapi.centroid.application.service;
 
-import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokcore.location.domain.Location;
 import com.kok.kokcore.location.application.port.out.ReadLocationPort;
 import com.kok.kokcore.location.usecase.ReadLocationUsecase;
@@ -14,7 +13,6 @@ import java.util.List;
 public class LocationQueryService implements ReadLocationUsecase{
 
     private final ReadLocationPort readLocationPort;
-    private final PointConverter pointConverter;
 
     @Override
     public Location readLocation(String uuid, Integer memberId) {
