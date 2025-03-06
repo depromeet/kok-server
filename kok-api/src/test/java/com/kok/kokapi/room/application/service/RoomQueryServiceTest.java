@@ -41,6 +41,6 @@ class RoomQueryServiceTest extends ServiceTest {
         // when & then
         assertThatThrownBy(() -> roomQueryService.findRoomById(roomId))
             .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Room not found with id: " + roomId);
+            .hasMessage("Room not found with id: " + roomId);
     }
 }
