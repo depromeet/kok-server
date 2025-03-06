@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -34,6 +35,24 @@ public class RoomParticipantService implements JoinRoomUseCase, GetMemberProfile
 
     @Override
     public List<Profile> getProfilesByRoomId(String roomId) {
-        return List.of();
+        String key = PARTICIPANT_KEY_PREFIX + roomId;
+        List<String> profileJson = redisTemplate.opsForList().range(key, 0, -1);
+
+        if (profileJson == null || profileJson.isEmpty()) {
+            return List.of();
+        }
+
+        return profileJson.stream()
+                .map(this::deserializeProfile)
+                .collect(Collectors.toList());
+    }
+
+    private Profile deserializeProfile(String profileJson) {
+        try {
+            Member member = objectMapper.readValue(profileJson, Member.class);
+            return new Profile(member.getProfile(), member.getNickname());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("failed to deserialize profile");
+        }
     }
 }
