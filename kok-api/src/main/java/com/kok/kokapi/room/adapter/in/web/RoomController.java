@@ -1,7 +1,7 @@
 package com.kok.kokapi.room.adapter.in.web;
 
-import com.kok.kokapi.common.adapter.in.web.BaseController;
 import com.kok.kokapi.common.response.ApiResponseDto;
+import com.kok.kokapi.config.annotion.V1Controller;
 import com.kok.kokapi.room.adapter.in.dto.request.CreateRoomRequest;
 import com.kok.kokapi.room.adapter.in.dto.request.JoinRoomParticipantRequest;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponse;
@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@V1Controller
 @RequiredArgsConstructor
-public class RoomController extends BaseController {
+public class RoomController {
 
     private final GetRoomUseCase getRoomUseCase;
     private final CreateRoomUseCase createRoomUseCase;
