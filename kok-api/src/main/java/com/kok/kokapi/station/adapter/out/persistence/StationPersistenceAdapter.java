@@ -22,33 +22,41 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
             INSERT INTO station (station_id, name, route, latitude, longitude, priority)
             VALUES (?, ?, ?, ?, ?, ?)
         """;
+    private static final String INSERT_ROUTE_SQL = """
+            INSERT INTO ROUTE (code, route, station_id)
+            VALUES(?, ?, ?)
+        """;
 
     private final StationRepository stationRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void saveStations(List<Station> stations) {
-        if (stations.isEmpty()) {
+    public void saveStations(StationRouteDtos stationRouteDtos) {
+        if (stationRouteDtos.isEmpty()) {
             log.info("No stations to save.");
             return;
         }
-        int[] batches = jdbcTemplate.batchUpdate(INSERT_SQL, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                Station station = stations.get(i);
-                ps.setLong(1, station.getStationId());
-                ps.setString(2, station.getName());
-                ps.setString(3, station.getRoute());
-                ps.setBigDecimal(4, station.getLatitude());
-                ps.setBigDecimal(5, station.getLongitude());
-                ps.setLong(6, station.getPriority());
-            }
+        batchInsertStations(stationRouteDtos);
+    }
 
-            @Override
-            public int getBatchSize() {
-                return stations.size();
-            }
-        });
+    private void batchInsertStations(StationRouteDtos stationRouteDtos) {
+        List<Station> stations = stationRouteDtos.toStations();
+        int[] batches = jdbcTemplate.batchUpdate(INSERT_STATION_SQL,
+            new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    Station station = stations.get(i);
+                    ps.setString(1, station.getName());
+                    ps.setBigDecimal(2, station.getLatitude());
+                    ps.setBigDecimal(3, station.getLongitude());
+                    ps.setLong(4, station.getPriority());
+                }
+
+                @Override
+                public int getBatchSize() {
+                    return stations.size();
+                }
+            });
         log.info("Successfully saved a total of {} stations out of {}.",
             Arrays.stream(batches).sum(), stations.size());
     }

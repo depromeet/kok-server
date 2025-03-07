@@ -2,8 +2,7 @@ package com.kok.kokapi.station.adapter.out.external;
 
 import com.kok.kokapi.station.adapter.out.external.dto.StationResponses;
 import com.kok.kokcore.station.application.port.out.LoadStationsPort;
-import com.kok.kokcore.station.domain.entity.Station;
-import java.util.List;
+import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
 import java.util.StringJoiner;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
@@ -39,12 +38,12 @@ public class StationClient implements LoadStationsPort {
     }
 
     @Override
-    public List<Station> loadAllStations() {
+    public StationRouteDtos loadAllStations() {
         StationResponses responses = restClient.get()
             .uri(getTargetUri())
             .retrieve()
             .body(StationResponses.class);
-        return responses.toStations();
+        return responses.toStationRouteDtos();
     }
 
     public String getTargetUri() {

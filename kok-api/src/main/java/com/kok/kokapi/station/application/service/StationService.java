@@ -3,9 +3,8 @@ package com.kok.kokapi.station.application.service;
 import com.kok.kokcore.station.application.port.out.LoadStationsPort;
 import com.kok.kokcore.station.application.port.out.ReadStationsPort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
+import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
 import com.kok.kokcore.station.application.usecase.SaveStationUseCase;
-import com.kok.kokcore.station.domain.entity.Station;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,13 +20,9 @@ public class StationService implements SaveStationUseCase {
     @Override
     @Transactional
     public void saveStations() {
-        if(hasNoStations()) {
-            List<Station> stations = loadStationsPort.loadAllStations();
+        if(readStationsPort.hasNoStations()) {
+            StationRouteDtos stations = loadStationsPort.loadAllStations();
             saveStationsPort.saveStations(stations);
         }
-    }
-
-    private boolean hasNoStations() {
-        return readStationsPort.hasNoStations();
     }
 }
