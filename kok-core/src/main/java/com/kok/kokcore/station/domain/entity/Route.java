@@ -22,7 +22,7 @@ public class Route {
     private Long id;
     @Column(nullable = false)
     private Long code;
-    @Column(nullable = false, length = 15)
+    @Column(nullable = false, length = 20)
     private String route;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id", nullable = false)
