@@ -16,7 +16,7 @@ public record StationRouteDto(
     }
 
     public Station toStation() {
-        return new Station(name, longitude, longitude);
+        return new Station(name, latitude, longitude);
     }
 
     public Route toRouteByStation(Station station) {
