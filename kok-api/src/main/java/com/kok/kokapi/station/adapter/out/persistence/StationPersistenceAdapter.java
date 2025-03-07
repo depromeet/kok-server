@@ -2,6 +2,8 @@ package com.kok.kokapi.station.adapter.out.persistence;
 
 import com.kok.kokcore.station.application.port.out.ReadStationsPort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
+import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
+import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -18,8 +20,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort {
 
-    private static final String INSERT_SQL = """
-            INSERT INTO station (station_id, name, route, latitude, longitude, priority)
+    private static final String INSERT_STATION_SQL = """
+            INSERT INTO station (name, latitude, longitude, priority)
             VALUES (?, ?, ?, ?, ?, ?)
         """;
     private static final String INSERT_ROUTE_SQL = """
@@ -37,6 +39,7 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
             return;
         }
         batchInsertStations(stationRouteDtos);
+        batchInsertRoutes(stationRouteDtos);
     }
 
     private void batchInsertStations(StationRouteDtos stationRouteDtos) {
@@ -59,6 +62,28 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
             });
         log.info("Successfully saved a total of {} stations out of {}.",
             Arrays.stream(batches).sum(), stations.size());
+    }
+
+    private void batchInsertRoutes(StationRouteDtos stationRouteDtos) {
+        List<Station> stations = stationRepository.findAll();
+        List<Route> routes = stationRouteDtos.toRoutesByStations(stations);
+        int[] batches = jdbcTemplate.batchUpdate(INSERT_ROUTE_SQL,
+            new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    Route route = routes.get(i);
+                    ps.setLong(1, route.getCode());
+                    ps.setString(2, route.getRoute());
+                    ps.setLong(3, route.getStation().getId());
+                }
+
+                @Override
+                public int getBatchSize() {
+                    return routes.size();
+                }
+            });
+        log.info("Successfully saved a total of {} routes out of {}.",
+            Arrays.stream(batches).sum(), routes.size());
     }
 
     @Override
