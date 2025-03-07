@@ -23,14 +23,14 @@ public class Route {
     @Column(nullable = false)
     private Long code;
     @Column(nullable = false, length = 20)
-    private String route;
+    private String name;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id", nullable = false)
     private Station station;
 
-    public Route(Long code, String route, Station station) {
+    public Route(Long code, String name, Station station) {
         this.code = code;
-        this.route = route;
+        this.name = name;
         this.station = station;
     }
 }

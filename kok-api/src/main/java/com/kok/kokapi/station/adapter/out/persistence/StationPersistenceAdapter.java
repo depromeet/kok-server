@@ -25,7 +25,7 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
             VALUES (?, ?, ?, ?)
         """;
     private static final String INSERT_ROUTE_SQL = """
-            INSERT INTO ROUTE (code, route, station_id)
+            INSERT INTO route (code, name, station_id)
             VALUES(?, ?, ?)
         """;
 
@@ -73,7 +73,7 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
                     Route route = routes.get(i);
                     ps.setLong(1, route.getCode());
-                    ps.setString(2, route.getRoute());
+                    ps.setString(2, route.getName());
                     ps.setLong(3, route.getStation().getId());
                 }
 
