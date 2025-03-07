@@ -22,7 +22,7 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
 
     private static final String INSERT_STATION_SQL = """
             INSERT INTO station (name, latitude, longitude, priority)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?)
         """;
     private static final String INSERT_ROUTE_SQL = """
             INSERT INTO ROUTE (code, route, station_id)
