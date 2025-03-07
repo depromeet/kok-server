@@ -2,8 +2,6 @@ package com.kok.kokapi.station.adapter.out.persistence;
 
 import com.kok.kokcore.station.application.port.out.ReadStationsPort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
-import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
-import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -24,26 +22,20 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
             INSERT INTO station (name, latitude, longitude, priority)
             VALUES (?, ?, ?, ?)
         """;
-    private static final String INSERT_ROUTE_SQL = """
-            INSERT INTO route (code, name, station_id)
-            VALUES(?, ?, ?)
-        """;
 
     private final StationRepository stationRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void saveStations(StationRouteDtos stationRouteDtos) {
-        if (stationRouteDtos.isEmpty()) {
+    public List<Station> saveStations(List<Station> stations) {
+        if (stations.isEmpty()) {
             log.info("No stations to save.");
-            return;
+            return List.of();
         }
-        batchInsertStations(stationRouteDtos);
-        batchInsertRoutes(stationRouteDtos);
+        return batchInsertStations(stations);
     }
 
-    private void batchInsertStations(StationRouteDtos stationRouteDtos) {
-        List<Station> stations = stationRouteDtos.toStations();
+    private List<Station> batchInsertStations(List<Station> stations) {
         int[] batches = jdbcTemplate.batchUpdate(INSERT_STATION_SQL,
             new BatchPreparedStatementSetter() {
                 @Override
@@ -62,28 +54,7 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
             });
         log.info("Successfully saved a total of {} stations out of {}.",
             Arrays.stream(batches).sum(), stations.size());
-    }
-
-    private void batchInsertRoutes(StationRouteDtos stationRouteDtos) {
-        List<Station> stations = stationRepository.findAll();
-        List<Route> routes = stationRouteDtos.toRoutesByStations(stations);
-        int[] batches = jdbcTemplate.batchUpdate(INSERT_ROUTE_SQL,
-            new BatchPreparedStatementSetter() {
-                @Override
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    Route route = routes.get(i);
-                    ps.setLong(1, route.getCode());
-                    ps.setString(2, route.getName());
-                    ps.setLong(3, route.getStation().getId());
-                }
-
-                @Override
-                public int getBatchSize() {
-                    return routes.size();
-                }
-            });
-        log.info("Successfully saved a total of {} routes out of {}.",
-            Arrays.stream(batches).sum(), routes.size());
+        return stationRepository.findAll();
     }
 
     @Override
