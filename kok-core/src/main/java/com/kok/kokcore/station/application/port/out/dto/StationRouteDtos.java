@@ -4,6 +4,7 @@ import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public record StationRouteDtos(
     List<StationRouteDto> stationRouteDtos
@@ -14,9 +15,19 @@ public record StationRouteDtos(
     }
 
     public List<Station> toStations() {
-        return stationRouteDtos.stream()
+        return distinctByName().stream()
             .map(StationRouteDto::toStation)
             .toList();
+    }
+
+    private List<StationRouteDto> distinctByName() {
+        return new ArrayList<>(stationRouteDtos.stream()
+            .collect(Collectors.toMap(
+                StationRouteDto::name,
+                dto -> dto,
+                (existing, replacement) -> existing
+            ))
+            .values());
     }
 
     public List<Route> toRoutesByStations(List<Station> stations){

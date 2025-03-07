@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +39,6 @@ class StationRouteDtosTest {
         assertThat(result).isFalse();
     }
 
-    @Disabled
     @DisplayName("stationRouteDtos를 Station 리스트로 중복 없이 변환한다.")
     @Test
     void toStations() {
