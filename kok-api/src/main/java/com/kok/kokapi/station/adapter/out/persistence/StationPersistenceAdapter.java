@@ -3,7 +3,9 @@ package com.kok.kokapi.station.adapter.out.persistence;
 import com.kok.kokcore.station.application.port.out.ReadStationsPort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,17 +44,17 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
     }
 
     private List<Station> batchInsertStations(List<Station> stations) {
-        int savedCount = 0;
+        List<Long> savedStationIds = new ArrayList<>();
         for (Station station : stations) {
             MapSqlParameterSource parameters = mapToParams.apply(station);
             KeyHolder keyHolder = new GeneratedKeyHolder();
-            int updateCount = jdbcTemplate.update(INSERT_STATION_SQL, parameters, keyHolder, new String[]{"id"});
-            if (updateCount > 0) {
-                savedCount++;
+            jdbcTemplate.update(INSERT_STATION_SQL, parameters, keyHolder, new String[]{"id"});
+            if(Objects.nonNull(keyHolder.getKey())){
+                savedStationIds.add(keyHolder.getKey().longValue());
             }
         }
-        log.debug("Successfully saved a total of {} stations out of {}.", savedCount, stations.size());
-        return stationRepository.findAll();
+        log.debug("Successfully saved a total of {} stations out of {}.", savedStationIds.size(), stations.size());
+        return stationRepository.findAllById(savedStationIds);
     }
 
     @Override
@@ -60,3 +62,4 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
         return !stationRepository.existsAny();
     }
 }
+
