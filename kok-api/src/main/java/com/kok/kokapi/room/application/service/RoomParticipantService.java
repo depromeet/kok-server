@@ -1,58 +1,31 @@
 package com.kok.kokapi.room.application.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kok.kokcore.room.application.port.out.LoadRoomParticipantsPort;
+import com.kok.kokcore.room.application.port.out.SaveRoomParticipantsPort;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Profile;
 import com.kok.kokcore.room.usecase.GetMemberProfileUseCase;
 import com.kok.kokcore.room.usecase.JoinRoomUseCase;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
 public class RoomParticipantService implements JoinRoomUseCase, GetMemberProfileUseCase {
 
-    private static final String PARTICIPANT_KEY_PREFIX = "room:participants:";
-    private final RedisTemplate<String, String> redisTemplate;
-    private final ObjectMapper objectMapper;
+    private final LoadRoomParticipantsPort loadRoomParticipantsPort;
+    private final SaveRoomParticipantsPort saveRoomParticipantsPort;
 
     @Override
     public void joinRoom(String roomId, Member member) {
-        String key = PARTICIPANT_KEY_PREFIX + roomId;
-        try {
-            String memberJson = objectMapper.writeValueAsString(member);
-            redisTemplate.opsForList().rightPush(key, memberJson);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("failed to serialize member");
-        }
+        saveRoomParticipantsPort.joinRoom(roomId, member);
     }
 
     @Override
     public List<Profile> getProfilesByRoomId(String roomId) {
-        String key = PARTICIPANT_KEY_PREFIX + roomId;
-        List<String> profileJson = redisTemplate.opsForList().range(key, 0, -1);
-
-        if (profileJson == null || profileJson.isEmpty()) {
-            return List.of();
-        }
-
-        return profileJson.stream()
-                .map(this::deserializeProfile)
-                .collect(Collectors.toList());
-    }
-
-    private Profile deserializeProfile(String profileJson) {
-        try {
-            Member member = objectMapper.readValue(profileJson, Member.class);
-            return new Profile(member.getProfile(), member.getNickname());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("failed to deserialize profile");
-        }
+        return loadRoomParticipantsPort.getProfilesByRoomId(roomId);
     }
 }

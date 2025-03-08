@@ -26,7 +26,6 @@ public class RandomProfileService implements CreateRandomProfileUseCase {
             "무지", "튜브", "프로도", "콘", "브라운", "코코", "프렌즈", "토끼", "펭수", "뽀로로"
     );
 
-
     @Override
     public Profile crateProfile() {
         String imageUrl = getRandomImageUrl();
