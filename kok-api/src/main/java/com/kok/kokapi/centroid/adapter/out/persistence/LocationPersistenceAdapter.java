@@ -29,6 +29,16 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
     }
 
     @Override
+    public List<Location> findInsideConvexHull(String uuid) {
+        return locationRepository.findInsideConvexHull(uuid);
+    }
+
+    @Override
+    public List<Location> findConvexHull(String uuid) {
+        return locationRepository.findConvexHull(uuid);
+    }
+
+    @Override
     public Point findCentroidByUuid(String uuid) {
         String centroidWKT = locationRepository.findCentroidByUuid(uuid); // WKT 형식으로 받음
         if (centroidWKT == null) {
