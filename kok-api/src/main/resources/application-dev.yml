@@ -37,7 +37,11 @@ station:
   start-idx: 1
   end-idx: 1000
 
-tmap:
+tmap-sub:
   key: ${TMAP_KEY}
   url: "https://apis.openapi.sk.com/transit/routes/sub"
+  keyname: "appKey"
+tmap-complex:
+  key: ${TMAP_KEY}
+  url: "https://apis.openapi.sk.com/transit/routes"
   keyname: "appKey"
