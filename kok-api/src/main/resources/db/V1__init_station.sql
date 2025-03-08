@@ -22,7 +22,7 @@ create table location
 (
     id        bigint auto_increment primary key,
     member_id int          not null,
-    point     point        not null,
+    location_point     point        not null,
     uuid      varchar(255) not null,
     constraint UKrgpajb4rsivb4gj9xn2qowgw6
         unique (uuid, member_id)
