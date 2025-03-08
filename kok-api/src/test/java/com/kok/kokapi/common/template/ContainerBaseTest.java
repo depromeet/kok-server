@@ -14,8 +14,8 @@ public abstract class ContainerBaseTest {
         .withUsername("root")
         .withPassword("1234");
 
-    private static final RedisContainer redisContainer = new RedisContainer("redis:7.0"
-    );
+    private static final RedisContainer redisContainer = new RedisContainer("redis:7.0")
+        .withExposedPorts(REDIS_PORT);
 
     static {
         mysqlContainer.start();

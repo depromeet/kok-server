@@ -12,6 +12,7 @@ public interface StationRepository extends JpaRepository<Station, Long> {
     @Query("SELECT EXISTS (SELECT 1 FROM Station)")
     boolean existsAny();
 
-    Optional<Station> findStationById(Long stationId);
     List<Station> findAllByNameIn(List<String> names);
+
+    Optional<Station> findStationById(Long stationId);
 }
