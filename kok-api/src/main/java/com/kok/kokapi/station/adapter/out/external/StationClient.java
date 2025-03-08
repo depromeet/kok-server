@@ -4,6 +4,7 @@ import com.kok.kokapi.station.adapter.out.external.dto.StationResponses;
 import com.kok.kokcore.station.application.port.out.LoadStationsPort;
 import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
 import java.util.StringJoiner;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
 import org.springframework.boot.http.client.ClientHttpRequestFactorySettings;
@@ -11,6 +12,7 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+@Slf4j
 @Component
 @EnableConfigurationProperties(StationClientProperties.class)
 public class StationClient implements LoadStationsPort {
@@ -43,6 +45,10 @@ public class StationClient implements LoadStationsPort {
             .uri(getTargetUri())
             .retrieve()
             .body(StationResponses.class);
+        log.info("Seoul Data Open API Status Code: {}, Message: {}",
+            responses.subwayStationMaster().result().code(),
+            responses.subwayStationMaster().result().message()
+        );
         return responses.toStationRouteDtos();
     }
 
