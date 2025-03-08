@@ -21,9 +21,11 @@ public class StationClient implements LoadStationsPort {
 
     private final RestClient restClient;
     private final StationClientProperties properties;
+    private final StationErrorHandler stationErrorHandler;
 
-    public StationClient(StationClientProperties properties) {
+    public StationClient(StationClientProperties properties, StationErrorHandler stationErrorHandler) {
         this.properties = properties;
+        this.stationErrorHandler = stationErrorHandler;
         this.restClient = getRestClient();
     }
 
@@ -31,6 +33,7 @@ public class StationClient implements LoadStationsPort {
         return RestClient.builder()
             .requestFactory(getRequestFactory())
             .baseUrl(properties.baseUrl())
+            .defaultStatusHandler(stationErrorHandler)
             .build();
     }
 
