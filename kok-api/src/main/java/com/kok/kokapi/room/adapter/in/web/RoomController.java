@@ -43,8 +43,7 @@ public class RoomController {
         Room room = createRoomUseCase.createRoom(
                 request.roomName(),
                 request.capacity(),
-                host,
-                request.password()
+                host
         );
 
         var response = RoomDetailResponse.from(room);
