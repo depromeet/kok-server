@@ -1,5 +1,6 @@
 package com.kok.kokcore.room.domain;
 
+import com.kok.kokcore.room.domain.vo.MemberRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,10 +17,10 @@ class RoomTest {
         String hostProfile = "hostProfile";
         String hostNickname = "test";
         String password = "secret";
-        Member host = new Member(hostNickname, hostProfile, "Leader");
+        Member host = new Member(hostNickname, hostProfile, MemberRole.LEADER);
 
         // When
-        Room room = Room.create(roomName, capacity, host, password);
+        Room room = Room.create(roomName, capacity, host);
 
         // Then
         assertAll("약속방 생성",
@@ -28,8 +29,7 @@ class RoomTest {
                 () -> assertEquals(capacity, room.getCapacity(), "참여 인원 수가 일치해야 합니다."),
                 () -> assertEquals(hostNickname, room.getMember().getNickname(), "방장 닉네임이 일치해야 합니다."),
                 () -> assertEquals(hostProfile, room.getMember().getProfile(), "방장 프로필이 일치해야 합니다."),
-                () -> assertEquals("Leader", room.getMember().getRole(), "방장 역할은 Leader여야 합니다."),
-                () -> assertEquals(password, room.getPassword(), "비밀번호가 일치해야 합니다.")
+                () -> assertEquals(MemberRole.LEADER, room.getMember().getRole(), "방장 역할은 Leader여야 합니다.")
         );
     }
 
@@ -42,11 +42,11 @@ class RoomTest {
         String hostNickname = "hostNickname";
         String hostProfile = "hostProfile";
         String password = "secret";
-        Member host = new Member(hostNickname, hostProfile, "Leader");
+        Member host = new Member(hostNickname, hostProfile, MemberRole.LEADER);
 
         // When & Then
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> Room.create(roomName, capacity, host, password));
+                assertThrows(IllegalArgumentException.class, () -> Room.create(roomName, capacity, host));
         assertTrue(exception.getMessage().contains("Room name is required"));
     }
 
@@ -58,12 +58,11 @@ class RoomTest {
         int capacity = 1;
         String hostNickname = "hostNickname";
         String hostProfile = "hostProfile";
-        String password = "secret";
-        Member host = new Member(hostNickname, hostProfile, "Leader");
+        Member host = new Member(hostNickname, hostProfile, MemberRole.LEADER);
 
         // When & Then
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> Room.create(roomName, capacity, host, password));
+                assertThrows(IllegalArgumentException.class, () -> Room.create(roomName, capacity, host));
         assertTrue(exception.getMessage().contains("At least 2 participants are required"));
     }
 }

@@ -36,7 +36,8 @@ station:
   format: json
   start-idx: 1
   end-idx: 1000
-
+ncp:
+  object-storage-url: ${OBJECT_STORAGE_URL}
 tmap:
   key: ${TMAP_KEY}
   url: "https://apis.openapi.sk.com/transit/routes/sub"
