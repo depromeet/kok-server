@@ -1,10 +1,12 @@
 package com.kok.kokapi.station.adapter.out.persistence;
 
 import com.kok.kokcore.station.application.port.out.ReadStationsPort;
+import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;
 import java.util.function.Function;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort {
+public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort, RetrieveStationsPort {
 
     private static final String INSERT_STATION_SQL = """
             INSERT INTO station (name, latitude, longitude, priority)
@@ -53,6 +55,12 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
     @Override
     public boolean hasNoStations() {
         return !stationRepository.existsAny();
+    }
+
+
+    @Override
+    public Optional<Station> retrieveStation(Long stationId) {
+        return stationRepository.findStationByStationId(stationId);
     }
 }
 
