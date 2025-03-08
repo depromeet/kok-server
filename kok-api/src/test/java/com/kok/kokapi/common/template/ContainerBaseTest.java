@@ -9,13 +9,12 @@ public abstract class ContainerBaseTest {
 
     private static final int REDIS_PORT = 6379;
 
-    private static final MySQLContainer<?> mysqlContainer = new MySQLContainer<>("mysql:8.0")
-        .withDatabaseName("kok")
+    private static final MySQLContainer<?> mysqlContainer = new MySQLContainer<>("mysql:8.4")
+        .withDatabaseName("kok-db")
         .withUsername("root")
         .withPassword("1234");
 
-    private static final RedisContainer redisContainer = new RedisContainer(
-        RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG)
+    private static final RedisContainer redisContainer = new RedisContainer("redis:7.0"
     );
 
     static {
@@ -32,5 +31,8 @@ public abstract class ContainerBaseTest {
 
         registry.add("spring.data.redis.host", redisContainer::getHost);
         registry.add("spring.data.redis.port", () -> redisContainer.getMappedPort(REDIS_PORT));
+
+        registry.add("spring.flyway.enabled", () -> true);
+        registry.add("spring.flyway.baseline-on-migrate", () -> true);
     }
 }
