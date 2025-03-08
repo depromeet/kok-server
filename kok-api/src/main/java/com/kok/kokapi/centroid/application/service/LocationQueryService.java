@@ -22,10 +22,16 @@ public class LocationQueryService implements ReadLocationUsecase{
 
     @Override
     public List<Location> readLocations(String uuid) {
-        List<Location> locations = readLocationPort.findLocationsByUuid(uuid);
-        if (locations.isEmpty()) {
-            throw new IllegalArgumentException("해당 UUID에 대한 위치들을 찾을 수 없습니다.");
-        }
-        return locations;
+        return readLocationPort.findLocationsByUuid(uuid);
+    }
+
+    @Override
+    public List<Location> readInsideConvexHull(String uuid) {
+        return readLocationPort.findInsideConvexHull(uuid);
+    }
+
+    @Override
+    public List<Location> readConvexHull(String uuid) {
+        return readLocationPort.findConvexHull(uuid);
     }
 }
