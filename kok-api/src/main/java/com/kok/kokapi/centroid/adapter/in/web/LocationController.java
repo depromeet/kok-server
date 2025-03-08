@@ -1,9 +1,9 @@
 package com.kok.kokapi.centroid.adapter.in.web;
 
-import com.kok.kokapi.centroid.adapter.in.dto.Request.LocationRequest;
-import com.kok.kokapi.centroid.adapter.in.dto.Response.CentroidResponse;
-import com.kok.kokapi.centroid.adapter.in.dto.Response.ConvexHullLocationResponse;
-import com.kok.kokapi.centroid.adapter.in.dto.Response.LocationResponse;
+import com.kok.kokapi.centroid.adapter.in.dto.request.LocationRequest;
+import com.kok.kokapi.centroid.adapter.in.dto.response.CentroidResponse;
+import com.kok.kokapi.centroid.adapter.in.dto.response.ConvexHullLocationResponse;
+import com.kok.kokapi.centroid.adapter.in.dto.response.LocationResponse;
 import com.kok.kokapi.centroid.adapter.out.mapper.LocationMapper;
 import com.kok.kokapi.common.response.ApiResponseDto;
 import com.kok.kokapi.config.annotion.V1Controller;
@@ -31,7 +31,7 @@ public class LocationController {
     private final LocationMapper locationMapper;
 
     @Operation(summary = "위치 입력", description = "Create a new location with the provided details.")
-    @PostMapping("/location/create")
+    @PostMapping("/locations")
     public ResponseEntity<ApiResponseDto<CentroidResponse>> createLocation(@Valid @RequestBody LocationRequest locationRequest) {
         createLocationUsecase.createLocation(
                 locationRequest.uuid(),
@@ -49,7 +49,7 @@ public class LocationController {
 
     // For Test
     @Operation(summary = "중심 좌표 조회", description = "Retrieve the centroid coordinates for a location using its UUID")
-    @GetMapping("/location/centroid/{uuid}")
+    @GetMapping("/locations/centroid/{uuid}")
     public ResponseEntity<ApiResponseDto<CentroidResponse>> getCentroid(@PathVariable String uuid) {
         Pair<BigDecimal, BigDecimal> centroid = readCentroidUsecase.readCentroidCoordinates(uuid);
 
@@ -59,7 +59,7 @@ public class LocationController {
     }
 
     @Operation(summary = "위치 조회 Basic", description = "Retrieve detailed information for a location using its UUID and member ID")
-    @GetMapping("/location/{uuid}/{memberId}")
+    @GetMapping("/locations/{uuid}/{memberId}")
     public ResponseEntity<ApiResponseDto<LocationResponse>> getLocation(@PathVariable String uuid, @PathVariable Integer memberId) {
         Location location = readLocationUsecase.readLocation(uuid, memberId);
 
@@ -67,7 +67,7 @@ public class LocationController {
     }
 
     @Operation(summary = "위치조회 ConvexHull", description = "Retrieve the ConvexHull inside list, outside list of locations for a UUID")
-    @GetMapping("/location/ConvH/{uuid}")
+    @GetMapping("/locations/ConvH/{uuid}")
     public ResponseEntity<ApiResponseDto<ConvexHullLocationResponse>> getConvexHullLocations(@PathVariable String uuid){
         List<LocationResponse> convexHull = locationMapper.toResponseList(readLocationUsecase.readConvexHull(uuid));
         List<LocationResponse> inside = locationMapper.toResponseList(readLocationUsecase.readInsideConvexHull(uuid));
@@ -76,7 +76,7 @@ public class LocationController {
     }
 
     @Operation(summary = "위치 목록 조회", description = "Retrieve the list of locations for a UUID")
-    @GetMapping("/location/{uuid}")
+    @GetMapping("/locations/{uuid}")
     public ResponseEntity<ApiResponseDto<List<LocationResponse>>> getLocations(@PathVariable String uuid) {
         List<LocationResponse> responses = locationMapper.toResponseList(readLocationUsecase.readLocations(uuid));
 
@@ -84,7 +84,7 @@ public class LocationController {
     }
 
     @Operation(summary = "위치 수정", description = "Update the location with the provided details.")
-    @PutMapping("/location/update")
+    @PutMapping("/locations")
     public ResponseEntity<ApiResponseDto<LocationResponse>> updateLocation(@Valid @RequestBody LocationRequest locationRequest) {
         Location location = createLocationUsecase.updateLocation(
                 locationRequest.uuid(),
