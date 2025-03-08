@@ -7,6 +7,7 @@ import com.kok.kokapi.common.template.ServiceTest;
 import com.kok.kokcore.room.application.port.out.SaveRoomPort;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
+import com.kok.kokcore.room.domain.vo.MemberRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,8 @@ class RoomQueryServiceTest extends ServiceTest {
     @Test
     void findRoomById() {
         // given
-        Member member = new Member("nickname", "image", "Leader");
-        Room room = saveRoomPort.save(Room.create("room", 2, member, "1234"));
+        Member member = new Member("nickname", "image", MemberRole.LEADER);
+        Room room = saveRoomPort.save(Room.create("room", 2, member));
 
         // when
         Room result = roomQueryService.findRoomById(room.getId());

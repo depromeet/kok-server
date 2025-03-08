@@ -16,8 +16,8 @@ public class RoomCreationService implements CreateRoomUseCase {
     private final JoinRoomUseCase joinRoomUseCase;
 
     @Override
-    public Room createRoom(String roomName, int capacity, Member host, String password) {
-        Room room = Room.create(roomName, capacity, host, password);
+    public Room createRoom(String roomName, int capacity, Member host) {
+        Room room = Room.create(roomName, capacity, host);
         Room savedRoom = saveRoomPort.save(room);
 
         joinRoomUseCase.joinRoom(savedRoom.getId(), savedRoom.getMember());

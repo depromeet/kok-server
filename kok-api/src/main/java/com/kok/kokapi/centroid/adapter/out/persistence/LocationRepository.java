@@ -21,7 +21,7 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
         ST_Transform(
             ST_Centroid(
                 ST_Collect(
-                    ST_Transform(point, 3857))),4326)
+                    ST_Transform(location_point, 3857))),4326)
                )
     FROM location
     WHERE uuid = :uuid
@@ -34,32 +34,32 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
 
     @Query(value = """
     WITH ConvexHull AS (
-        SELECT ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(point)))) AS hull
+        SELECT ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(location_point)))) AS hull
         FROM location
         WHERE uuid = :uuid
     )
     SELECT l.*
     FROM location l, ConvexHull ch
     WHERE l.uuid = :uuid
-        AND ST_Contains(ch.hull, ST_GeomFromText(ST_AsText(l.point)))
+        AND ST_Contains(ch.hull, ST_GeomFromText(ST_AsText(l.location_point)))
     """, nativeQuery = true)
     List<Location> findInsideConvexHull(@Param("uuid") String uuid);
 
     @Query(value = """
     WITH ConvexHull AS (
-        SELECT ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(point)))) AS hull,
-               ST_Centroid(ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(point))))) AS center
+        SELECT ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(location_point)))) AS hull,
+               ST_Centroid(ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(location_point))))) AS center
         FROM location
         WHERE uuid = :uuid
     )
     SELECT l.*,
            ATAN2(
-               ST_Y(ST_GeomFromText(ST_AsText(l.point))) - ST_Y(ch.center),
-               ST_X(ST_GeomFromText(ST_AsText(l.point))) - ST_X(ch.center)
+               ST_Y(ST_GeomFromText(ST_AsText(l.location_point))) - ST_Y(ch.center),
+               ST_X(ST_GeomFromText(ST_AsText(l.location_point))) - ST_X(ch.center)
            ) AS angle
     FROM location l, ConvexHull ch
     WHERE l.uuid = :uuid
-        AND NOT ST_Contains(ch.hull, ST_GeomFromText(ST_AsText(l.point)))
+        AND NOT ST_Contains(ch.hull, ST_GeomFromText(ST_AsText(l.location_point)))
     ORDER BY angle
     """, nativeQuery = true)
     List<Location> findConvexHull(@Param("uuid") String uuid);

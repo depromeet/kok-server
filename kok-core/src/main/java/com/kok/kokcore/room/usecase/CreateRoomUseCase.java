@@ -4,5 +4,5 @@ import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 
 public interface CreateRoomUseCase {
-    Room createRoom(String roomName, int capacity, Member host, String password);
+    Room createRoom(String roomName, int capacity, Member host);
 }
