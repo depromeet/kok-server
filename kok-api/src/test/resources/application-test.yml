@@ -1,18 +1,18 @@
 spring:
   profiles:
     active: test
-  sql:
-    init:
-      mode: always
   flyway:
     enabled: true
     connect-retries: 30
+    baseline-on-migrate: true
   jpa:
     show-sql: true
     properties:
       hibernate:
+        show_sql: true
         format_sql: true
+        dialect: org.hibernate.spatial.dialect.mysql.MySQLSpatialDialect
     defer-datasource-initialization: false
     open-in-view: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: update

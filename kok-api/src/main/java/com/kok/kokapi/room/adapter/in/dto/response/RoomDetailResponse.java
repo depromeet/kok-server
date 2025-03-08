@@ -13,7 +13,11 @@ public record RoomDetailResponse(
                 room.getId(),
                 room.getRoomName(),
                 room.getCapacity(),
-                MemberResponse.from(room.getMember())
+                getLeaderResponse(room)
         );
+    }
+
+    private static MemberResponse getLeaderResponse(Room room) {
+        return MemberResponse.from(room.getMember());
     }
 }

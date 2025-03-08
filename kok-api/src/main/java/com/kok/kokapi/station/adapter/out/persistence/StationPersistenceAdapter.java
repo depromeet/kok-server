@@ -4,56 +4,52 @@ import com.kok.kokcore.station.application.port.out.ReadStationsPort;
 import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 
-@Component
+@Repository
 @Slf4j
 @RequiredArgsConstructor
 public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort, RetrieveStationsPort {
 
-    private static final String INSERT_SQL = """
-            INSERT INTO station (station_id, name, route, latitude, longitude, priority)
-            VALUES (?, ?, ?, ?, ?, ?)
+    private static final String INSERT_STATION_SQL = """
+            INSERT INTO station (name, latitude, longitude, priority)
+            VALUES (:name, :latitude, :longitude, :priority)
         """;
+    private static final Function<Station, MapSqlParameterSource> mapToParams = station ->
+        new MapSqlParameterSource()
+            .addValue("name", station.getName())
+            .addValue("latitude", station.getLatitude())
+            .addValue("longitude", station.getLongitude())
+            .addValue("priority", station.getPriority());
 
     private final StationRepository stationRepository;
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
-    public void saveStations(List<Station> stations) {
+    public List<Station> saveStations(List<Station> stations) {
         if (stations.isEmpty()) {
-            log.info("No stations to save.");
-            return;
+            log.debug("No stations to save.");
+            return List.of();
         }
-        int[] batches = jdbcTemplate.batchUpdate(INSERT_SQL, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                Station station = stations.get(i);
-                ps.setLong(1, station.getStationId());
-                ps.setString(2, station.getName());
-                ps.setString(3, station.getRoute());
-                ps.setBigDecimal(4, station.getLatitude());
-                ps.setBigDecimal(5, station.getLongitude());
-                ps.setLong(6, station.getPriority());
-            }
+        return batchInsertStations(stations);
+    }
 
-            @Override
-            public int getBatchSize() {
-                return stations.size();
-            }
-        });
-        log.info("Successfully saved a total of {} stations out of {}.",
-            Arrays.stream(batches).sum(), stations.size());
+    private List<Station> batchInsertStations(List<Station> stations) {
+        MapSqlParameterSource[] batchParams = stations.stream()
+            .map(mapToParams)
+            .toArray(MapSqlParameterSource[]::new);
+        int[] batched = jdbcTemplate.batchUpdate(INSERT_STATION_SQL, batchParams);
+        log.debug("Successfully saved a total of {} stations out of {}.", batched.length,
+            stations.size());
+        List<String> names = stations.stream().map(Station::getName).toList();
+        return stationRepository.findAllByNameIn(names);
     }
 
     @Override
@@ -67,3 +63,4 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
         return stationRepository.findStationById(stationId);
     }
 }
+

@@ -1,17 +1,19 @@
 package com.kok.kokapi.station.adapter.out.external;
 
 import com.kok.kokcore.station.application.port.out.LoadStationsPort;
-import com.kok.kokcore.station.domain.entity.Station;
-import java.math.BigDecimal;
+import com.kok.kokcore.station.application.port.out.dto.StationRouteDto;
+import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
 import java.util.List;
 
 public class FakeStationClient implements LoadStationsPort {
 
     @Override
-    public List<Station> loadAllStations() {
-        return List.of(
-            new Station(1L, "서울역", "1호선", BigDecimal.ONE, BigDecimal.ONE, 0),
-            new Station(2L, "합정역", "2호선", BigDecimal.TEN, BigDecimal.TEN, 5)
+    public StationRouteDtos loadAllStations() {
+        return new StationRouteDtos(
+            List.of(
+                new StationRouteDto("서울역", "1", "2", 1L, "1호선"),
+                new StationRouteDto("합정역", "10", "10", 2L, "2호선")
+            )
         );
     }
 }

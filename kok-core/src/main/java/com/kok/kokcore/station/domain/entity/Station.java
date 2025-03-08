@@ -18,12 +18,8 @@ public class Station {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
-    private Long stationId;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private String name;
-    @Column(nullable = false)
-    private String route;
     @Column(nullable = false, columnDefinition = "DECIMAL(16, 14)")
     private BigDecimal latitude;
     @Column(nullable = false, columnDefinition = "DECIMAL(17, 14)")
@@ -31,26 +27,14 @@ public class Station {
     @Column(nullable = false)
     private Long priority;
 
-    public Station(Long id, Long stationId, String name, String route, BigDecimal latitude,
-        BigDecimal longitude) {
-        this.id = id;
-        this.stationId = stationId;
+    public Station(String name, BigDecimal latitude, BigDecimal longitude, long priority) {
         this.name = name;
-        this.route = route;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-
-    public Station(Long stationId, String name, String route, BigDecimal latitude, BigDecimal longitude, long priority) {
-        this.stationId = stationId;
-        this.name = name;
-        this.route = route;
         this.latitude = latitude;
         this.longitude = longitude;
         this.priority = priority;
     }
 
-    public Station(Long stationId, String name, String route, String latitude, String longitude) {
-        this(stationId, name, route, new BigDecimal(latitude),new BigDecimal(longitude), 0);
+    public Station(String name,String latitude, String longitude) {
+        this(name, new BigDecimal(latitude),new BigDecimal(longitude), 0);
     }
 }
