@@ -1,10 +1,10 @@
 package com.kok.kokapi.public_transportation.adapter.out.external;
 
-import com.kok.kokapi.centroid.adapter.out.persistence.LocationPersistenceAdapter;
 import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapPublicTransportationResponse;
-import com.kok.kokapi.station.adapter.out.persistence.StationPersistenceAdapter;
+import com.kok.kokcore.location.application.port.out.ReadLocationPort;
 import com.kok.kokcore.location.domain.Location;
+import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,14 +29,14 @@ public class PublicTransportationClient {
     private final RestClient restClient;
     private final TmapClientProperties properties;
 
-    private final StationPersistenceAdapter stationPersistenceAdapter;
-    private final LocationPersistenceAdapter locationPersistenceAdapter;
+    private final RetrieveStationsPort retrieveStationsPort;
+    private final ReadLocationPort readLocationPort;
     private final PointConverter pointConverter;
 
-    public PublicTransportationClient(TmapClientProperties properties, StationPersistenceAdapter stationPersistenceAdapter, LocationPersistenceAdapter locationPersistenceAdapter, PointConverter pointConverter) {
+    public PublicTransportationClient(TmapClientProperties properties, RetrieveStationsPort retrieveStationsPort, ReadLocationPort readLocationPort, PointConverter pointConverter) {
         this.properties = properties;
-        this.stationPersistenceAdapter = stationPersistenceAdapter;
-        this.locationPersistenceAdapter = locationPersistenceAdapter;
+        this.retrieveStationsPort = retrieveStationsPort;
+        this.readLocationPort = readLocationPort;
         this.pointConverter = pointConverter;
         this.restClient = getRestClient();
     }
@@ -86,13 +86,13 @@ public class PublicTransportationClient {
     }
 
     private Pair<BigDecimal, BigDecimal> getUserLocation(String UUID, Integer memberId) {
-        Location userPoint = locationPersistenceAdapter.findLocationByUuidAndMemberId(UUID, memberId)
+        Location userPoint = readLocationPort.findLocationByUuidAndMemberId(UUID, memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 UUID의 사용자 위치가 존재하지 않습니다."));
         return pointConverter.toCoordinates(userPoint.getLocation_point());
     }
 
     private Station getStation(Long stationId) {
-        return stationPersistenceAdapter.retrieveStation(stationId)
+        return retrieveStationsPort.retrieveStation(stationId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 역이 존재하지 않습니다."));
     }
 }
