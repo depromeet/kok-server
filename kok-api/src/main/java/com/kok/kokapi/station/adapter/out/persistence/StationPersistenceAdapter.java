@@ -35,7 +35,7 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
     @Override
     public List<Station> saveStations(List<Station> stations) {
         if (stations.isEmpty()) {
-            log.info("No stations to save.");
+            log.debug("No stations to save.");
             return List.of();
         }
         return batchInsertStations(stations);
@@ -51,7 +51,7 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
                 savedCount++;
             }
         }
-        log.info("Successfully saved a total of {} stations out of {}.", savedCount, stations.size());
+        log.debug("Successfully saved a total of {} stations out of {}.", savedCount, stations.size());
         return stationRepository.findAll();
     }
 

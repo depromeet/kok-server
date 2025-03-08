@@ -45,7 +45,7 @@ public class StationClient implements LoadStationsPort {
             .uri(getTargetUri())
             .retrieve()
             .body(StationResponses.class);
-        log.info("Seoul Data Open API Status Code: {}, Message: {}",
+        log.debug("Seoul Data Open API Status Code: {}, Message: {}",
             responses.subwayStationMaster().result().code(),
             responses.subwayStationMaster().result().message()
         );

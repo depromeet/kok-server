@@ -32,7 +32,7 @@ public class RoutePersistenceAdapter implements SaveRoutePort {
     @Override
     public void saveRoutes(List<Route> routes) {
         if (routes.isEmpty()) {
-            log.info("No routes to save.");
+            log.debug("No routes to save.");
             return;
         }
         batchInsertRoutes(routes);
@@ -49,6 +49,6 @@ public class RoutePersistenceAdapter implements SaveRoutePort {
                 savedCount++;
             }
         }
-        log.info("Successfully saved a total of {} routes out of {}.", savedCount, routes.size());
+        log.debug("Successfully saved a total of {} routes out of {}.", savedCount, routes.size());
     }
 }
