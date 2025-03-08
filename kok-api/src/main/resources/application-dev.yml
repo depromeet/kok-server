@@ -6,7 +6,7 @@ spring:
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         show_sql: true
@@ -36,7 +36,10 @@ station:
   format: json
   start-idx: 1
   end-idx: 1000
-
+  
+ncp:
+  object-storage-url: ${OBJECT_STORAGE_URL}
+  
 tmap-sub:
   key: ${TMAP_KEY}
   url: "https://apis.openapi.sk.com/transit/routes/sub"

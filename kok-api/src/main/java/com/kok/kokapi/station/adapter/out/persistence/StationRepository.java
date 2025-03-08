@@ -1,6 +1,7 @@
 package com.kok.kokapi.station.adapter.out.persistence;
 
 import com.kok.kokcore.station.domain.entity.Station;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -12,4 +13,5 @@ public interface StationRepository extends JpaRepository<Station, Long> {
     boolean existsAny();
 
     Optional<Station> findStationById(Long stationId);
+    List<Station> findAllByNameIn(List<String> names);
 }
