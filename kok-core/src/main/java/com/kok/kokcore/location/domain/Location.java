@@ -28,17 +28,17 @@ public class Location {
     private Integer memberId;
 
     @Column(nullable = false, columnDefinition = "POINT SRID 4326")
-    private Point point;
+    private Point location_point;
 
 
-    public Location(String uuid, Integer memberId, Point point) {
+    public Location(String uuid, Integer memberId, Point location_point) {
         this.uuid = uuid;
         this.memberId = memberId;
-        this.point = point;
+        this.location_point = location_point;
     }
 
     // 더티체킹
     public void changePoint(Point point) {
-        this.point = point;
+        this.location_point = point;
     }
 }

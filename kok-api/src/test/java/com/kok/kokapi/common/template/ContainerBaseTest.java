@@ -9,7 +9,7 @@ public abstract class ContainerBaseTest {
 
     private static final int REDIS_PORT = 6379;
 
-    private static final MySQLContainer<?> mysqlContainer = new MySQLContainer<>("mysql:8.0")
+    private static final MySQLContainer<?> mysqlContainer = new MySQLContainer<>("mysql:8.4")
         .withDatabaseName("kok")
         .withUsername("root")
         .withPassword("1234");

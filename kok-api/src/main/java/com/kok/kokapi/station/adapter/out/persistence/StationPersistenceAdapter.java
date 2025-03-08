@@ -64,6 +64,6 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
 
     @Override
     public Optional<Station> retrieveStation(Long stationId) {
-        return stationRepository.findStationByStationId(stationId);
+        return stationRepository.findStationById(stationId);
     }
 }
