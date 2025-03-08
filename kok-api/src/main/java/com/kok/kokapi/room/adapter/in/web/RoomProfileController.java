@@ -25,7 +25,10 @@ public class RoomProfileController {
     @GetMapping("/rooms/profile/random")
     public ResponseEntity<ApiResponseDto<RandomProfileResponse>> getRandomProfile() {
         Profile profile = createRandomProfileUseCase.crateProfile();
-        RandomProfileResponse response = new RandomProfileResponse(profile.getImageUrl(), profile.getNickname());
+        RandomProfileResponse response = new RandomProfileResponse(
+                profile.getImageUrl(),
+                profile.getNickname()
+        );
 
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
