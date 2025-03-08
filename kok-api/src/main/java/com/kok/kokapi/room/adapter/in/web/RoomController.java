@@ -7,6 +7,7 @@ import com.kok.kokapi.room.adapter.in.dto.request.JoinRoomParticipantRequest;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomDetailResponse;
 import com.kok.kokcore.room.domain.Member;
+import com.kok.kokcore.room.domain.vo.MemberRole;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.CreateRoomUseCase;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
@@ -39,7 +40,7 @@ public class RoomController {
     @Operation(summary = "약속방 생성", description = "새로운 약속방을 생성합니다.")
     @PostMapping("/rooms")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> createRoom(@Valid @RequestBody CreateRoomRequest request) {
-        Member host = new Member(request.hostNickname(), request.hostProfile(), "Leader");
+        Member host = new Member(request.hostNickname(), request.hostProfile(), MemberRole.LEADER);
         Room room = createRoomUseCase.createRoom(
                 request.roomName(),
                 request.capacity(),
@@ -71,7 +72,7 @@ public class RoomController {
     public ResponseEntity<ApiResponseDto<String>> joinRoom(@PathVariable String roomId,
                                                            @Valid @RequestBody JoinRoomParticipantRequest request) {
         getRoomUseCase.findRoomById(roomId);
-        Member participant = new Member(request.nickname(), request.profile(), "Follower");
+        Member participant = new Member(request.nickname(), request.profile(), MemberRole.FOLLOWER);
         joinRoomUseCase.joinRoom(roomId, participant);
         return ResponseEntity.ok(ApiResponseDto.success("약속방 참여가 완료되었습니다."));
     }
