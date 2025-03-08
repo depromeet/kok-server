@@ -17,11 +17,15 @@ public class RoomParticipantSaveAdapter implements SaveRoomParticipantsPort {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void joinRoom(String roomId, Member member) {
+    public int joinRoom(String roomId, Member member) {
         String key = PARTICIPANT_KEY_PREFIX + roomId;
+
         try {
             String memberJson = objectMapper.writeValueAsString(member);
             redisTemplate.opsForList().rightPush(key, memberJson);
+
+            Long participantCount = redisTemplate.opsForList().size(key);
+            return participantCount != null ? participantCount.intValue() : 0;
         } catch (JsonProcessingException e) {
             throw new RuntimeException("failed to serialize member");
         }

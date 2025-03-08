@@ -20,8 +20,8 @@ public class RoomParticipantService implements JoinRoomUseCase, GetMemberProfile
     private final SaveRoomParticipantsPort saveRoomParticipantsPort;
 
     @Override
-    public void joinRoom(String roomId, Member member) {
-        saveRoomParticipantsPort.joinRoom(roomId, member);
+    public int joinRoom(String roomId, Member member) {
+        return saveRoomParticipantsPort.joinRoom(roomId, member);
     }
 
     @Override
