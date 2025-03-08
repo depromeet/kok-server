@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -39,16 +37,11 @@ public class RoutePersistenceAdapter implements SaveRoutePort {
     }
 
     private void batchInsertRoutes(List<Route> routes) {
-        int savedCount = 0;
-        for (Route route : routes) {
-            MapSqlParameterSource parameters = mapToParams.apply(route);
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            int updateCount = jdbcTemplate.update(INSERT_ROUTE_SQL, parameters, keyHolder,
-                new String[]{"id"});
-            if (updateCount > 0) {
-                savedCount++;
-            }
-        }
-        log.debug("Successfully saved a total of {} routes out of {}.", savedCount, routes.size());
+        MapSqlParameterSource[] batchParams = routes.stream()
+            .map(mapToParams)
+            .toArray(MapSqlParameterSource[]::new);
+        int[] batched = jdbcTemplate.batchUpdate(INSERT_ROUTE_SQL, batchParams);
+        log.debug("Successfully saved a total of {} routes out of {}.", batched.length,
+            routes.size());
     }
 }
