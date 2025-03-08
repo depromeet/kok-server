@@ -27,7 +27,7 @@ public class RandomProfileService implements CreateRandomProfileUseCase {
     );
 
     @Override
-    public Profile crateProfile() {
+    public Profile createProfile() {
         String imageUrl = getRandomImageUrl();
         String nickname = generateRandomNickname();
         return new Profile(imageUrl, nickname);
