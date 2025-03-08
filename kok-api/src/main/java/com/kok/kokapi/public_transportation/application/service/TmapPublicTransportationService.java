@@ -75,9 +75,9 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
 
         parsedItinerary.setLegs(parsedLegs);
 
-        TmapComplexPublicTransportationParsedResponse parsedRequest = new TmapComplexPublicTransportationParsedResponse();
-        parsedRequest.setParsedItinerary(parsedItinerary);
-        return parsedRequest;
+        TmapComplexPublicTransportationParsedResponse parsedResponse = new TmapComplexPublicTransportationParsedResponse();
+        parsedResponse.setParsedItinerary(parsedItinerary);
+        return parsedResponse;
     }
 
     public TmapPublicTransportationParsedResponse parseTmapResponse(TmapPublicTransportationResponse response) {
