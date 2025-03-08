@@ -33,7 +33,7 @@ public class StationClient implements LoadStationsPort {
         return RestClient.builder()
             .requestFactory(getRequestFactory())
             .baseUrl(properties.baseUrl())
-            .defaultStatusHandler(stationErrorHandler)
+            //.defaultStatusHandler(stationErrorHandler)
             .build();
     }
 
