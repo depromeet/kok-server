@@ -1,7 +1,7 @@
 package com.kok.kokapi.public_transportation.adapter.out.external;
 
 import com.kok.kokapi.config.geometry.PointConverter;
-import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapPublicTransportationResponse;
+import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapComplexPublicTransportationResponse;
 import com.kok.kokcore.location.application.port.out.ReadLocationPort;
 import com.kok.kokcore.location.domain.Location;
 import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
@@ -20,20 +20,18 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-
 @Component
-@EnableConfigurationProperties(TmapClientProperties.class)
+@EnableConfigurationProperties(TmapComplexClientProperties.class)
 @Slf4j
-public class PublicTransportationClient {
-
+public class PublicTransportationComplexClient {
     private final RestClient restClient;
-    private final TmapClientProperties properties;
+    private final TmapComplexClientProperties properties;
 
     private final RetrieveStationsPort retrieveStationsPort;
     private final ReadLocationPort readLocationPort;
     private final PointConverter pointConverter;
 
-    public PublicTransportationClient(TmapClientProperties properties, RetrieveStationsPort retrieveStationsPort, ReadLocationPort readLocationPort, PointConverter pointConverter) {
+    public PublicTransportationComplexClient(TmapComplexClientProperties properties, RetrieveStationsPort retrieveStationsPort, ReadLocationPort readLocationPort, PointConverter pointConverter) {
         this.properties = properties;
         this.retrieveStationsPort = retrieveStationsPort;
         this.readLocationPort = readLocationPort;
@@ -58,7 +56,7 @@ public class PublicTransportationClient {
                 .build(ClientHttpRequestFactorySettings.defaults());
     }
 
-    public TmapPublicTransportationResponse callPublicTransportRoute(Long stationId, String UUID, Integer memberId) {
+    public TmapComplexPublicTransportationResponse callComplexPublicTransportRoute(Long stationId, String UUID, Integer memberId){
         log.info("Tmap api call : {}-{}-{}", stationId, UUID, memberId);
         return getClient().post()
                 .body(buildRequestBody(
@@ -71,7 +69,18 @@ public class PublicTransportationClient {
                 .onStatus(HttpStatusCode::is5xxServerError, (status, response) -> {
                     throw new RuntimeException("Tmap api 호출에 실패했습니다. by 5xx" + status);
                 })
-                .body(TmapPublicTransportationResponse.class);
+                .body(TmapComplexPublicTransportationResponse.class);
+    }
+
+    private Pair<BigDecimal, BigDecimal> getUserLocation(String UUID, Integer memberId) {
+        Location userPoint = readLocationPort.findLocationByUuidAndMemberId(UUID, memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 UUID의 사용자 위치가 존재하지 않습니다."));
+        return pointConverter.toCoordinates(userPoint.getLocation_point());
+    }
+
+    private Station getStation(Long stationId) {
+        return retrieveStationsPort.retrieveStation(stationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 역이 존재하지 않습니다."));
     }
 
     private Map<String, Object> buildRequestBody(Pair<BigDecimal, BigDecimal> userLocation, Station station) {
@@ -85,14 +94,5 @@ public class PublicTransportationClient {
         return requestBody;
     }
 
-    private Pair<BigDecimal, BigDecimal> getUserLocation(String UUID, Integer memberId) {
-        Location userPoint = readLocationPort.findLocationByUuidAndMemberId(UUID, memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 UUID의 사용자 위치가 존재하지 않습니다."));
-        return pointConverter.toCoordinates(userPoint.getLocation_point());
-    }
-
-    private Station getStation(Long stationId) {
-        return retrieveStationsPort.retrieveStation(stationId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 역이 존재하지 않습니다."));
-    }
 }
+
