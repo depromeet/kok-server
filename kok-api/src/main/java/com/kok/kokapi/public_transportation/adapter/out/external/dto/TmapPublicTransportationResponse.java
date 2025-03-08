@@ -9,6 +9,7 @@ import java.util.List;
 // Tmap 처리를 위한 POJO
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TmapPublicTransportationResponse {
 
     // MetaData -> RequestParameters, Plan
@@ -18,7 +19,6 @@ public class TmapPublicTransportationResponse {
 
     private MetaData metaData;
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @Setter
     public static class MetaData {
@@ -27,7 +27,6 @@ public class TmapPublicTransportationResponse {
 
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @Setter
     public static class RequestParameters {
@@ -39,7 +38,6 @@ public class TmapPublicTransportationResponse {
 
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @Setter
     public static class Plan {
@@ -47,7 +45,6 @@ public class TmapPublicTransportationResponse {
 
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @Setter
     public static class Itinerary {
@@ -61,7 +58,6 @@ public class TmapPublicTransportationResponse {
 
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @Setter
     public static class Fare {
@@ -69,7 +65,6 @@ public class TmapPublicTransportationResponse {
 
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @Setter
     public static class RegularFare {
@@ -78,7 +73,6 @@ public class TmapPublicTransportationResponse {
 
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @Setter
     public static class Currency {

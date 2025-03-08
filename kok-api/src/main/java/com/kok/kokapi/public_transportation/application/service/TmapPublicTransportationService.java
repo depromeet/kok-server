@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -33,20 +34,23 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
     @Cacheable(value = "publicTransportation", cacheManager = "contentCacheManager", key = "'PTCache:' + #stationId + '-' + #UUID + '-' + #memberId")
     @Override
     public List<Integer> retrievePublicTransportation(Long stationId, String UUID, Integer memberId) {
-        TmapPublicTransportationResponse rawRoute = getTmapDto(stationId, UUID, memberId);
+        TmapPublicTransportationResponse rawRoute = callPublicTransportRoute(stationId, UUID, memberId);
         return List.of(
                 rawRoute.getMetaData().getPlan().getItineraries().getFirst().getTotalTime(), // 총 소요 시간
                 rawRoute.getMetaData().getPlan().getItineraries().getFirst().getTransferCount() // 환승 횟수
         );
     }
 
-    public TmapPublicTransportationResponse getTmapDto(Long stationId, String UUID, Integer memberId){
+    public TmapPublicTransportationResponse callPublicTransportRoute(Long stationId, String UUID, Integer memberId){
         log.info("Tmap api call : {}-{}-{}", stationId, UUID, memberId);
         return publicTransportationClient.getClient().post()
                 .body(buildRequestBody(
                         getUserLocation(UUID, memberId),
                         getStation(stationId)))
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (status, response) -> {
+                    throw new RuntimeException("Tmap api 호출에 실패했습니다." + status);
+                })
                 .body(TmapPublicTransportationResponse.class);
     }
 
