@@ -15,4 +15,14 @@ spring:
     defer-datasource-initialization: false
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
+ncp:
+    object-storage-url: mock
+tmap-sub:
+    key: mock
+    url: mock
+    keyname: mock
+tmap-complex:
+    key: mock
+    url: mock
+    keyname: mock
