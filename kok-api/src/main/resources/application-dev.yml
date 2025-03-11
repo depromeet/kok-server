@@ -16,6 +16,7 @@ spring:
     defer-datasource-initialization: true
   flyway:
     enabled: false
+    locations: classpath:db/migration
     baseline-on-migrate: true
   data:
     redis:

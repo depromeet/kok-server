@@ -4,6 +4,7 @@ spring:
   flyway:
     enabled: true
     connect-retries: 30
+    locations: classpath:db/migration
     baseline-on-migrate: true
   jpa:
     show-sql: true
