@@ -5,7 +5,7 @@ import com.kok.kokcore.location.domain.Location;
 import java.math.BigDecimal;
 
 
-public interface CreateLocationUsecase {
+public interface CreateLocationUseCase {
     Location createLocation(String uuid, Integer memberId, BigDecimal latitude, BigDecimal longitude);
     Location updateLocation(String uuid, Integer memberId, BigDecimal latitude, BigDecimal longitude);
 }

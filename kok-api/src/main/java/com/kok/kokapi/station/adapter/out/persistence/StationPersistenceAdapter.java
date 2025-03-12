@@ -1,14 +1,19 @@
 package com.kok.kokapi.station.adapter.out.persistence;
 
+import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokcore.station.application.port.out.ReadStationsPort;
 import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
-import java.util.List;
+
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.function.Function;
-import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Point;
+import org.springframework.data.util.Pair;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -17,6 +22,8 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @RequiredArgsConstructor
 public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort, RetrieveStationsPort {
+
+    private final PointConverter pointConverter;
 
     private static final String INSERT_STATION_SQL = """
             INSERT INTO station (name, latitude, longitude, priority)
@@ -61,6 +68,12 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
     @Override
     public Optional<Station> retrieveStation(Long stationId) {
         return stationRepository.findStationById(stationId);
+    }
+
+    @Override
+    public List<Station> retrieveInRangeStations(Point centroid, double dist) {
+        Pair<BigDecimal, BigDecimal> lonLat = pointConverter.toCoordinates(centroid);
+        return stationRepository.findInRangeStationsByCentroid(lonLat.getFirst(), lonLat.getSecond(), dist);
     }
 }
 

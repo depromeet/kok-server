@@ -4,7 +4,7 @@ import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokcore.location.domain.Location;
 import com.kok.kokcore.location.application.port.out.ReadLocationPort;
 import com.kok.kokcore.location.application.port.out.SaveLocationPort;
-import com.kok.kokcore.location.usecase.CreateLocationUsecase;
+import com.kok.kokcore.location.usecase.CreateLocationUseCase;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
-public class LocationCommandService implements CreateLocationUsecase {
+public class LocationCommandService implements CreateLocationUseCase {
 
     private final SaveLocationPort saveLocationPort;
     private final ReadLocationPort readLocationPort;

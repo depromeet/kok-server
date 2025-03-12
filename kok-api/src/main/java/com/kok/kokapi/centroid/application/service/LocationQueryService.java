@@ -2,7 +2,7 @@ package com.kok.kokapi.centroid.application.service;
 
 import com.kok.kokcore.location.domain.Location;
 import com.kok.kokcore.location.application.port.out.ReadLocationPort;
-import com.kok.kokcore.location.usecase.ReadLocationUsecase;
+import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class LocationQueryService implements ReadLocationUsecase{
+public class LocationQueryService implements ReadLocationUseCase {
 
     private final ReadLocationPort readLocationPort;
 
