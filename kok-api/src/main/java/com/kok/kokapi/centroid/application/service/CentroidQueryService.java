@@ -2,7 +2,7 @@ package com.kok.kokapi.centroid.application.service;
 
 import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokcore.location.application.port.out.ReadCentroidPort;
-import com.kok.kokcore.location.usecase.ReadCentroidUsecase;
+import com.kok.kokcore.location.usecase.ReadCentroidUseCase;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.util.Pair;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
-public class CentroidQueryService implements ReadCentroidUsecase {
+public class CentroidQueryService implements ReadCentroidUseCase {
 
     private final ReadCentroidPort readCentroidPort;
     private final PointConverter pointConverter;

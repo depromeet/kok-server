@@ -8,9 +8,9 @@ import com.kok.kokapi.centroid.adapter.out.mapper.LocationMapper;
 import com.kok.kokapi.common.response.ApiResponseDto;
 import com.kok.kokapi.config.annotion.V1Controller;
 import com.kok.kokcore.location.domain.Location;
-import com.kok.kokcore.location.usecase.CreateLocationUsecase;
-import com.kok.kokcore.location.usecase.ReadCentroidUsecase;
-import com.kok.kokcore.location.usecase.ReadLocationUsecase;
+import com.kok.kokcore.location.usecase.CreateLocationUseCase;
+import com.kok.kokcore.location.usecase.ReadCentroidUseCase;
+import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +25,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LocationController {
 
-    private final CreateLocationUsecase createLocationUsecase;
-    private final ReadCentroidUsecase readCentroidUsecase;
-    private final ReadLocationUsecase readLocationUsecase;
+    private final CreateLocationUseCase createLocationUsecase;
+    private final ReadCentroidUseCase readCentroidUsecase;
+    private final ReadLocationUseCase readLocationUsecase;
     private final LocationMapper locationMapper;
 
     @Operation(summary = "위치 입력", description = "Create a new location with the provided details.")

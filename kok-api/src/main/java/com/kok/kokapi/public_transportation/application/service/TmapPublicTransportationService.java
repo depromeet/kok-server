@@ -8,7 +8,7 @@ import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapComplex
 import com.kok.kokapi.public_transportation.adapter.out.external.PublicTransportationClient;
 import com.kok.kokapi.public_transportation.adapter.out.external.PublicTransportationComplexClient;
 import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapPublicTransportationResponse;
-import com.kok.kokcore.public_transfortation.usecase.RetrievePublicTransportationUsecase;
+import com.kok.kokcore.public_transfortation.usecase.RetrievePublicTransportationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,7 +23,7 @@ import static com.kok.kokapi.public_transportation.adapter.out.external.dto.Tmap
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TmapPublicTransportationService implements RetrievePublicTransportationUsecase {
+public class TmapPublicTransportationService implements RetrievePublicTransportationUseCase {
 
     private final PublicTransportationClient publicTransportationClient;
     private final PublicTransportationComplexClient publicTransportationComplexClient;

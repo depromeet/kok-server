@@ -7,7 +7,7 @@ import com.kok.kokapi.config.annotion.V1Controller;
 import com.kok.kokapi.public_transportation.adapter.in.dto.RouteRequest;
 import com.kok.kokapi.public_transportation.adapter.in.dto.TmapPublicTransportationParsedResponse;
 import com.kok.kokapi.public_transportation.adapter.in.dto.TmapComplexPublicTransportationParsedResponse;
-import com.kok.kokcore.public_transfortation.usecase.RetrievePublicTransportationUsecase;
+import com.kok.kokcore.public_transfortation.usecase.RetrievePublicTransportationUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class PublicTransportationController {
 
-    private final RetrievePublicTransportationUsecase retrievePublicTransportationUsecase;
+    private final RetrievePublicTransportationUseCase retrievePublicTransportationUsecase;
     private final ObjectMapper objectMapper;
 
     @Operation(summary = "대중교통 조회", description = "Retrieve the total time and transfer count for a route using the station ID")
