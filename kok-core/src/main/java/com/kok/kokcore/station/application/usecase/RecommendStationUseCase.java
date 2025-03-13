@@ -5,7 +5,8 @@ import org.locationtech.jts.geom.Point;
 
 import java.util.List;
 
+
 public interface RecommendStationUseCase {
 
-    List<Station> recommendStations(Point centroid);
+    List<Station> recommendStations(Point centroid, String uuid);
 }

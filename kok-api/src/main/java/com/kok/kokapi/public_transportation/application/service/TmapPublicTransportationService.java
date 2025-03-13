@@ -30,7 +30,7 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
     private final ObjectMapper objectMapper;
 
 
-    @Cacheable(value = "sub", cacheManager = "contentCacheManager", key = "'PTSubCache:' + #stationId + '-' + #UUID + '-' + #memberId")
+    @Cacheable(value = "sub", cacheManager = "publicTransportationCacheManager", key = "'PTSubCache:' + #stationId + '-' + #UUID + '-' + #memberId")
     @Override
     public String retrievePublicTransportation(Long stationId, String UUID, Integer memberId) {
         TmapPublicTransportationResponse rawRoute = publicTransportationClient.callPublicTransportRoute(stationId, UUID, memberId);
@@ -41,7 +41,7 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
         }
     }
 
-    @Cacheable(value = "complex", cacheManager = "contentCacheManager", key = "'PTComplexCache:' + #stationId + '-' + #UUID + '-' + #memberId")
+    @Cacheable(value = "complex", cacheManager = "publicTransportationCacheManager", key = "'PTComplexCache:' + #stationId + '-' + #UUID + '-' + #memberId")
     @Override
     public String retrieveComplexPublicTransportation(Long stationId, String UUID, Integer memberId) {
         TmapComplexPublicTransportationResponse rawRoute = publicTransportationComplexClient.callComplexPublicTransportRoute(stationId, UUID, memberId);
