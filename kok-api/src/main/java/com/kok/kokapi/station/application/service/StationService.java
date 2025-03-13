@@ -1,6 +1,7 @@
 package com.kok.kokapi.station.application.service;
 
 import com.kok.kokapi.config.geometry.PointConverter;
+import com.kok.kokcore.location.application.port.out.ReadCentroidPort;
 import com.kok.kokcore.station.application.port.out.*;
 import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
 import com.kok.kokcore.station.application.usecase.RecommendStationUseCase;
@@ -26,6 +27,7 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
     private final ReadStationsPort readStationsPort;
+    private final ReadCentroidPort readCentroidPort;
     private final SaveRoutePort saveRoutePort;
     private final RetrieveStationsPort retrieveStationsPort;
     private final PointConverter pointConverter;
@@ -42,16 +44,17 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
 
     @Override
     @Cacheable(value = "recommendStations",cacheManager = "stationCacheManager", key = "#uuid")
-    public List<Station> recommendStations(Point centroid, String uuid) {
+    public List<Station> recommendStations(String uuid) {
+        Point centroid = readCentroidPort.findCentroidByUuid(uuid);
+        int RECOMMEND_NUM = 2;
         double dist = 100;
         List<Station> stations = List.of();
 
         // 최대 탐색 거리 제한 10km
-        int VOTE_NUM = 2;
         while (dist < 10000) {
             stations = retrieveStationsPort.retrieveInRangeStations(centroid, dist);
-            log.info("Counter : " + stations.size() + " Dist : " + dist);
-            if (stations.size() >= VOTE_NUM) {
+            log.info("Counter : {} Dist : {}", stations.size(), dist);
+            if (stations.size() >= RECOMMEND_NUM) {
                 break;
             }
             dist *= 1.5;
@@ -66,7 +69,7 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
         Map<Station, Double> probabilityMap = calculateProbabilities(stations, centroid);
 
         // 확률에 따라 랜덤으로 상위 2개 지하철 선택
-        return selectTopStations(probabilityMap, VOTE_NUM);
+        return selectTopStations(probabilityMap, RECOMMEND_NUM);
     }
 
     private Map<Station, Double> calculateProbabilities(List<Station> stations, Point centroid) {
