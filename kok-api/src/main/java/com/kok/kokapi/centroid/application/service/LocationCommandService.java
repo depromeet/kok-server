@@ -30,7 +30,7 @@ public class LocationCommandService implements CreateLocationUseCase {
     @Transactional
     public Location updateLocation(String uuid, Integer memberId, BigDecimal latitude, BigDecimal longitude) {
         Location location = readLocationPort.findLocationByUuidAndMemberId(uuid, memberId)
-                .orElseThrow(() -> new RuntimeException("해당 ID의 정보가 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 정보가 없습니다."));
         Point newPoint = pointConverter.fromCoordinates(latitude, longitude);
         location.changePoint(newPoint);
         return location;
