@@ -13,6 +13,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,8 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     }
 
     @Override
-    public List<Station> recommendStations(Point centroid) {
+    @Cacheable(value = "recommendStations",cacheManager = "stationCacheManager", key = "#uuid")
+    public List<Station> recommendStations(Point centroid, String uuid) {
         double dist = 100;
         List<Station> stations = List.of();
 
