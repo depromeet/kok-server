@@ -8,7 +8,7 @@ public record CentroidResponse(
         BigDecimal latitude,
         BigDecimal longitude
 ) {
-    public static CentroidResponse of(String uuid, BigDecimal latitude, BigDecimal longitude) {
+    public static CentroidResponse of(String uuid, BigDecimal longitude, BigDecimal latitude) {
         return new CentroidResponse(uuid,
                 latitude.setScale(6, RoundingMode.HALF_UP),
                 longitude.setScale(6,RoundingMode.HALF_UP));
