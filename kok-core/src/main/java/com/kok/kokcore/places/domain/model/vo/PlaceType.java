@@ -9,7 +9,16 @@ import lombok.Getter;
 public enum PlaceType {
     RESTAURANT("restaurant"),
     CAFE("cafe"),
-    DEPARTMENT_STORE("department_store");
+    DEPARTMENT_STORE("department_store"),
+    BAR("bar"),
+    TOURIST_ATTRACTION("tourist_attraction"),
+    PARK("park"),
+    CONCERT_HALL("concert_hall"),
+    SHOPPING_MALL("shopping_mall"),
+    CLUB("night_club"),
+    MUSEUM("museum"),
+    ART_GALLERY("art_gallery")
+    ;
 
     private final String type;
 
