@@ -71,7 +71,7 @@ public class GooglePlaceAdapter implements LoadPlacesPort {
                     .retrieve()
                     .body(String.class);
 
-            log.info("Google Places API Response: {}", responseBody);
+            log.debug("Google Places API Response: {}", responseBody);
 
             return mapToPlacesResult(responseBody);
         } catch (IOException e) {
