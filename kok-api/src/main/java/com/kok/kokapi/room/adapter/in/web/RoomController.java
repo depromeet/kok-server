@@ -9,6 +9,7 @@ import com.kok.kokapi.room.adapter.in.dto.response.RoomCreateResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomDetailResponse;
 import com.kok.kokcore.room.domain.Member;
+import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.domain.vo.MemberRole;
 import com.kok.kokcore.room.usecase.CreateRoomUseCase;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @V1Controller
 @RequiredArgsConstructor
@@ -41,44 +43,63 @@ public class RoomController {
     @Operation(summary = "약속방 생성", description = "새로운 약속방을 생성합니다.")
     @PostMapping("/rooms")
     public ResponseEntity<ApiResponseDto<RoomCreateResponse>> createRoom(@Valid @RequestBody CreateRoomRequest request) {
-        var host = new Member(request.hostNickname(), request.hostProfile(), MemberRole.LEADER);
-        var room = createRoomUseCase.createRoom(
+        String memberId = generateMemberId();
+        String nickname = request.hostNickname();
+        String profile = request.hostProfile();
+        Member host = new Member(memberId, nickname, profile, MemberRole.LEADER);
+
+        Room room = createRoomUseCase.createRoom(
                 request.roomName(),
                 request.capacity(),
                 host
         );
 
-        var response = RoomCreateResponse.from(room, 1, 1);
+        RoomCreateResponse response = RoomCreateResponse.from(room, 1, request.capacity() - 1);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponseDto.success(response));
     }
 
+    private static String generateMemberId() {
+        return UUID.randomUUID().toString();
+    }
+
     @Operation(summary = "약속방 참여자 프로필 목록 조회", description = "약속방에 참여 중인 참여자들의 프로필 목록을 반환합니다.")
     @GetMapping("/rooms/{roomId}/participants")
     public ResponseEntity<ApiResponseDto<List<RoomMembersResponse>>> getParticipants(@PathVariable String roomId) {
-        var room = getRoomUseCase.findRoomById(roomId);
-        var participants = getRoomUseCase.getParticipants(room.getId());
+        Room room = getRoomUseCase.findRoomById(roomId);
+        List<Member> participants = getRoomUseCase.getParticipants(room.getId());
 
-        var response = participants.stream()
+        List<RoomMembersResponse> response = participants.stream()
                 .map(member -> new RoomMembersResponse(
+                        member.getMemberId(),
                         member.getProfile(),
                         member.getNickname(),
                         member.getRole()
                 )).toList();
+
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
     @Operation(summary = "약속방 참여", description = "사용자가 약속방에 참여합니다.")
     @PostMapping("/rooms/{roomId}/join")
-    public ResponseEntity<ApiResponseDto<JoinRoomResponse>> joinRoom(@PathVariable String roomId,
-                                                                     @Valid @RequestBody JoinRoomParticipantRequest request) {
+    public ResponseEntity<ApiResponseDto<JoinRoomResponse>> joinRoom(@PathVariable String roomId, @Valid @RequestBody JoinRoomParticipantRequest request) {
 
-        getRoomUseCase.findRoomById(roomId);
-        var participant = new Member(request.nickname(), request.profile(), MemberRole.FOLLOWER);
-        var participantCount = joinRoomUseCase.joinRoom(roomId, participant);
-        var memberId = participantCount;
-        JoinRoomResponse response = new JoinRoomResponse(participantCount, memberId);
+        Room room = getRoomUseCase.findRoomById(roomId);
+
+        String memberId = generateMemberId();
+        Member participant = new Member(memberId, request.nickname(), request.profile(), MemberRole.FOLLOWER);
+        int participantCount = joinRoomUseCase.joinRoom(roomId, participant);
+        int nonParticipantCount = room.getCapacity() - participantCount;
+
+        JoinRoomResponse response = new JoinRoomResponse(
+                participant.getMemberId(),
+                participant.getProfile(),
+                participant.getNickname(),
+                participantCount,
+                nonParticipantCount
+        );
+
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 }

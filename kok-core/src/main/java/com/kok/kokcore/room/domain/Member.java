@@ -9,14 +9,22 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class Member {
+    private final String memberId;
     private final String nickname;
     private final String profile;
     private final MemberRole role;
 
-    public Member(String nickname, String profile, MemberRole role) {
-        if (nickname == null || nickname.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nickname is required");
+    public Member(String memberId, String nickname, String profile, MemberRole role) {
+        if (memberId == null || memberId.isEmpty()) {
+            throw new IllegalArgumentException("MemberId is required.");
         }
+        if (nickname == null || nickname.isEmpty()) {
+            throw new IllegalArgumentException("Nickname is required.");
+        }
+        if (profile == null || profile.isEmpty()) {
+            throw new IllegalArgumentException("Profile is required.");
+        }
+        this.memberId = memberId;
         this.nickname = nickname.trim();
         this.profile = profile.trim();
         this.role = role;

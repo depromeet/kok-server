@@ -1,6 +1,7 @@
 package com.kok.kokapi.room.adapter.in.dto.request;
 
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -11,6 +12,7 @@ public record CreateRoomRequest(
         String roomName,
 
         @Min(value = 2, message = "참여 인원 수는 최소 2명 이상이어야 합니다.")
+        @Max(value = 15, message = "참여 인원 수는 최대 15명까지 가능합니다.")
         Integer capacity,
 
         @NotBlank(message = "프로필 이미지는 필수 입력 값입니다.")
