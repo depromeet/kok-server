@@ -7,17 +7,17 @@ public record RoomCreateResponse(
         String roomName,
         int capacity,
         MemberResponse member,
-        int memberId,
-        int participantCount
+        int participantCount,
+        int nonParticipantCount
 ) {
-    public static RoomCreateResponse from(Room room, int memberId, int participantCount) {
+    public static RoomCreateResponse from(Room room, int participantCount, int nonParticipantCount) {
         return new RoomCreateResponse(
                 room.getId(),
                 room.getRoomName(),
                 room.getCapacity(),
                 MemberResponse.from(room.getMember()),
-                memberId,
-                participantCount
+                participantCount,
+                nonParticipantCount
         );
     }
 }

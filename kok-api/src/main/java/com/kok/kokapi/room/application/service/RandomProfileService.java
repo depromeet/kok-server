@@ -34,8 +34,8 @@ public class RandomProfileService implements CreateRandomProfileUseCase {
     }
 
     private String getRandomImageUrl() {
-        int randomImageIndex = new Random().nextInt(9) + 1;
-        return objectStorageUrl + "/profile_default/" + randomImageIndex + ".svg";
+        int randomImageIndex = new Random().nextInt(15) + 1;
+        return objectStorageUrl + "/profile_default/" + randomImageIndex + ".png";
     }
 
     private String generateRandomNickname() {
