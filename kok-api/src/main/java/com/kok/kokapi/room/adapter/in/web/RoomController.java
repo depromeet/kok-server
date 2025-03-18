@@ -52,7 +52,7 @@ public class RoomController {
                 host
         );
 
-        RoomCreateResponse response = RoomCreateResponse.from(room, 1, request.capacity() - 1);
+        RoomCreateResponse response = RoomCreateResponse.from(room, 1, room.getCapacity() - 1);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponseDto.success(response));
