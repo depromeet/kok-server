@@ -16,7 +16,7 @@ public class RoomProfileController {
 
     private final CreateRandomProfileUseCase createRandomProfileUseCase;
 
-    @Operation(summary = "랜덤 프로필 및 닉네임 생성", description = "랜덤으로 생성한 프로필 이미지와 닉네임을 반환합니다.")
+    @Operation(summary = "랜덤 프로필 및 닉네임 조회", description = "랜덤으로 생성한 프로필 이미지와 닉네임을 반환합니다.")
     @GetMapping("/rooms/profile/random")
     public ResponseEntity<ApiResponseDto<RandomProfileResponse>> getRandomProfile() {
         Profile profile = createRandomProfileUseCase.createProfile();
