@@ -22,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @V1Controller
 @RequiredArgsConstructor
@@ -43,10 +42,9 @@ public class RoomController {
     @Operation(summary = "약속방 생성", description = "새로운 약속방을 생성합니다.")
     @PostMapping("/rooms")
     public ResponseEntity<ApiResponseDto<RoomCreateResponse>> createRoom(@Valid @RequestBody CreateRoomRequest request) {
-        String memberId = generateMemberId();
         String nickname = request.hostNickname();
         String profile = request.hostProfile();
-        Member host = new Member(memberId, nickname, profile, MemberRole.LEADER);
+        Member host = new Member(nickname, profile, MemberRole.LEADER);
 
         Room room = createRoomUseCase.createRoom(
                 request.roomName(),
@@ -58,10 +56,6 @@ public class RoomController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponseDto.success(response));
-    }
-
-    private static String generateMemberId() {
-        return UUID.randomUUID().toString();
     }
 
     @Operation(summary = "약속방 참여자 프로필 목록 조회", description = "약속방에 참여 중인 참여자들의 프로필 목록을 반환합니다.")
@@ -87,8 +81,7 @@ public class RoomController {
 
         Room room = getRoomUseCase.findRoomById(roomId);
 
-        String memberId = generateMemberId();
-        Member participant = new Member(memberId, request.nickname(), request.profile(), MemberRole.FOLLOWER);
+        Member participant = new Member(request.nickname(), request.profile(), MemberRole.FOLLOWER);
         int participantCount = joinRoomUseCase.joinRoom(roomId, participant);
         int nonParticipantCount = room.getCapacity() - participantCount;
 
