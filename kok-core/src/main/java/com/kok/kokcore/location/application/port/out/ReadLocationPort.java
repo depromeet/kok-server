@@ -10,5 +10,4 @@ public interface ReadLocationPort {
     List<Location> findLocationsByRoomId(String roomId);
     List<Location> findInsideConvexHull(String roomId);
     List<Location> findConvexHull(String roomId);
-    long countByRoomId(String roomId);
 }
