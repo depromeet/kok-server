@@ -17,6 +17,7 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocationPort, ReadLocationPort {
+
     private final LocationRepository locationRepository;
 
     @Override
@@ -62,5 +63,10 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
     @Override
     public Location saveLocation(String roomId, String memberId, Point point) {
         return locationRepository.save(new Location(roomId, memberId, point));
+    }
+
+    @Override
+    public boolean existsAllByMemberIds(List<String> memberIds) {
+        return locationRepository.countByMemberIdIn(memberIds) == memberIds.size();
     }
 }
