@@ -21,7 +21,7 @@ CREATE TABLE route
 create table location
 (
     id        bigint auto_increment primary key,
-    member_id int          not null,
+    member_id varchar(255)          not null,
     location_point     point        not null,
     room_id      varchar(255) not null,
     constraint UKrgpajb4rsivb4gj9xn2qowgw6
