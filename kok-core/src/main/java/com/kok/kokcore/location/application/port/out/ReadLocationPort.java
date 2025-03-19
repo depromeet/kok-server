@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReadLocationPort {
-    Optional<Location> findLocationByUuidAndMemberId(String uuid, Integer memberId);
-    List<Location> findLocationsByUuid(String uuid);
-    List<Location> findInsideConvexHull(String uuid);
-    List<Location> findConvexHull(String uuid);
+    Optional<Location> findLocationByRoomIdAndMemberId(String roomId, String memberId);
+    List<Location> findLocationsByRoomId(String roomId);
+    List<Location> findInsideConvexHull(String roomId);
+    List<Location> findConvexHull(String roomId);
 }

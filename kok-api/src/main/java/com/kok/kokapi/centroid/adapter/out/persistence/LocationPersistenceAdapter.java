@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Repository;
 import org.locationtech.jts.io.WKTReader;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,28 +20,33 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
     private final LocationRepository locationRepository;
 
     @Override
-    public Optional<Location> findLocationByUuidAndMemberId(String uuid, Integer memberId) {
-        return locationRepository.findLocationByUuidAndMemberId(uuid, memberId);
+    @Transactional(readOnly = true)
+    public Optional<Location> findLocationByRoomIdAndMemberId(String roomId, String memberId) {
+        return locationRepository.findLocationByRoomIdAndMemberId(roomId, memberId);
     }
 
     @Override
-    public List<Location> findLocationsByUuid(String uuid) {
-        return locationRepository.findLocationsByUuid(uuid);
+    @Transactional(readOnly = true)
+    public List<Location> findLocationsByRoomId(String roomId) {
+        return locationRepository.findLocationsByRoomId(roomId);
     }
 
     @Override
-    public List<Location> findInsideConvexHull(String uuid) {
-        return locationRepository.findInsideConvexHull(uuid);
+    @Transactional(readOnly = true)
+    public List<Location> findInsideConvexHull(String roomId) {
+        return locationRepository.findInsideConvexHull(roomId);
     }
 
     @Override
-    public List<Location> findConvexHull(String uuid) {
-        return locationRepository.findConvexHull(uuid);
+    @Transactional(readOnly = true)
+    public List<Location> findConvexHull(String roomId) {
+        return locationRepository.findConvexHull(roomId);
     }
 
     @Override
-    public Point findCentroidByUuid(String uuid) {
-        String centroidWKT = locationRepository.findCentroidByUuid(uuid); // WKT 형식으로 받음
+    @Transactional(readOnly = true)
+    public Point findCentroidByRoomId(String roomId) {
+        String centroidWKT = locationRepository.findCentroidByRoomId(roomId); // WKT 형식으로 받음
         if (centroidWKT == null) {
             return null;
         }
@@ -54,7 +60,7 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
     }
 
     @Override
-    public Location saveLocation(String uuid, Integer memberId, Point point) {
-        return locationRepository.save(new Location(uuid, memberId, point));
+    public Location saveLocation(String roomId, String memberId, Point point) {
+        return locationRepository.save(new Location(roomId, memberId, point));
     }
 }

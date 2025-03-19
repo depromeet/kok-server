@@ -56,11 +56,11 @@ public class PublicTransportationComplexClient {
                 .build(ClientHttpRequestFactorySettings.defaults());
     }
 
-    public TmapComplexPublicTransportationResponse callComplexPublicTransportRoute(Long stationId, String UUID, Integer memberId){
-        log.info("Tmap api call : {}-{}-{}", stationId, UUID, memberId);
+    public TmapComplexPublicTransportationResponse callComplexPublicTransportRoute(Long stationId, String roomId, String memberId){
+        log.info("Tmap api call : {}-{}-{}", stationId, roomId, memberId);
         return getClient().post()
                 .body(buildRequestBody(
-                        getUserLocation(UUID, memberId),
+                        getUserLocation(roomId, memberId),
                         getStation(stationId)))
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (status, response) -> {
@@ -72,9 +72,9 @@ public class PublicTransportationComplexClient {
                 .body(TmapComplexPublicTransportationResponse.class);
     }
 
-    private Pair<BigDecimal, BigDecimal> getUserLocation(String UUID, Integer memberId) {
-        Location userPoint = readLocationPort.findLocationByUuidAndMemberId(UUID, memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 UUID의 사용자 위치가 존재하지 않습니다."));
+    private Pair<BigDecimal, BigDecimal> getUserLocation(String roomId, String memberId) {
+        Location userPoint = readLocationPort.findLocationByRoomIdAndMemberId(roomId, memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 roomId의 사용자 위치가 존재하지 않습니다."));
         return pointConverter.toCoordinates(userPoint.getLocation_point());
     }
 

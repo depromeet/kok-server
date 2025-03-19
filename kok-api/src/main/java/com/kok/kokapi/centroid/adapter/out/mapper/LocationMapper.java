@@ -20,7 +20,7 @@ public class LocationMapper {
     public LocationResponse toResponse(Location location) {
         Pair<BigDecimal, BigDecimal> coordinates = pointConverter.toCoordinates(location.getLocation_point());
         return LocationResponse.of(
-                location.getUuid(),
+                location.getRoomId(),
                 location.getMemberId(),
                 coordinates.getFirst(),
                 coordinates.getSecond()

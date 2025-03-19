@@ -8,7 +8,7 @@ import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapComplex
 import com.kok.kokapi.public_transportation.adapter.out.external.PublicTransportationClient;
 import com.kok.kokapi.public_transportation.adapter.out.external.PublicTransportationComplexClient;
 import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapPublicTransportationResponse;
-import com.kok.kokcore.public_transfortation.usecase.RetrievePublicTransportationUsecase;
+import com.kok.kokcore.public_transfortation.usecase.RetrievePublicTransportationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,17 +23,17 @@ import static com.kok.kokapi.public_transportation.adapter.out.external.dto.Tmap
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TmapPublicTransportationService implements RetrievePublicTransportationUsecase {
+public class TmapPublicTransportationService implements RetrievePublicTransportationUseCase {
 
     private final PublicTransportationClient publicTransportationClient;
     private final PublicTransportationComplexClient publicTransportationComplexClient;
     private final ObjectMapper objectMapper;
 
 
-    @Cacheable(value = "sub", cacheManager = "contentCacheManager", key = "'PTSubCache:' + #stationId + '-' + #UUID + '-' + #memberId")
+    @Cacheable(value = "sub", cacheManager = "publicTransportationCacheManager", key = "'PTSubCache:' + #stationId + '-' + #roomId + '-' + #memberId")
     @Override
-    public String retrievePublicTransportation(Long stationId, String UUID, Integer memberId) {
-        TmapPublicTransportationResponse rawRoute = publicTransportationClient.callPublicTransportRoute(stationId, UUID, memberId);
+    public String retrievePublicTransportation(Long stationId, String roomId, String memberId) {
+        TmapPublicTransportationResponse rawRoute = publicTransportationClient.callPublicTransportRoute(stationId, roomId, memberId);
         try {
             return objectMapper.writeValueAsString(parseTmapResponse(rawRoute));
         } catch (JsonProcessingException e) {
@@ -41,10 +41,10 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
         }
     }
 
-    @Cacheable(value = "complex", cacheManager = "contentCacheManager", key = "'PTComplexCache:' + #stationId + '-' + #UUID + '-' + #memberId")
+    @Cacheable(value = "complex", cacheManager = "publicTransportationCacheManager", key = "'PTComplexCache:' + #stationId + '-' + #roomId + '-' + #memberId")
     @Override
-    public String retrieveComplexPublicTransportation(Long stationId, String UUID, Integer memberId) {
-        TmapComplexPublicTransportationResponse rawRoute = publicTransportationComplexClient.callComplexPublicTransportRoute(stationId, UUID, memberId);
+    public String retrieveComplexPublicTransportation(Long stationId, String roomId, String memberId) {
+        TmapComplexPublicTransportationResponse rawRoute = publicTransportationComplexClient.callComplexPublicTransportRoute(stationId, roomId, memberId);
         try {
             return objectMapper.writeValueAsString(parseComplexTmapResponse(rawRoute));
         } catch (JsonProcessingException e) {

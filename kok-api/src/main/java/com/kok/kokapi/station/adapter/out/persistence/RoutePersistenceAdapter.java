@@ -1,19 +1,25 @@
 package com.kok.kokapi.station.adapter.out.persistence;
 
+import com.kok.kokcore.station.application.port.out.RetrieveRoutePort;
 import com.kok.kokcore.station.application.port.out.SaveRoutePort;
 import com.kok.kokcore.station.domain.entity.Route;
 import java.util.List;
 import java.util.function.Function;
+
+import com.kok.kokcore.station.domain.entity.Station;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class RoutePersistenceAdapter implements SaveRoutePort {
+public class RoutePersistenceAdapter implements SaveRoutePort, RetrieveRoutePort {
+
+    private final RouteRepository routeRepository;
 
     private static final String INSERT_ROUTE_SQL = """
             INSERT INTO route (code, name, station_id)
@@ -43,5 +49,12 @@ public class RoutePersistenceAdapter implements SaveRoutePort {
         int[] batched = jdbcTemplate.batchUpdate(INSERT_ROUTE_SQL, batchParams);
         log.debug("Successfully saved a total of {} routes out of {}.", batched.length,
             routes.size());
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Route> retrieveRoutes(Station station) {
+        return routeRepository.findAllByStationOrderByName(station);
     }
 }
