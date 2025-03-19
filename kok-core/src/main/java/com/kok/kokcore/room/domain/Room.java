@@ -1,9 +1,11 @@
 package com.kok.kokcore.room.domain;
 
-import lombok.*;
-
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @ToString
@@ -11,16 +13,19 @@ import java.util.UUID;
 public class Room implements Serializable {
 
     public static final int REQUIRED_CAPACITY = 2;
+    private static final long DEADLINE = 6;
     private final String id;               // 약속방 ID (UUID)
     private final String roomName;         // 약속방 이름
     private final int capacity;            // 참여인원 수 (최소 2명 이상)
     private final Member member;           // 방 참여자
+    private final LocalDateTime locationInputDeadline; // 방 생성일시
 
     private Room(String id, String roomName, int capacity, Member member) {
         this.id = id;
         this.roomName = roomName;
         this.capacity = capacity;
         this.member = member;
+        this.locationInputDeadline = LocalDateTime.now().withNano(0).plusHours(DEADLINE);
     }
 
     public static Room create(String roomName, int capacity, Member member) {
@@ -38,5 +43,9 @@ public class Room implements Serializable {
         if (capacity < REQUIRED_CAPACITY) {
             throw new IllegalArgumentException("At least 2 participants are required");
         }
+    }
+
+    public boolean hasDeadlinePassed(LocalDateTime target) {
+        return target.isAfter(locationInputDeadline);
     }
 }
