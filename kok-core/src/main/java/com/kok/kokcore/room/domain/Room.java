@@ -12,8 +12,9 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Room implements Serializable {
 
-    public static final int REQUIRED_CAPACITY = 2;
-    private static final long DEADLINE = 6;
+    private static final int REQUIRED_CAPACITY = 2;
+    private static final long LOCATION_INPUT_TIME_LIMIT = 6;
+
     private final String id;               // 약속방 ID (UUID)
     private final String roomName;         // 약속방 이름
     private final int capacity;            // 참여인원 수 (최소 2명 이상)
@@ -25,7 +26,7 @@ public class Room implements Serializable {
         this.roomName = roomName;
         this.capacity = capacity;
         this.member = member;
-        this.locationInputDeadline = LocalDateTime.now().withNano(0).plusHours(DEADLINE);
+        this.locationInputDeadline = LocalDateTime.now().withNano(0).plusHours(LOCATION_INPUT_TIME_LIMIT);
     }
 
     public static Room create(String roomName, int capacity, Member member) {
@@ -45,7 +46,7 @@ public class Room implements Serializable {
         }
     }
 
-    public boolean hasDeadlinePassed(LocalDateTime target) {
-        return target.isAfter(locationInputDeadline);
+    public boolean hasLocationInputEnded(long participantCount, LocalDateTime target) {
+        return participantCount == capacity || target.isAfter(locationInputDeadline);
     }
 }

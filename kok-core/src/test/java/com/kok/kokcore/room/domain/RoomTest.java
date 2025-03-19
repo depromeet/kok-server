@@ -78,25 +78,38 @@ class RoomTest {
 
     @DisplayName("출발지 입력 마감 시간을 초과하면 true를 반환한다.")
     @Test
-    void hasDeadlinePassed() {
+    void hasLocationInputEndedByDeadlineExceeded() {
         // given
         Room room = Room.create("room", 2, new Member("member", "profile.svg", MemberRole.LEADER));
 
         // when
-        boolean result = room.hasDeadlinePassed(LocalDateTime.now().plusHours(6));
+        boolean result = room.hasLocationInputEnded(1, LocalDateTime.now().plusHours(6));
 
         // then
         assertThat(result).isTrue();
     }
 
-    @DisplayName("출발지 입력 마감 시간을 초과하지 않으면 false를 반환한다.")
+    @DisplayName("모든 참가자가 출발지 입력을 완료하면 true를 반환한다.")
     @Test
-    void hasNotDeadlinePassed() {
+    void hasLocationInputEndedByAllParticipantCompleted() {
         // given
         Room room = Room.create("room", 2, new Member("member", "profile.svg", MemberRole.LEADER));
 
         // when
-        boolean result = room.hasDeadlinePassed(LocalDateTime.now().plusHours(5));
+        boolean result = room.hasLocationInputEnded(2, LocalDateTime.now().plusHours(5));
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("출발지 입력 마감 시간을 초과하지도, 출발지 입력을 완료하지도 않았으면 false를 반환한다.")
+    @Test
+    void hasNotLocationInputEnded() {
+        // given
+        Room room = Room.create("room", 2, new Member("member", "profile.svg", MemberRole.LEADER));
+
+        // when
+        boolean result = room.hasLocationInputEnded(1, LocalDateTime.now().plusHours(5));
 
         // then
         assertThat(result).isFalse();
