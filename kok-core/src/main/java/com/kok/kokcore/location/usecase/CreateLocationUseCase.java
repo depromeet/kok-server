@@ -6,6 +6,6 @@ import java.math.BigDecimal;
 
 
 public interface CreateLocationUseCase {
-    Location createLocation(String uuid, String memberId, BigDecimal latitude, BigDecimal longitude);
-    Location updateLocation(String uuid, String memberId, BigDecimal latitude, BigDecimal longitude);
+    Location createLocation(String roomId, String memberId, BigDecimal latitude, BigDecimal longitude);
+    Location updateLocation(String roomId, String memberId, BigDecimal latitude, BigDecimal longitude);
 }

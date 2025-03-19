@@ -43,9 +43,9 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     }
 
     @Override
-    @Cacheable(value = "recommendStations",cacheManager = "stationCacheManager", key = "#uuid")
-    public List<Station> recommendStations(String uuid) {
-        Point centroid = readCentroidPort.findCentroidByUuid(uuid);
+    @Cacheable(value = "recommendStations",cacheManager = "stationCacheManager", key = "#roomId")
+    public List<Station> recommendStations(String roomId) {
+        Point centroid = readCentroidPort.findCentroidByRoomId(roomId);
         int RECOMMEND_NUM = 2;
         double dist = 100;
         List<Station> stations = List.of();

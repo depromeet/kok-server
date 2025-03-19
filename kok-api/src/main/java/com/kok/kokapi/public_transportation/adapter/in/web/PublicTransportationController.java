@@ -25,7 +25,7 @@ public class PublicTransportationController {
     @PostMapping("/route/{stationId}")
     public ResponseEntity<ApiResponseDto<TmapPublicTransportationParsedResponse>> getPublicTransportation(@PathVariable Long stationId, @RequestBody RouteRequest routeRequest) {
         try {
-            TmapPublicTransportationParsedResponse publicTransportation = objectMapper.readValue(retrievePublicTransportationUsecase.retrievePublicTransportation(stationId, routeRequest.UUID(), routeRequest.memberId())
+            TmapPublicTransportationParsedResponse publicTransportation = objectMapper.readValue(retrievePublicTransportationUsecase.retrievePublicTransportation(stationId, routeRequest.roomId(), routeRequest.memberId())
             ,TmapPublicTransportationParsedResponse.class);
             return ResponseEntity.ok(ApiResponseDto.success(publicTransportation));
         } catch (JsonProcessingException e) {
@@ -37,7 +37,7 @@ public class PublicTransportationController {
     @PostMapping("/route/complex/{stationId}")
     public ResponseEntity<ApiResponseDto<TmapComplexPublicTransportationParsedResponse>> getComplexPublicTransportation(@PathVariable Long stationId, @RequestBody RouteRequest routeRequest) {
         try {
-            TmapComplexPublicTransportationParsedResponse publicTransportation = objectMapper.readValue(retrievePublicTransportationUsecase.retrieveComplexPublicTransportation(stationId, routeRequest.UUID(), routeRequest.memberId())
+            TmapComplexPublicTransportationParsedResponse publicTransportation = objectMapper.readValue(retrievePublicTransportationUsecase.retrieveComplexPublicTransportation(stationId, routeRequest.roomId(), routeRequest.memberId())
                     , TmapComplexPublicTransportationParsedResponse.class);
             return ResponseEntity.ok(ApiResponseDto.success(publicTransportation));
         } catch (JsonProcessingException e) {
