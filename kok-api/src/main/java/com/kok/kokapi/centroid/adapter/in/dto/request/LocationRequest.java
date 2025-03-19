@@ -13,7 +13,7 @@ public record LocationRequest(
         String uuid,
 
         @NotNull(message = "memberId(멤버 일련번호)는 필수입니다.")
-        Integer memberId,
+        String memberId,
 
         @NotNull(message = "latitude(위도)는 필수입니다.")
         @DecimalMin(value = "33.0", message = "위도는 33.0 이상이어야 합니다.")

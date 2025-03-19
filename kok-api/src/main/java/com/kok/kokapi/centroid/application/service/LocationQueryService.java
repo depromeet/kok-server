@@ -15,7 +15,7 @@ public class LocationQueryService implements ReadLocationUseCase {
     private final ReadLocationPort readLocationPort;
 
     @Override
-    public Location readLocation(String uuid, Integer memberId) {
+    public Location readLocation(String uuid, String memberId) {
         return readLocationPort.findLocationByUuidAndMemberId(uuid, memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 멤버의 위치를 찾을 수 없습니다."));
     }

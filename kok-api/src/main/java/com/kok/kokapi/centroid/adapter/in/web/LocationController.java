@@ -9,7 +9,7 @@ import com.kok.kokapi.common.response.ApiResponseDto;
 import com.kok.kokapi.config.annotion.V1Controller;
 import com.kok.kokcore.location.domain.Location;
 import com.kok.kokcore.location.usecase.CreateLocationUseCase;
-import com.kok.kokcore.location.usecase.ReadCentroidUseCase;
+import com.kok.kokcore.location.usecase.LoadCentroidUseCase;
 import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -26,7 +26,7 @@ import java.util.List;
 public class LocationController {
 
     private final CreateLocationUseCase createLocationUsecase;
-    private final ReadCentroidUseCase readCentroidUsecase;
+    private final LoadCentroidUseCase loadCentroidUsecase;
     private final ReadLocationUseCase readLocationUsecase;
     private final LocationMapper locationMapper;
 
@@ -40,7 +40,7 @@ public class LocationController {
                 locationRequest.longitude()
         );
 
-        Pair<BigDecimal, BigDecimal> centroid = readCentroidUsecase.readCentroidCoordinates(locationRequest.uuid());
+        Pair<BigDecimal, BigDecimal> centroid = loadCentroidUsecase.readCentroidCoordinates(locationRequest.uuid());
 
         return ResponseEntity.ok(ApiResponseDto.success(
                 CentroidResponse.of(locationRequest.uuid(), centroid.getFirst(), centroid.getSecond())
@@ -51,7 +51,7 @@ public class LocationController {
     @Operation(summary = "중심 좌표 조회", description = "Retrieve the centroid coordinates for a location using its UUID")
     @GetMapping("/locations/centroid/{uuid}")
     public ResponseEntity<ApiResponseDto<CentroidResponse>> getCentroid(@PathVariable String uuid) {
-        Pair<BigDecimal, BigDecimal> centroid = readCentroidUsecase.readCentroidCoordinates(uuid);
+        Pair<BigDecimal, BigDecimal> centroid = loadCentroidUsecase.readCentroidCoordinates(uuid);
 
         return ResponseEntity.ok(ApiResponseDto.success(
                 CentroidResponse.of(uuid, centroid.getFirst(), centroid.getSecond())
@@ -60,7 +60,7 @@ public class LocationController {
 
     @Operation(summary = "위치 조회 Basic", description = "Retrieve detailed information for a location using its UUID and member ID")
     @GetMapping("/locations/{uuid}/{memberId}")
-    public ResponseEntity<ApiResponseDto<LocationResponse>> getLocation(@PathVariable String uuid, @PathVariable Integer memberId) {
+    public ResponseEntity<ApiResponseDto<LocationResponse>> getLocation(@PathVariable String uuid, @PathVariable String memberId) {
         Location location = readLocationUsecase.readLocation(uuid, memberId);
 
         return ResponseEntity.ok(ApiResponseDto.success(locationMapper.toResponse(location)));

@@ -5,7 +5,7 @@ import org.springframework.data.util.Pair;
 
 import java.math.BigDecimal;
 
-public interface ReadCentroidUseCase {
+public interface LoadCentroidUseCase {
     Point readCentroid(String uuid);
 
     Pair<BigDecimal, BigDecimal> readCentroidCoordinates(String uuid);

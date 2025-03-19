@@ -28,7 +28,7 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
     """, nativeQuery = true)
     String findCentroidByUuid(@Param("uuid") String uuid);
 
-    Optional<Location> findLocationByUuidAndMemberId(String uuid, Integer memberId);
+    Optional<Location> findLocationByUuidAndMemberId(String uuid, String memberId);
 
     List<Location> findLocationsByUuid(String uuid);
 

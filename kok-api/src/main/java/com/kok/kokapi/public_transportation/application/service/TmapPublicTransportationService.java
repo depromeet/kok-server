@@ -32,7 +32,7 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
 
     @Cacheable(value = "sub", cacheManager = "publicTransportationCacheManager", key = "'PTSubCache:' + #stationId + '-' + #UUID + '-' + #memberId")
     @Override
-    public String retrievePublicTransportation(Long stationId, String UUID, Integer memberId) {
+    public String retrievePublicTransportation(Long stationId, String UUID, String memberId) {
         TmapPublicTransportationResponse rawRoute = publicTransportationClient.callPublicTransportRoute(stationId, UUID, memberId);
         try {
             return objectMapper.writeValueAsString(parseTmapResponse(rawRoute));
@@ -43,7 +43,7 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
 
     @Cacheable(value = "complex", cacheManager = "publicTransportationCacheManager", key = "'PTComplexCache:' + #stationId + '-' + #UUID + '-' + #memberId")
     @Override
-    public String retrieveComplexPublicTransportation(Long stationId, String UUID, Integer memberId) {
+    public String retrieveComplexPublicTransportation(Long stationId, String UUID, String memberId) {
         TmapComplexPublicTransportationResponse rawRoute = publicTransportationComplexClient.callComplexPublicTransportRoute(stationId, UUID, memberId);
         try {
             return objectMapper.writeValueAsString(parseComplexTmapResponse(rawRoute));

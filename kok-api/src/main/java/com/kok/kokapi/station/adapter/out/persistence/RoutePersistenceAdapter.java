@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Slf4j
@@ -52,6 +53,7 @@ public class RoutePersistenceAdapter implements SaveRoutePort, RetrieveRoutePort
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<Route> retrieveRoutes(Station station) {
         return routeRepository.findAllByStationOrderByName(station);
     }

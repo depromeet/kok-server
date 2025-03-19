@@ -25,7 +25,8 @@ public class StationController {
     public ResponseEntity<ApiResponseDto<List<RecommendedStationResponse>>> recommendStations(@PathVariable String uuid) {
 
         List<RecommendedStationResponse> recommendedStations = recommendStationUseCase.recommendStations(uuid).stream()
-                .map(station -> RecommendedStationResponse.of(station, retrieveRouteUseCase.retrieveRoutes(station)))
+                .map(station ->
+                        RecommendedStationResponse.of(station, retrieveRouteUseCase.retrieveRoutes(station)))
                 .toList();
 
         return ResponseEntity.ok(ApiResponseDto.success(recommendedStations));
