@@ -63,6 +63,4 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
         ORDER BY angle
         """, nativeQuery = true)
     List<Location> findConvexHull(@Param("roomId") String roomId);
-
-    long countByRoomId(String roomId);
 }
