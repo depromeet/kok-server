@@ -15,23 +15,23 @@ public class LocationQueryService implements ReadLocationUseCase {
     private final ReadLocationPort readLocationPort;
 
     @Override
-    public Location readLocation(String uuid, String memberId) {
-        return readLocationPort.findLocationByUuidAndMemberId(uuid, memberId)
+    public Location readLocation(String roomId, String memberId) {
+        return readLocationPort.findLocationByRoomIdAndMemberId(roomId, memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 멤버의 위치를 찾을 수 없습니다."));
     }
 
     @Override
-    public List<Location> readLocations(String uuid) {
-        return readLocationPort.findLocationsByUuid(uuid);
+    public List<Location> readLocations(String roomId) {
+        return readLocationPort.findLocationsByRoomId(roomId);
     }
 
     @Override
-    public List<Location> readInsideConvexHull(String uuid) {
-        return readLocationPort.findInsideConvexHull(uuid);
+    public List<Location> readInsideConvexHull(String roomId) {
+        return readLocationPort.findInsideConvexHull(roomId);
     }
 
     @Override
-    public List<Location> readConvexHull(String uuid) {
-        return readLocationPort.findConvexHull(uuid);
+    public List<Location> readConvexHull(String roomId) {
+        return readLocationPort.findConvexHull(roomId);
     }
 }

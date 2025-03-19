@@ -5,8 +5,8 @@ import com.kok.kokcore.location.domain.Location;
 import java.util.List;
 
 public interface ReadLocationUseCase {
-    Location readLocation(String uuid, String memberId);
-    List<Location> readLocations(String uuid);
-    List<Location> readInsideConvexHull(String uuid);
-    List<Location> readConvexHull(String uuid);
+    Location readLocation(String roomId, String memberId);
+    List<Location> readLocations(String roomId);
+    List<Location> readInsideConvexHull(String roomId);
+    List<Location> readConvexHull(String roomId);
 }

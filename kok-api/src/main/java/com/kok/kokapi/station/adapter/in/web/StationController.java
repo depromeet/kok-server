@@ -21,10 +21,10 @@ public class StationController {
     private final RetrieveRouteUseCase retrieveRouteUseCase;
 
     @Operation(summary = "지하철역 추천", description = "Recommend subway stations based on the user's location.")
-    @GetMapping("/stations/recommend/{uuid}")
-    public ResponseEntity<ApiResponseDto<List<RecommendedStationResponse>>> recommendStations(@PathVariable String uuid) {
+    @GetMapping("/stations/recommend/{roomId}")
+    public ResponseEntity<ApiResponseDto<List<RecommendedStationResponse>>> recommendStations(@PathVariable String roomId) {
 
-        List<RecommendedStationResponse> recommendedStations = recommendStationUseCase.recommendStations(uuid).stream()
+        List<RecommendedStationResponse> recommendedStations = recommendStationUseCase.recommendStations(roomId).stream()
                 .map(station ->
                         RecommendedStationResponse.of(station, retrieveRouteUseCase.retrieveRoutes(station)))
                 .toList();

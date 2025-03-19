@@ -12,7 +12,7 @@ import org.locationtech.jts.geom.Point;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "location" ,
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"uuid", "member_id"})
+                @UniqueConstraint(columnNames = {"room_id", "member_id"})
         })
 
 public class Location {
@@ -22,7 +22,7 @@ public class Location {
     private Long id;
 
     @Column(nullable = false)
-    private String uuid;
+    private String roomId;
 
     @Column(nullable = false)
     private String memberId;
@@ -31,8 +31,8 @@ public class Location {
     private Point location_point;
 
 
-    public Location(String uuid, String memberId, Point location_point) {
-        this.uuid = uuid;
+    public Location(String roomId, String memberId, Point location_point) {
+        this.roomId = roomId;
         this.memberId = memberId;
         this.location_point = location_point;
     }

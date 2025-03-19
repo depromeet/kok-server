@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 
 public record LocationRequest(
 
-        @NotBlank(message = "uuid는 필수입니다.")
-        String uuid,
+        @NotBlank(message = "roomId는 필수입니다.")
+        String roomId,
 
         @NotNull(message = "memberId(멤버 일련번호)는 필수입니다.")
         String memberId,

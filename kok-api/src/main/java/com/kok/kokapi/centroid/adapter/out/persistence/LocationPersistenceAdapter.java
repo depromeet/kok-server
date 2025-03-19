@@ -21,32 +21,32 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Location> findLocationByUuidAndMemberId(String uuid, String memberId) {
-        return locationRepository.findLocationByUuidAndMemberId(uuid, memberId);
+    public Optional<Location> findLocationByRoomIdAndMemberId(String roomId, String memberId) {
+        return locationRepository.findLocationByRoomIdAndMemberId(roomId, memberId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Location> findLocationsByUuid(String uuid) {
-        return locationRepository.findLocationsByUuid(uuid);
+    public List<Location> findLocationsByRoomId(String roomId) {
+        return locationRepository.findLocationsByRoomId(roomId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Location> findInsideConvexHull(String uuid) {
-        return locationRepository.findInsideConvexHull(uuid);
+    public List<Location> findInsideConvexHull(String roomId) {
+        return locationRepository.findInsideConvexHull(roomId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Location> findConvexHull(String uuid) {
-        return locationRepository.findConvexHull(uuid);
+    public List<Location> findConvexHull(String roomId) {
+        return locationRepository.findConvexHull(roomId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Point findCentroidByUuid(String uuid) {
-        String centroidWKT = locationRepository.findCentroidByUuid(uuid); // WKT 형식으로 받음
+    public Point findCentroidByRoomId(String roomId) {
+        String centroidWKT = locationRepository.findCentroidByRoomId(roomId); // WKT 형식으로 받음
         if (centroidWKT == null) {
             return null;
         }
@@ -60,7 +60,7 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
     }
 
     @Override
-    public Location saveLocation(String uuid, String memberId, Point point) {
-        return locationRepository.save(new Location(uuid, memberId, point));
+    public Location saveLocation(String roomId, String memberId, Point point) {
+        return locationRepository.save(new Location(roomId, memberId, point));
     }
 }

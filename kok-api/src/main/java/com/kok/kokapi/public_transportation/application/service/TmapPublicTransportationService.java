@@ -30,10 +30,10 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
     private final ObjectMapper objectMapper;
 
 
-    @Cacheable(value = "sub", cacheManager = "publicTransportationCacheManager", key = "'PTSubCache:' + #stationId + '-' + #UUID + '-' + #memberId")
+    @Cacheable(value = "sub", cacheManager = "publicTransportationCacheManager", key = "'PTSubCache:' + #stationId + '-' + #roomId + '-' + #memberId")
     @Override
-    public String retrievePublicTransportation(Long stationId, String UUID, String memberId) {
-        TmapPublicTransportationResponse rawRoute = publicTransportationClient.callPublicTransportRoute(stationId, UUID, memberId);
+    public String retrievePublicTransportation(Long stationId, String roomId, String memberId) {
+        TmapPublicTransportationResponse rawRoute = publicTransportationClient.callPublicTransportRoute(stationId, roomId, memberId);
         try {
             return objectMapper.writeValueAsString(parseTmapResponse(rawRoute));
         } catch (JsonProcessingException e) {
@@ -41,10 +41,10 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
         }
     }
 
-    @Cacheable(value = "complex", cacheManager = "publicTransportationCacheManager", key = "'PTComplexCache:' + #stationId + '-' + #UUID + '-' + #memberId")
+    @Cacheable(value = "complex", cacheManager = "publicTransportationCacheManager", key = "'PTComplexCache:' + #stationId + '-' + #roomId + '-' + #memberId")
     @Override
-    public String retrieveComplexPublicTransportation(Long stationId, String UUID, String memberId) {
-        TmapComplexPublicTransportationResponse rawRoute = publicTransportationComplexClient.callComplexPublicTransportRoute(stationId, UUID, memberId);
+    public String retrieveComplexPublicTransportation(Long stationId, String roomId, String memberId) {
+        TmapComplexPublicTransportationResponse rawRoute = publicTransportationComplexClient.callComplexPublicTransportRoute(stationId, roomId, memberId);
         try {
             return objectMapper.writeValueAsString(parseComplexTmapResponse(rawRoute));
         } catch (JsonProcessingException e) {
