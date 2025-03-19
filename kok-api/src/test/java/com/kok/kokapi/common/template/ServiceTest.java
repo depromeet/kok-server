@@ -1,6 +1,6 @@
 package com.kok.kokapi.common.template;
 
-import com.kok.kokapi.common.util.MySQLDatabaseCleanerExtension;
+import com.kok.kokapi.common.util.DatabaseCleanerExtension;
 import com.kok.kokapi.config.ServiceTestConfig;
 import com.kok.kokapi.public_transportation.adapter.out.external.PublicTransportationClient;
 import com.kok.kokapi.public_transportation.adapter.out.external.PublicTransportationComplexClient;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-@ExtendWith(MySQLDatabaseCleanerExtension.class)
+@ExtendWith(DatabaseCleanerExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Import({ServiceTestConfig.class})
 @TestPropertySource(properties = {"spring.config.location = classpath:application-test.yml"})
