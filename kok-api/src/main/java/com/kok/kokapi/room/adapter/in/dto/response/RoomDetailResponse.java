@@ -6,18 +6,18 @@ public record RoomDetailResponse(
         String id,
         String roomName,
         int capacity,
-        MemberResponse member
+        int participantCount,
+        int nonParticipantCount,
+        boolean voteMode
 ) {
-    public static RoomDetailResponse from(Room room) {
+    public static RoomDetailResponse of(Room room, int participantCount, boolean isVoteMode) {
         return new RoomDetailResponse(
                 room.getId(),
                 room.getRoomName(),
                 room.getCapacity(),
-                getLeaderResponse(room)
+                participantCount,
+                room.getCapacity() - participantCount,
+                isVoteMode
         );
-    }
-
-    private static MemberResponse getLeaderResponse(Room room) {
-        return MemberResponse.from(room.getMember());
     }
 }

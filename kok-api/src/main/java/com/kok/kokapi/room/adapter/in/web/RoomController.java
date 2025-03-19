@@ -8,6 +8,7 @@ import com.kok.kokapi.room.adapter.in.dto.response.JoinRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomCreateResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomDetailResponse;
+import com.kok.kokapi.room.application.service.RoomFacadeService;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.domain.vo.MemberRole;
@@ -16,6 +17,7 @@ import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.room.usecase.JoinRoomUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoomController {
 
+    private final RoomFacadeService roomFacadeService;
     private final GetRoomUseCase getRoomUseCase;
     private final CreateRoomUseCase createRoomUseCase;
     private final JoinRoomUseCase joinRoomUseCase;
@@ -34,8 +37,7 @@ public class RoomController {
     @Operation(summary = "약속방 조회", description = "약속방 ID를 통해 약속방을 조회합니다.")
     @GetMapping("/rooms/{roomId}")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> getRoomDetail(@PathVariable String roomId) {
-        var room = getRoomUseCase.findRoomById(roomId);
-        var response = RoomDetailResponse.from(room);
+        RoomDetailResponse response = roomFacadeService.findByRoomId(roomId, LocalDateTime.now());
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
