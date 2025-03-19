@@ -66,7 +66,7 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
     }
 
     @Override
-    public boolean existsAllByMemberIds(List<String> memberIds) {
-        return locationRepository.countByMemberIdIn(memberIds) == memberIds.size();
+    public long countByRoomId(String roomId) {
+        return locationRepository.countByRoomId(roomId);
     }
 }
