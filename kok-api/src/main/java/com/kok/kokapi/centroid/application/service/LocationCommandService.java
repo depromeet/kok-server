@@ -21,14 +21,14 @@ public class LocationCommandService implements CreateLocationUseCase {
     private final PointConverter pointConverter;
 
     @Override
-    public Location createLocation(String uuid, Integer memberId, BigDecimal latitude, BigDecimal longitude) {
+    public Location createLocation(String uuid, String memberId, BigDecimal latitude, BigDecimal longitude) {
         Point point = pointConverter.fromCoordinates(latitude, longitude);
         return saveLocationPort.saveLocation(uuid, memberId, point);
     }
 
     @Override
     @Transactional
-    public Location updateLocation(String uuid, Integer memberId, BigDecimal latitude, BigDecimal longitude) {
+    public Location updateLocation(String uuid, String memberId, BigDecimal latitude, BigDecimal longitude) {
         Location location = readLocationPort.findLocationByUuidAndMemberId(uuid, memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 정보가 없습니다."));
         Point newPoint = pointConverter.fromCoordinates(latitude, longitude);

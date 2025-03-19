@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Repository;
 import org.locationtech.jts.io.WKTReader;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,26 +20,31 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
     private final LocationRepository locationRepository;
 
     @Override
-    public Optional<Location> findLocationByUuidAndMemberId(String uuid, Integer memberId) {
+    @Transactional(readOnly = true)
+    public Optional<Location> findLocationByUuidAndMemberId(String uuid, String memberId) {
         return locationRepository.findLocationByUuidAndMemberId(uuid, memberId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Location> findLocationsByUuid(String uuid) {
         return locationRepository.findLocationsByUuid(uuid);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Location> findInsideConvexHull(String uuid) {
         return locationRepository.findInsideConvexHull(uuid);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Location> findConvexHull(String uuid) {
         return locationRepository.findConvexHull(uuid);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Point findCentroidByUuid(String uuid) {
         String centroidWKT = locationRepository.findCentroidByUuid(uuid); // WKT 형식으로 받음
         if (centroidWKT == null) {
@@ -54,7 +60,7 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
     }
 
     @Override
-    public Location saveLocation(String uuid, Integer memberId, Point point) {
+    public Location saveLocation(String uuid, String memberId, Point point) {
         return locationRepository.save(new Location(uuid, memberId, point));
     }
 }

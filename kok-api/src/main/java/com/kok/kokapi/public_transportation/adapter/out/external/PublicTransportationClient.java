@@ -58,7 +58,7 @@ public class PublicTransportationClient {
                 .build(ClientHttpRequestFactorySettings.defaults());
     }
 
-    public TmapPublicTransportationResponse callPublicTransportRoute(Long stationId, String UUID, Integer memberId) {
+    public TmapPublicTransportationResponse callPublicTransportRoute(Long stationId, String UUID, String memberId) {
         log.info("Tmap api call : {}-{}-{}", stationId, UUID, memberId);
         return getClient().post()
                 .body(buildRequestBody(
@@ -85,7 +85,7 @@ public class PublicTransportationClient {
         return requestBody;
     }
 
-    private Pair<BigDecimal, BigDecimal> getUserLocation(String UUID, Integer memberId) {
+    private Pair<BigDecimal, BigDecimal> getUserLocation(String UUID, String memberId) {
         Location userPoint = readLocationPort.findLocationByUuidAndMemberId(UUID, memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 UUID의 사용자 위치가 존재하지 않습니다."));
         return pointConverter.toCoordinates(userPoint.getLocation_point());

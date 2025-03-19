@@ -17,6 +17,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Slf4j
@@ -66,11 +67,13 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
 
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Station> retrieveStation(Long stationId) {
         return stationRepository.findStationById(stationId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Station> retrieveInRangeStations(Point centroid, double dist) {
         Pair<BigDecimal, BigDecimal> lonLat = pointConverter.toCoordinates(centroid);
         return stationRepository.findInRangeStationsByCentroid(lonLat.getFirst(), lonLat.getSecond(), dist);

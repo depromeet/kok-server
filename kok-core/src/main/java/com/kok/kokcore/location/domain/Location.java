@@ -25,13 +25,13 @@ public class Location {
     private String uuid;
 
     @Column(nullable = false)
-    private Integer memberId;
+    private String memberId;
 
     @Column(nullable = false, columnDefinition = "POINT SRID 4326")
     private Point location_point;
 
 
-    public Location(String uuid, Integer memberId, Point location_point) {
+    public Location(String uuid, String memberId, Point location_point) {
         this.uuid = uuid;
         this.memberId = memberId;
         this.location_point = location_point;
