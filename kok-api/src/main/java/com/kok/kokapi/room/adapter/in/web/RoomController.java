@@ -34,7 +34,7 @@ public class RoomController {
     private final CreateRoomUseCase createRoomUseCase;
     private final JoinRoomUseCase joinRoomUseCase;
 
-    @Operation(summary = "약속방 조회", description = "약속방 ID를 통해 약속방을 조회합니다.")
+    @Operation(summary = "약속방 조회", description = "약속방 ID를 통해 약속방을 조회합니다. 투표 모드에 대한 값을 포함합니다.")
     @GetMapping("/rooms/{roomId}")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> getRoomDetail(@PathVariable String roomId) {
         RoomDetailResponse response = roomFacadeService.findByRoomId(roomId, LocalDateTime.now());
