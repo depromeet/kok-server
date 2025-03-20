@@ -33,11 +33,8 @@ class RoomIntegrationTest extends IntegrationTest {
                     .then().log().all()
                     .assertThat().statusCode(201)
                     .extract().body().jsonPath().getObject("data", RoomCreateResponse.class))),
-            DynamicTest.dynamicTest("방장이 출발지 정보를 입력한다.",
-                () -> inputLocation(createRoomResponse.get().id(),
-                    createRoomResponse.get().member().id())),
-            DynamicTest.dynamicTest("약속방 정보를 조회해보면 아직 참여자가 다 들어오지 않았기 때문에 voteMode는 false이다.",
-                () -> getRoomDetail(createRoomResponse.get().id(), false)),
+            inputLocation("방장이 출발지 정보를 입력한다.", createRoomResponse.get().id(), createRoomResponse.get().member().id()),
+            getRoomDetailAndCheckVoteMode("약속방 정보를 조회해보면 아직 출발지 입력을 완료하지 않았기에 voteMode는 false이다.",createRoomResponse.get().id(), false),
             DynamicTest.dynamicTest("팔로워가 약속방에 참여한다.",
                 () -> joinRoomResponse.set(RestAssured.given().log().all()
                     .contentType(ContentType.JSON)
@@ -46,13 +43,16 @@ class RoomIntegrationTest extends IntegrationTest {
                     .then().log().all()
                     .assertThat().statusCode(200)
                     .extract().body().jsonPath().getObject("data", JoinRoomResponse.class))),
-            DynamicTest.dynamicTest("약속방 정보를 조회해보면 아직 출발지 입력을 완료하지 않았기에 voteMode는 false이다.",
-                () -> getRoomDetail(createRoomResponse.get().id(), false)),
-            DynamicTest.dynamicTest("팔로워가 출발지 정보를 입력한다.",
-                () -> inputLocation(createRoomResponse.get().id(), joinRoomResponse.get().id())),
-            DynamicTest.dynamicTest("약속방 정보를 조회해보면 모든 참여자가 출발지 입력을 완료했기에 voteMode는 true이다.",
-                () -> getRoomDetail(createRoomResponse.get().id(), true))
+            getRoomDetailAndCheckVoteMode("약속방 정보를 조회해보면 아직 출발지 입력을 완료하지 않았기에 voteMode는 false이다.",createRoomResponse.get().id(), false),
+            inputLocation("팔로워가 출발지 정보를 입력한다.", createRoomResponse.get().id(), joinRoomResponse.get().id()),
+            getRoomDetailAndCheckVoteMode("약속방 정보를 조회해보면 모든 참여자가 출발지 입력을 완료했기에 voteMode는 true이다.",createRoomResponse.get().id(), true)
         );
+    }
+
+    private static DynamicTest inputLocation(String message, String roomId, String memberId
+    ) {
+        return DynamicTest.dynamicTest(message,
+            () -> inputLocation(roomId, memberId));
     }
 
     private static void inputLocation(String roomId, String memberId) {
@@ -63,6 +63,11 @@ class RoomIntegrationTest extends IntegrationTest {
             .when().post("/v1/api/locations")
             .then().log().all()
             .assertThat().statusCode(200);
+    }
+
+    private static DynamicTest getRoomDetailAndCheckVoteMode(String message, String roomId, boolean voteMode) {
+        return DynamicTest.dynamicTest(message,
+            () -> getRoomDetail(roomId, voteMode));
     }
 
     private static void getRoomDetail(String roomId, boolean expected) {
