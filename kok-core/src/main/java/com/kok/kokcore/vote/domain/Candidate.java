@@ -1,6 +1,8 @@
 package com.kok.kokcore.vote.domain;
 
+import lombok.Getter;
 
+@Getter
 public class Candidate {
 
     private final String roomId;
