@@ -28,6 +28,11 @@ public class CandidateQueryRedisAdapter implements LoadCandidatePort {
             .toList();
     }
 
+    @Override
+    public boolean isExistsByRoomId(String roomId) {
+        return redisTemplate.hasKey(getKey(roomId));
+    }
+
     private String getKey(String roomId) {
         return CANDIDATES_KEY + roomId;
     }

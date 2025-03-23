@@ -6,4 +6,6 @@ import java.util.List;
 public interface LoadCandidatePort {
 
     List<Candidate> findByRoomId(String roomId);
+
+    boolean isExistsByRoomId(String roomId);
 }
