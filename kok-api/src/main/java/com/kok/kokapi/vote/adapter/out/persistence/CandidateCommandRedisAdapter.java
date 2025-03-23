@@ -1,6 +1,5 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kok.kokcore.vote.application.port.out.SaveCandidatePort;
 import com.kok.kokcore.vote.domain.Candidate;
 import java.util.List;
@@ -16,12 +15,11 @@ public class CandidateCommandRedisAdapter implements SaveCandidatePort {
     private static final String CANDIDATES_KEY = "vote:candidates:";
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final ObjectMapper objectMapper;
 
     @Override
     public void saveAll(List<Candidate> candidates) {
         validate(candidates);
-        String key = CANDIDATES_KEY + getKey(candidates);
+        String key = getKey(candidates);
         Object[] stationIds = candidates.stream()
             .map(Candidate::getStationId)
             .toArray();
@@ -36,6 +34,6 @@ public class CandidateCommandRedisAdapter implements SaveCandidatePort {
     }
 
     private String getKey(List<Candidate> candidates) {
-        return candidates.getFirst().getRoomId();
+        return CANDIDATES_KEY + candidates.getFirst().getRoomId();
     }
 }
