@@ -7,12 +7,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode
 public class Station {
 
     @Id
@@ -34,7 +36,7 @@ public class Station {
         this.priority = priority;
     }
 
-    public Station(String name,String latitude, String longitude) {
-        this(name, new BigDecimal(latitude),new BigDecimal(longitude), 0);
+    public Station(String name, String latitude, String longitude) {
+        this(name, new BigDecimal(latitude), new BigDecimal(longitude), 0);
     }
 }
