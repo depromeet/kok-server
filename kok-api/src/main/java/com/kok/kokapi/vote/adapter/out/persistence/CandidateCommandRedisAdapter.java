@@ -20,15 +20,19 @@ public class CandidateCommandRedisAdapter implements SaveCandidatePort {
 
     @Override
     public void saveAll(List<Candidate> candidates) {
-        if (Objects.isNull(candidates) || candidates.isEmpty()) {
-            throw new IllegalArgumentException("저장할 후보지 정보가 없어요 ㅜㅜ");
-        }
+        validate(candidates);
         String key = CANDIDATES_KEY + getKey(candidates);
         Object[] stationIds = candidates.stream()
             .map(Candidate::getStationId)
             .toArray();
 
         redisTemplate.opsForSet().add(key, stationIds);
+    }
+
+    private void validate(List<Candidate> candidates) {
+        if (Objects.isNull(candidates) || candidates.isEmpty()) {
+            throw new IllegalArgumentException("No candidates to save");
+        }
     }
 
     private String getKey(List<Candidate> candidates) {

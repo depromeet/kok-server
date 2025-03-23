@@ -1,8 +1,11 @@
 package com.kok.kokcore.vote.domain;
 
 import com.kok.kokcore.vote.domain.vo.VoteStatus;
+import lombok.Getter;
 
+@Getter
 public class Vote {
+
     private Candidate candidate;
     private String memberId;
     private VoteStatus voteStatus;
@@ -23,5 +26,13 @@ public class Vote {
 
     public void disagree() {
         this.voteStatus = VoteStatus.DISAGREE;
+    }
+
+    public String getRoomId() {
+        return candidate.getRoomId();
+    }
+
+    public long getStationId() {
+        return candidate.getStationId();
     }
 }
