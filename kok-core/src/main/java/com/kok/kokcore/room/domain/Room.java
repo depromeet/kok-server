@@ -48,8 +48,9 @@ public class Room implements Serializable {
         }
     }
 
-    public boolean hasLocationInputEnded(long locationInputCount, LocalDateTime target) {
-        return isAllLocationInput(locationInputCount) || target.isAfter(locationInputLimitDateTime);
+    public boolean hasLocationInputEnded(long locationInputCount, LocalDateTime currentTime) {
+        return isAllLocationInput(locationInputCount) || currentTime.isAfter(
+            locationInputLimitDateTime);
     }
 
     private boolean isAllLocationInput(long participantCount) {

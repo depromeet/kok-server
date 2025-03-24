@@ -8,5 +8,4 @@ public class RoomFixture {
     public static Room create(int capacity, Member member) {
         return Room.create("room", capacity, member);
     }
-
 }

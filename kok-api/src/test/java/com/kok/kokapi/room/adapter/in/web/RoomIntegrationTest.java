@@ -27,20 +27,27 @@ class RoomIntegrationTest extends IntegrationTest {
 
         return Stream.of(
             DynamicTest.dynamicTest("약속방을 생성한다.",
-                () -> createRoomResponse.set(createRoom(new CreateRoomRequest("room", 2, "hostProfile.svg", "hostNickname")))),
+                () -> createRoomResponse.set(createRoom(
+                    new CreateRoomRequest("room", 2, "hostProfile.svg", "hostNickname")))),
 
             inputLocation("방장이 출발지 정보를 입력한다.", createRoomResponse),
 
-            checkVoteMode("약속방 정보를 조회해보면 아직 출발지 입력을 완료하지 않았기에 voteMode는 false이다.", createRoomResponse, false),
+            getRoomDetail("약속방 정보를 조회해보면 미참여자는 1명이고, isFulled는 false이다.", createRoomResponse, 1,
+                false),
 
             DynamicTest.dynamicTest("팔로워가 약속방에 참여한다.",
-                () -> joinRoomResponse.set(joinRoom(createRoomResponse.get().id(), new JoinRoomParticipantRequest("profile", "follower")))),
+                () -> joinRoomResponse.set(joinRoom(createRoomResponse.get().id(),
+                    new JoinRoomParticipantRequest("profile", "follower")))),
 
-            checkVoteMode("약속방 정보를 조회해보면 아직 출발지 입력을 완료하지 않았기에 voteMode는 false이다.", createRoomResponse, false),
+            getRoomDetail("약속방 정보를 조회해보면 미참여자는 0명이고, isFulled는 true이다.", createRoomResponse, 0,
+                true),
+
+            checkVoteMode("아직 출발지 입력을 완료하지 않았기에 voteMode는 false이다.", createRoomResponse, false),
 
             inputLocation("팔로워가 출발지 정보를 입력한다.", createRoomResponse, joinRoomResponse),
 
-            checkVoteMode("약속방 정보를 조회해보면 모든 참여자가 출발지 입력을 완료했기에 voteMode는 true이다.", createRoomResponse, true)
+            checkVoteMode("약속방 정보를 조회해보면 모든 참여자가 출발지 입력을 완료했기에 voteMode는 true이다.",
+                createRoomResponse, true)
         );
     }
 
@@ -64,7 +71,8 @@ class RoomIntegrationTest extends IntegrationTest {
             .extract().body().jsonPath().getObject("data", JoinRoomResponse.class);
     }
 
-    private static DynamicTest inputLocation(String message, AtomicReference<RoomCreateResponse> createRoomResponse) {
+    private static DynamicTest inputLocation(String message,
+        AtomicReference<RoomCreateResponse> createRoomResponse) {
         return DynamicTest.dynamicTest(message,
             () -> {
                 String roomId = createRoomResponse.get().id();
@@ -72,29 +80,17 @@ class RoomIntegrationTest extends IntegrationTest {
 
                 RestAssured.given().log().all()
                     .contentType(ContentType.JSON)
-                    .body(new LocationRequest(roomId, memberId, new BigDecimal("37"), new BigDecimal("127")))
+                    .body(new LocationRequest(roomId, memberId, new BigDecimal("37"),
+                        new BigDecimal("127")))
                     .when().post("/v1/api/locations")
                     .then().log().all()
                     .assertThat().statusCode(200);
             });
     }
 
-    private static DynamicTest inputLocation(String message, AtomicReference<RoomCreateResponse> createRoomResponse, AtomicReference<JoinRoomResponse> joinRoomResponse) {
-        return DynamicTest.dynamicTest(message,
-            () -> {
-                String roomId = createRoomResponse.get().id();
-                String memberId = joinRoomResponse.get().id();
-
-                RestAssured.given().log().all()
-                    .contentType(ContentType.JSON)
-                    .body(new LocationRequest(roomId, memberId, new BigDecimal("37"), new BigDecimal("127")))
-                    .when().post("/v1/api/locations")
-                    .then().log().all()
-                    .assertThat().statusCode(200);
-            });
-    }
-
-    private static DynamicTest checkVoteMode(String message, AtomicReference<RoomCreateResponse> createRoomResponse, boolean expectedVoteMode) {
+    private static DynamicTest getRoomDetail(String message,
+        AtomicReference<RoomCreateResponse> createRoomResponse, int nonParticipantCount,
+        boolean expectedIsFulled) {
         return DynamicTest.dynamicTest(message,
             () -> {
                 String roomId = createRoomResponse.get().id();
@@ -103,7 +99,40 @@ class RoomIntegrationTest extends IntegrationTest {
                     .when().get("/v1/api/rooms/" + roomId)
                     .then().log().all()
                     .assertThat().statusCode(200)
-                    .body("data.voteMode", is(expectedVoteMode));
+                    .body("data.nonParticipantCount", is(nonParticipantCount))
+                    .body("data.isFulled", is(expectedIsFulled));
+            });
+    }
+
+    private static DynamicTest inputLocation(String message,
+        AtomicReference<RoomCreateResponse> createRoomResponse,
+        AtomicReference<JoinRoomResponse> joinRoomResponse) {
+        return DynamicTest.dynamicTest(message,
+            () -> {
+                String roomId = createRoomResponse.get().id();
+                String memberId = joinRoomResponse.get().id();
+
+                RestAssured.given().log().all()
+                    .contentType(ContentType.JSON)
+                    .body(new LocationRequest(roomId, memberId, new BigDecimal("37"),
+                        new BigDecimal("127")))
+                    .when().post("/v1/api/locations")
+                    .then().log().all()
+                    .assertThat().statusCode(200);
+            });
+    }
+
+    private static DynamicTest checkVoteMode(String message,
+        AtomicReference<RoomCreateResponse> createRoomResponse, boolean expectedIsVoteMode) {
+        return DynamicTest.dynamicTest(message,
+            () -> {
+                String roomId = createRoomResponse.get().id();
+                RestAssured.given().log().all()
+                    .contentType(ContentType.JSON)
+                    .when().get("/v1/api/rooms/" + roomId + "/status")
+                    .then().log().all()
+                    .assertThat().statusCode(200)
+                    .body("data.isVoteMode", is(expectedIsVoteMode));
             });
     }
 }
