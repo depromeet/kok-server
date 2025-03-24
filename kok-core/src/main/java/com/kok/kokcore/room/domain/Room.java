@@ -56,4 +56,8 @@ public class Room implements Serializable {
     private boolean isAllLocationInput(long participantCount) {
         return participantCount == capacity;
     }
+
+    public boolean isFull(int participantCount) {
+        return capacity == participantCount;
+    }
 }
