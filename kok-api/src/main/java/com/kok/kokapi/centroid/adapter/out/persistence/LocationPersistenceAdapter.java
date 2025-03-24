@@ -17,6 +17,7 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocationPort, ReadLocationPort {
+
     private final LocationRepository locationRepository;
 
     @Override

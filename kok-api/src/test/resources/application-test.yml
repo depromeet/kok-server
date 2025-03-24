@@ -16,7 +16,7 @@ spring:
     defer-datasource-initialization: false
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 ### 실제 외부 API 호출을 피하기 위해 가짜 값을 사용합니다.
 ncp:
   object-storage-url: mock

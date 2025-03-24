@@ -1,11 +1,11 @@
 package com.kok.kokapi.centroid.adapter.out.persistence;
 
 import com.kok.kokcore.location.domain.Location;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import java.util.List;
-import java.util.Optional;
 
 public interface LocationRepository extends JpaRepository<Location, Long> {
 
@@ -17,15 +17,15 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
        최종적으로 ST_AsText를 사용하여 결과를 WKT(Well-Known Text) 포맷으로 반환합니다. */
 
     @Query(value = """
-    SELECT ST_AsText(
-        ST_Transform(
-            ST_Centroid(
-                ST_Collect(
-                    ST_Transform(location_point, 3857))),4326)
-               )
-    FROM location
-    WHERE room_id = :roomId
-    """, nativeQuery = true)
+        SELECT ST_AsText(
+            ST_Transform(
+                ST_Centroid(
+                    ST_Collect(
+                        ST_Transform(location_point, 3857))),4326)
+                   )
+        FROM location
+        WHERE room_id = :roomId
+        """, nativeQuery = true)
     String findCentroidByRoomId(@Param("roomId") String roomId);
 
     Optional<Location> findLocationByRoomIdAndMemberId(String roomId, String memberId);
@@ -33,35 +33,34 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
     List<Location> findLocationsByRoomId(String roomId);
 
     @Query(value = """
-    WITH ConvexHull AS (
-        SELECT ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(location_point)))) AS hull
-        FROM location
-        WHERE room_id = :roomId
-    )
-    SELECT l.*
-    FROM location l, ConvexHull ch
-    WHERE l.room_id = :roomId
-        AND ST_Contains(ch.hull, ST_GeomFromText(ST_AsText(l.location_point)))
-    """, nativeQuery = true)
+        WITH ConvexHull AS (
+            SELECT ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(location_point)))) AS hull
+            FROM location
+            WHERE room_id = :roomId
+        )
+        SELECT l.*
+        FROM location l, ConvexHull ch
+        WHERE l.room_id = :roomId
+            AND ST_Contains(ch.hull, ST_GeomFromText(ST_AsText(l.location_point)))
+        """, nativeQuery = true)
     List<Location> findInsideConvexHull(@Param("roomId") String roomId);
 
     @Query(value = """
-    WITH ConvexHull AS (
-        SELECT ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(location_point)))) AS hull,
-               ST_Centroid(ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(location_point))))) AS center
-        FROM location
-        WHERE room_id = :roomId
-    )
-    SELECT l.*,
-           ATAN2(
-               ST_Y(ST_GeomFromText(ST_AsText(l.location_point))) - ST_Y(ch.center),
-               ST_X(ST_GeomFromText(ST_AsText(l.location_point))) - ST_X(ch.center)
-           ) AS angle
-    FROM location l, ConvexHull ch
-    WHERE l.room_id = :roomId
-        AND NOT ST_Contains(ch.hull, ST_GeomFromText(ST_AsText(l.location_point)))
-    ORDER BY angle
-    """, nativeQuery = true)
+        WITH ConvexHull AS (
+            SELECT ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(location_point)))) AS hull,
+                   ST_Centroid(ST_ConvexHull(ST_Collect(ST_GeomFromText(ST_AsText(location_point))))) AS center
+            FROM location
+            WHERE room_id = :roomId
+        )
+        SELECT l.*,
+               ATAN2(
+                   ST_Y(ST_GeomFromText(ST_AsText(l.location_point))) - ST_Y(ch.center),
+                   ST_X(ST_GeomFromText(ST_AsText(l.location_point))) - ST_X(ch.center)
+               ) AS angle
+        FROM location l, ConvexHull ch
+        WHERE l.room_id = :roomId
+            AND NOT ST_Contains(ch.hull, ST_GeomFromText(ST_AsText(l.location_point)))
+        ORDER BY angle
+        """, nativeQuery = true)
     List<Location> findConvexHull(@Param("roomId") String roomId);
-
 }
