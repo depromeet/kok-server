@@ -9,6 +9,7 @@ import com.kok.kokcore.station.application.port.out.SaveRoutePort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
 import com.kok.kokcore.station.application.usecase.GetRecommendStationUseCase;
+import com.kok.kokcore.station.application.usecase.GetStationUseCase;
 import com.kok.kokcore.station.application.usecase.RecommendStationUseCase;
 import com.kok.kokcore.station.application.usecase.SaveStationUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
@@ -30,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class StationService implements SaveStationUseCase, RecommendStationUseCase,
-    GetRecommendStationUseCase {
+    GetRecommendStationUseCase, GetStationUseCase {
 
     private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
@@ -168,5 +169,12 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     @Cacheable(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
     public List<Station> getRecommendedStations(String roomId) {
         throw new IllegalStateException("No recommended stations for roomId: " + roomId);
+    }
+
+    @Override
+    public Station getStation(long stationId) {
+        return retrieveStationsPort.retrieveStation(stationId)
+            .orElseThrow(
+                () -> new IllegalArgumentException("Cannot find station with id: " + stationId));
     }
 }
