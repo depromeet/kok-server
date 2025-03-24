@@ -1,9 +1,9 @@
 package com.kok.kokapi.station.adapter.out.persistence;
 
 import com.kok.kokapi.config.geometry.PointConverter;
-import com.kok.kokcore.station.application.port.out.ReadStationsPort;
-import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
-import com.kok.kokcore.station.application.port.out.SaveStationsPort;
+import com.kok.kokcore.station.port.out.ReadStationsPort;
+import com.kok.kokcore.station.port.out.RetrieveStationsPort;
+import com.kok.kokcore.station.port.out.SaveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
 
 import java.math.BigDecimal;
@@ -22,7 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort, RetrieveStationsPort {
+public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort,
+    RetrieveStationsPort {
 
     private final PointConverter pointConverter;
 
@@ -76,7 +77,8 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
     @Transactional(readOnly = true)
     public List<Station> retrieveInRangeStations(Point centroid, double dist) {
         Pair<BigDecimal, BigDecimal> lonLat = pointConverter.toCoordinates(centroid);
-        return stationRepository.findInRangeStationsByCentroid(lonLat.getFirst(), lonLat.getSecond(), dist);
+        return stationRepository.findInRangeStationsByCentroid(lonLat.getFirst(),
+            lonLat.getSecond(), dist);
     }
 }
 

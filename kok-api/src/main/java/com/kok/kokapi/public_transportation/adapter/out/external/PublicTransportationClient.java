@@ -2,9 +2,9 @@ package com.kok.kokapi.public_transportation.adapter.out.external;
 
 import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapPublicTransportationResponse;
-import com.kok.kokcore.location.application.port.out.ReadLocationPort;
+import com.kok.kokcore.location.port.out.ReadLocationPort;
 import com.kok.kokcore.location.domain.Location;
-import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
+import com.kok.kokcore.station.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -33,7 +33,9 @@ public class PublicTransportationClient {
     private final ReadLocationPort readLocationPort;
     private final PointConverter pointConverter;
 
-    public PublicTransportationClient(TmapClientProperties properties, RetrieveStationsPort retrieveStationsPort, ReadLocationPort readLocationPort, PointConverter pointConverter) {
+    public PublicTransportationClient(TmapClientProperties properties,
+        RetrieveStationsPort retrieveStationsPort, ReadLocationPort readLocationPort,
+        PointConverter pointConverter) {
         this.properties = properties;
         this.retrieveStationsPort = retrieveStationsPort;
         this.readLocationPort = readLocationPort;
@@ -43,10 +45,10 @@ public class PublicTransportationClient {
 
     public RestClient getRestClient() {
         return RestClient.builder()
-                .requestFactory(getRequestFactory())
-                .defaultHeader(properties.keyname(), properties.key())  // API Key 추가
-                .baseUrl(properties.url()) // Base URL 설정
-                .build();
+            .requestFactory(getRequestFactory())
+            .defaultHeader(properties.keyname(), properties.key())  // API Key 추가
+            .baseUrl(properties.url()) // Base URL 설정
+            .build();
     }
 
     public RestClient getClient() {
@@ -55,26 +57,28 @@ public class PublicTransportationClient {
 
     private ClientHttpRequestFactory getRequestFactory() {
         return ClientHttpRequestFactoryBuilder.detect()
-                .build(ClientHttpRequestFactorySettings.defaults());
+            .build(ClientHttpRequestFactorySettings.defaults());
     }
 
-    public TmapPublicTransportationResponse callPublicTransportRoute(Long stationId, String roomId, String memberId) {
+    public TmapPublicTransportationResponse callPublicTransportRoute(Long stationId, String roomId,
+        String memberId) {
         log.info("Tmap api call : {}-{}-{}", stationId, roomId, memberId);
         return getClient().post()
-                .body(buildRequestBody(
-                        getUserLocation(roomId, memberId),
-                        getStation(stationId)))
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, (status, response) -> {
-                    throw new RuntimeException("Tmap api 호출에 실패했습니다. by 4xx" + status);
-                })
-                .onStatus(HttpStatusCode::is5xxServerError, (status, response) -> {
-                    throw new RuntimeException("Tmap api 호출에 실패했습니다. by 5xx" + status);
-                })
-                .body(TmapPublicTransportationResponse.class);
+            .body(buildRequestBody(
+                getUserLocation(roomId, memberId),
+                getStation(stationId)))
+            .retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, (status, response) -> {
+                throw new RuntimeException("Tmap api 호출에 실패했습니다. by 4xx" + status);
+            })
+            .onStatus(HttpStatusCode::is5xxServerError, (status, response) -> {
+                throw new RuntimeException("Tmap api 호출에 실패했습니다. by 5xx" + status);
+            })
+            .body(TmapPublicTransportationResponse.class);
     }
 
-    private Map<String, Object> buildRequestBody(Pair<BigDecimal, BigDecimal> userLocation, Station station) {
+    private Map<String, Object> buildRequestBody(Pair<BigDecimal, BigDecimal> userLocation,
+        Station station) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("startX", userLocation.getSecond()); // 경도
         requestBody.put("startY", userLocation.getFirst()); // 위도
@@ -87,12 +91,12 @@ public class PublicTransportationClient {
 
     private Pair<BigDecimal, BigDecimal> getUserLocation(String roomId, String memberId) {
         Location userPoint = readLocationPort.findLocationByRoomIdAndMemberId(roomId, memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 roomId의 사용자 위치가 존재하지 않습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("해당 roomId의 사용자 위치가 존재하지 않습니다."));
         return pointConverter.toCoordinates(userPoint.getLocation_point());
     }
 
     private Station getStation(Long stationId) {
         return retrieveStationsPort.retrieveStation(stationId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 역이 존재하지 않습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("해당 ID의 역이 존재하지 않습니다."));
     }
 }

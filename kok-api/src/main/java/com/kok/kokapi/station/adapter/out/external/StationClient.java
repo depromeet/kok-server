@@ -1,8 +1,8 @@
 package com.kok.kokapi.station.adapter.out.external;
 
 import com.kok.kokapi.station.adapter.out.external.dto.StationResponses;
-import com.kok.kokcore.station.application.port.out.LoadStationsPort;
-import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
+import com.kok.kokcore.station.port.out.LoadStationsPort;
+import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
 import java.util.StringJoiner;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,7 +23,8 @@ public class StationClient implements LoadStationsPort {
     private final StationClientProperties properties;
     private final StationErrorHandler stationErrorHandler;
 
-    public StationClient(StationClientProperties properties, StationErrorHandler stationErrorHandler) {
+    public StationClient(StationClientProperties properties,
+        StationErrorHandler stationErrorHandler) {
         this.properties = properties;
         this.stationErrorHandler = stationErrorHandler;
         this.restClient = getRestClient();

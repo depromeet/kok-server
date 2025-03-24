@@ -1,7 +1,7 @@
 package com.kok.kokapi.centroid.application.service;
 
 import com.kok.kokcore.location.domain.Location;
-import com.kok.kokcore.location.application.port.out.ReadLocationPort;
+import com.kok.kokcore.location.port.out.ReadLocationPort;
 import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class LocationQueryService implements ReadLocationUseCase {
     @Override
     public Location readLocation(String roomId, String memberId) {
         return readLocationPort.findLocationByRoomIdAndMemberId(roomId, memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 멤버의 위치를 찾을 수 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("해당 멤버의 위치를 찾을 수 없습니다."));
     }
 
     @Override

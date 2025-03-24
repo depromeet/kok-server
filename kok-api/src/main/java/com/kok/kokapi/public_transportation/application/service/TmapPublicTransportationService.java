@@ -1,24 +1,24 @@
 package com.kok.kokapi.public_transportation.application.service;
 
+import static com.kok.kokapi.public_transportation.adapter.in.dto.response.TmapComplexPublicTransportationParsedResponse.ParsedItinerary;
+import static com.kok.kokapi.public_transportation.adapter.in.dto.response.TmapComplexPublicTransportationParsedResponse.ParsedLeg;
+import static com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapComplexPublicTransportationResponse.Itinerary;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kok.kokapi.public_transportation.adapter.in.dto.TmapComplexPublicTransportationParsedResponse;
-import com.kok.kokapi.public_transportation.adapter.in.dto.TmapPublicTransportationParsedResponse;
-import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapComplexPublicTransportationResponse;
+import com.kok.kokapi.public_transportation.adapter.in.dto.response.TmapComplexPublicTransportationParsedResponse;
+import com.kok.kokapi.public_transportation.adapter.in.dto.response.TmapPublicTransportationParsedResponse;
 import com.kok.kokapi.public_transportation.adapter.out.external.PublicTransportationClient;
 import com.kok.kokapi.public_transportation.adapter.out.external.PublicTransportationComplexClient;
+import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapComplexPublicTransportationResponse;
 import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapPublicTransportationResponse;
-import com.kok.kokcore.public_transfortation.usecase.RetrievePublicTransportationUseCase;
+import com.kok.kokcore.public_transportation.usecase.RetrievePublicTransportationUseCase;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.kok.kokapi.public_transportation.adapter.in.dto.TmapComplexPublicTransportationParsedResponse.*;
-import static com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapComplexPublicTransportationResponse.*;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +33,8 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
     @Cacheable(value = "sub", cacheManager = "publicTransportationCacheManager", key = "'PTSubCache:' + #stationId + '-' + #roomId + '-' + #memberId")
     @Override
     public String retrievePublicTransportation(Long stationId, String roomId, String memberId) {
-        TmapPublicTransportationResponse rawRoute = publicTransportationClient.callPublicTransportRoute(stationId, roomId, memberId);
+        TmapPublicTransportationResponse rawRoute = publicTransportationClient.callPublicTransportRoute(
+            stationId, roomId, memberId);
         try {
             return objectMapper.writeValueAsString(parseTmapResponse(rawRoute));
         } catch (JsonProcessingException e) {
@@ -43,8 +44,10 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
 
     @Cacheable(value = "complex", cacheManager = "publicTransportationCacheManager", key = "'PTComplexCache:' + #stationId + '-' + #roomId + '-' + #memberId")
     @Override
-    public String retrieveComplexPublicTransportation(Long stationId, String roomId, String memberId) {
-        TmapComplexPublicTransportationResponse rawRoute = publicTransportationComplexClient.callComplexPublicTransportRoute(stationId, roomId, memberId);
+    public String retrieveComplexPublicTransportation(Long stationId, String roomId,
+        String memberId) {
+        TmapComplexPublicTransportationResponse rawRoute = publicTransportationComplexClient.callComplexPublicTransportRoute(
+            stationId, roomId, memberId);
         try {
             return objectMapper.writeValueAsString(parseComplexTmapResponse(rawRoute));
         } catch (JsonProcessingException e) {
@@ -52,9 +55,12 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
         }
     }
 
-    public TmapComplexPublicTransportationParsedResponse parseComplexTmapResponse(TmapComplexPublicTransportationResponse response) {
-        if (response == null || response.getMetaData() == null || response.getMetaData().getPlan() == null
-                || response.getMetaData().getPlan().getItineraries() == null || response.getMetaData().getPlan().getItineraries().isEmpty()) {
+    public TmapComplexPublicTransportationParsedResponse parseComplexTmapResponse(
+        TmapComplexPublicTransportationResponse response) {
+        if (response == null || response.getMetaData() == null
+            || response.getMetaData().getPlan() == null
+            || response.getMetaData().getPlan().getItineraries() == null || response.getMetaData()
+                .getPlan().getItineraries().isEmpty()) {
             return null;
         }
 
@@ -80,13 +86,16 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
         return parsedResponse;
     }
 
-    public TmapPublicTransportationParsedResponse parseTmapResponse(TmapPublicTransportationResponse response) {
-        if (response == null || response.getMetaData() == null || response.getMetaData().getPlan() == null || response.getMetaData().getPlan().getItineraries() == null ) {
+    public TmapPublicTransportationParsedResponse parseTmapResponse(
+        TmapPublicTransportationResponse response) {
+        if (response == null || response.getMetaData() == null
+            || response.getMetaData().getPlan() == null
+            || response.getMetaData().getPlan().getItineraries() == null) {
             return null;
         }
         return TmapPublicTransportationParsedResponse.of(
-                response.getMetaData().getPlan().getItineraries().getFirst().getTotalTime(),
-                response.getMetaData().getPlan().getItineraries().getFirst().getTransferCount());
+            response.getMetaData().getPlan().getItineraries().getFirst().getTotalTime(),
+            response.getMetaData().getPlan().getItineraries().getFirst().getTransferCount());
     }
 
 }

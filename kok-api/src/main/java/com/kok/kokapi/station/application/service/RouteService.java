@@ -1,7 +1,7 @@
 package com.kok.kokapi.station.application.service;
 
-import com.kok.kokcore.station.application.port.out.RetrieveRoutePort;
-import com.kok.kokcore.station.application.usecase.RetrieveRouteUseCase;
+import com.kok.kokcore.station.port.out.RetrieveRoutePort;
+import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import lombok.RequiredArgsConstructor;

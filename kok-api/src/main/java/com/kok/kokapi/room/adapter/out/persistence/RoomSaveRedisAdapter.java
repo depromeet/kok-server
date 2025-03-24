@@ -2,7 +2,7 @@ package com.kok.kokapi.room.adapter.out.persistence;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kok.kokcore.room.application.port.out.SaveRoomPort;
+import com.kok.kokcore.room.port.out.SaveRoomPort;
 import com.kok.kokcore.room.domain.Room;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
