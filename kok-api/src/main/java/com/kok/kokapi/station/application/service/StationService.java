@@ -2,15 +2,22 @@ package com.kok.kokapi.station.application.service;
 
 import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokcore.location.application.port.out.ReadCentroidPort;
-import com.kok.kokcore.station.application.port.out.*;
+import com.kok.kokcore.station.application.port.out.LoadStationsPort;
+import com.kok.kokcore.station.application.port.out.ReadStationsPort;
+import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
+import com.kok.kokcore.station.application.port.out.SaveRoutePort;
+import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
+import com.kok.kokcore.station.application.usecase.GetRecommendStationUseCase;
 import com.kok.kokcore.station.application.usecase.RecommendStationUseCase;
 import com.kok.kokcore.station.application.usecase.SaveStationUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
-
 import java.math.BigDecimal;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
@@ -22,7 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StationService implements SaveStationUseCase, RecommendStationUseCase {
+public class StationService implements SaveStationUseCase, RecommendStationUseCase,
+    GetRecommendStationUseCase {
 
     private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
@@ -35,7 +43,7 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     @Override
     @Transactional
     public void saveStations() {
-        if(readStationsPort.hasNoStations()) {
+        if (readStationsPort.hasNoStations()) {
             StationRouteDtos stationRouteDtos = loadStationsPort.loadAllStations();
             List<Station> stations = saveStationsPort.saveStations(stationRouteDtos.toStations());
             saveRoutePort.saveRoutes(stationRouteDtos.toRoutesByStations(stations));
@@ -43,7 +51,7 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     }
 
     @Override
-    @Cacheable(value = "recommendStations",cacheManager = "stationCacheManager", key = "#roomId")
+    @Cacheable(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
     public List<Station> recommendStations(String roomId) {
         Point centroid = readCentroidPort.findCentroidByRoomId(roomId);
         int RECOMMEND_NUM = 2;
@@ -79,7 +87,9 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
 
         for (Station station : stations) {
             double distance = calculateDistance(centroid, station);
-            if (distance == 0) distance = Double.MIN_VALUE; // 0 거리 방지
+            if (distance == 0) {
+                distance = Double.MIN_VALUE; // 0 거리 방지
+            }
 
             double weight = (1 / distance) * station.getPriority();
             weightedDistances.put(station, weight);
@@ -152,5 +162,11 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
 
         // 유클리드 거리 공식 적용
         return Math.sqrt(Math.pow(lat2 - lat1, 2) + Math.pow(lon2 - lon1, 2));
+    }
+
+    @Override
+    @Cacheable(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
+    public List<Station> getRecommendedStations(String roomId) {
+        throw new IllegalStateException("No recommended stations for roomId: " + roomId);
     }
 }
