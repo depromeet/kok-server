@@ -19,15 +19,16 @@ public class Room implements Serializable {
     private final String roomName;         // 약속방 이름
     private final int capacity;            // 참여인원 수 (최소 2명 이상)
     private final Member member;           // 방 참여자
-    private final LocalDateTime locationInputDeadline; // 방 생성일시
+    private final LocalDateTime locationInputLimitDateTime; // 출발지 입력 마감일시
+    private final LocalDateTime createdDateTime; // 방 생성일시
 
     private Room(String id, String roomName, int capacity, Member member) {
         this.id = id;
         this.roomName = roomName;
         this.capacity = capacity;
         this.member = member;
-        this.locationInputDeadline = LocalDateTime.now().withNano(0)
-            .plusHours(LOCATION_INPUT_TIME_LIMIT);
+        this.createdDateTime = LocalDateTime.now().withNano(0);
+        this.locationInputLimitDateTime = createdDateTime.plusHours(LOCATION_INPUT_TIME_LIMIT);
     }
 
     public static Room create(String roomName, int capacity, Member member) {
@@ -48,7 +49,7 @@ public class Room implements Serializable {
     }
 
     public boolean hasLocationInputEnded(long locationInputCount, LocalDateTime target) {
-        return isAllLocationInput(locationInputCount) || target.isAfter(locationInputDeadline);
+        return isAllLocationInput(locationInputCount) || target.isAfter(locationInputLimitDateTime);
     }
 
     private boolean isAllLocationInput(long participantCount) {

@@ -33,7 +33,7 @@ class RoomTest {
             () -> assertNotNull(room.getId(), "ID는 null이 아니어야 합니다."),
             () -> assertEquals(roomName, room.getRoomName(), "방 이름이 일치해야 합니다."),
             () -> assertEquals(capacity, room.getCapacity(), "참여 인원 수가 일치해야 합니다."),
-            () -> assertEquals(deadline.getHour(), room.getLocationInputDeadline().getHour(),
+            () -> assertEquals(deadline.getHour(), room.getLocationInputLimitDateTime().getHour(),
                 "출발지 입력 마감 시간이 정확해야 합니다."),
             () -> assertEquals(hostNickname, room.getMember().getNickname(), "방장 닉네임이 일치해야 합니다."),
             () -> assertEquals(hostProfile, room.getMember().getProfile(), "방장 프로필이 일치해야 합니다."),
