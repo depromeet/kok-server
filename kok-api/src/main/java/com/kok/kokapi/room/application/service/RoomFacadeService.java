@@ -1,6 +1,7 @@
 package com.kok.kokapi.room.application.service;
 
 import com.kok.kokapi.room.adapter.in.dto.response.RoomDetailResponse;
+import com.kok.kokapi.room.adapter.in.dto.response.RoomStatusResponse;
 import com.kok.kokcore.location.domain.Location;
 import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import com.kok.kokcore.room.domain.Room;
@@ -17,11 +18,17 @@ public class RoomFacadeService {
     private final GetRoomUseCase getRoomUseCase;
     private final ReadLocationUseCase readLocationUseCase;
 
-    public RoomDetailResponse findByRoomId(String roomId, LocalDateTime current){
+    public RoomDetailResponse findByRoomId(String roomId) {
+        Room room = getRoomUseCase.findRoomById(roomId);
+        int participantsCount = getRoomUseCase.getParticipantsCount(roomId);
+        return RoomDetailResponse.of(room, participantsCount);
+    }
+
+    public RoomStatusResponse getRoomStatus(String roomId, LocalDateTime current) {
         Room room = getRoomUseCase.findRoomById(roomId);
         List<Location> locations = readLocationUseCase.readLocations(roomId);
-        int participantCount = locations.size();
-        boolean isVoteMode = room.hasLocationInputEnded(participantCount, current);
-        return RoomDetailResponse.of(room, participantCount, isVoteMode);
+        int locationInputCount = locations.size();
+        boolean isVoteMode = room.hasLocationInputEnded(locationInputCount, current);
+        return new RoomStatusResponse(isVoteMode);
     }
 }

@@ -26,7 +26,8 @@ public class Room implements Serializable {
         this.roomName = roomName;
         this.capacity = capacity;
         this.member = member;
-        this.locationInputDeadline = LocalDateTime.now().withNano(0).plusHours(LOCATION_INPUT_TIME_LIMIT);
+        this.locationInputDeadline = LocalDateTime.now().withNano(0)
+            .plusHours(LOCATION_INPUT_TIME_LIMIT);
     }
 
     public static Room create(String roomName, int capacity, Member member) {
@@ -46,7 +47,11 @@ public class Room implements Serializable {
         }
     }
 
-    public boolean hasLocationInputEnded(long participantCount, LocalDateTime target) {
-        return participantCount == capacity || target.isAfter(locationInputDeadline);
+    public boolean hasLocationInputEnded(long locationInputCount, LocalDateTime target) {
+        return isAllLocationInput(locationInputCount) || target.isAfter(locationInputDeadline);
+    }
+
+    private boolean isAllLocationInput(long participantCount) {
+        return participantCount == capacity;
     }
 }
