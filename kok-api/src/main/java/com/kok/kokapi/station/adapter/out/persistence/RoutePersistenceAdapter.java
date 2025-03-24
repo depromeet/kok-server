@@ -3,10 +3,9 @@ package com.kok.kokapi.station.adapter.out.persistence;
 import com.kok.kokcore.station.application.port.out.RetrieveRoutePort;
 import com.kok.kokcore.station.application.port.out.SaveRoutePort;
 import com.kok.kokcore.station.domain.entity.Route;
+import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;
 import java.util.function.Function;
-
-import com.kok.kokcore.station.domain.entity.Station;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -19,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RoutePersistenceAdapter implements SaveRoutePort, RetrieveRoutePort {
 
+    public static final List<String> ROUTE_ONE_LIST = List.of("경부선", "경인선", "경원선", "장항선");
     private final RouteRepository routeRepository;
 
     private static final String INSERT_ROUTE_SQL = """
@@ -40,6 +40,8 @@ public class RoutePersistenceAdapter implements SaveRoutePort, RetrieveRoutePort
             return;
         }
         batchInsertRoutes(routes);
+        int updatedCount = routeRepository.updateRouteNameToRouteOne(ROUTE_ONE_LIST);
+        log.debug("Successfully changed {} route name to \"1호선\".", updatedCount);
     }
 
     private void batchInsertRoutes(List<Route> routes) {
