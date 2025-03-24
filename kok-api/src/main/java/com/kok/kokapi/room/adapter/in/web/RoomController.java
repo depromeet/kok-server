@@ -4,8 +4,8 @@ import com.kok.kokapi.common.response.ApiResponseDto;
 import com.kok.kokapi.config.annotion.V1Controller;
 import com.kok.kokapi.room.adapter.in.dto.request.CreateRoomRequest;
 import com.kok.kokapi.room.adapter.in.dto.request.JoinRoomParticipantRequest;
+import com.kok.kokapi.room.adapter.in.dto.response.CreateRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.JoinRoomResponse;
-import com.kok.kokapi.room.adapter.in.dto.response.RoomCreateResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomDetailResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomStatusResponse;
@@ -55,7 +55,7 @@ public class RoomController {
 
     @Operation(summary = "약속방 생성", description = "새로운 약속방을 생성합니다.")
     @PostMapping("/rooms")
-    public ResponseEntity<ApiResponseDto<RoomCreateResponse>> createRoom(
+    public ResponseEntity<ApiResponseDto<CreateRoomResponse>> createRoom(
         @Valid @RequestBody CreateRoomRequest request) {
         String nickname = request.hostNickname();
         String profile = request.hostProfile();
@@ -67,7 +67,7 @@ public class RoomController {
             host
         );
 
-        RoomCreateResponse response = RoomCreateResponse.from(room, 1, room.getCapacity() - 1);
+        CreateRoomResponse response = CreateRoomResponse.of(room, 1, room.getCapacity() - 1);
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ApiResponseDto.success(response));
