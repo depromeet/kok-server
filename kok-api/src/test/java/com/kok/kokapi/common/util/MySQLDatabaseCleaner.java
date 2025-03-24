@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class MySQLDatabaseCleaner {
+public class MySQLDatabaseCleaner implements DatabaseCleaner{
 
     @PersistenceContext
     private EntityManager entityManager;
