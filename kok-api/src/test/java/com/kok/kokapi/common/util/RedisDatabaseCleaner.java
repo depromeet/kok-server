@@ -1,6 +1,8 @@
 package com.kok.kokapi.common.util;
 
 import java.util.Objects;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,9 +17,13 @@ public class RedisDatabaseCleaner implements DatabaseCleaner {
 
     @Override
     public void cleanUp() {
-        Objects.requireNonNull(redisTemplate.getConnectionFactory())
-            .getConnection()
-            .serverCommands()
-            .flushDb();
+        RedisConnectionFactory connectionFactory = Objects.requireNonNull(
+            redisTemplate.getConnectionFactory(),
+            "RedisConnectionFactory must not be null"
+        );
+
+        try (RedisConnection connection = connectionFactory.getConnection()) {
+            connection.serverCommands().flushDb();
+        }
     }
 }
