@@ -11,13 +11,13 @@ public record PlacesRequest(
         @NotBlank(message = "장소 카테고리는 필수값입니다.")
         PlaceType placeType,
 
-        @DecimalMin(value = "-90.0", message ="위도는 -90 이상이어야 합니다.")
-        @DecimalMax(value = "90.0", message = "위도는 90 이하이어야 합니다.")
+        @DecimalMin(value = "33.0", message = "위도는 33 이상이어야 합니다.")
+        @DecimalMax(value = "43.0", message = "위도는 43 이하이어야 합니다.")
         @Schema(defaultValue = "37.5665", description = "위도")
         double latitude,
 
-        @DecimalMin(value = "-180.0", message = "경도는 -180 이상이어야 합니다.")
-        @DecimalMax(value = "180.0", message = "경도는 180 이하이어야 합니다.")
+        @DecimalMin(value = "123.0", message = "경도는 123 이상이어야 합니다.")
+        @DecimalMax(value = "132.0", message = "경도는 132 이하이어야 합니다.")
         @Schema(defaultValue = "126.9788", description = "경도")
         double longitude,
 
