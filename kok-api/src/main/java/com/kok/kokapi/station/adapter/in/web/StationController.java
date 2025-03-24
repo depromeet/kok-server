@@ -6,12 +6,11 @@ import com.kok.kokapi.station.adapter.in.dto.response.RecommendedStationResponse
 import com.kok.kokcore.station.usecase.RecommendStationUseCase;
 import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-import java.util.List;
 
 @V1Controller
 @RequiredArgsConstructor

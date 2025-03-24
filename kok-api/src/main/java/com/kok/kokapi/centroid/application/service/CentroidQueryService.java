@@ -3,12 +3,11 @@ package com.kok.kokapi.centroid.application.service;
 import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokcore.location.port.out.ReadCentroidPort;
 import com.kok.kokcore.location.usecase.LoadCentroidUseCase;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor

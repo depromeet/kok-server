@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
-import com.kok.kokcore.station.port.out.dto.StationRouteDto;
-import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

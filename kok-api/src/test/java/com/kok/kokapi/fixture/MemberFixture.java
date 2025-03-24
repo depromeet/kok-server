@@ -5,7 +5,7 @@ import com.kok.kokcore.room.domain.vo.MemberRole;
 
 public class MemberFixture {
 
-    public static Member createFollower(){
+    public static Member createFollower() {
         return new Member("follower", "profile.svg", MemberRole.FOLLOWER);
     }
 

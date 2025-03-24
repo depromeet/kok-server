@@ -1,7 +1,6 @@
 package com.kok.kokcore.location.port.out;
 
 import com.kok.kokcore.location.domain.Location;
-
 import java.util.List;
 import java.util.Optional;
 

@@ -2,10 +2,13 @@ package com.kok.kokapi.public_transportation.adapter.out.external;
 
 import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokapi.public_transportation.adapter.out.external.dto.TmapComplexPublicTransportationResponse;
-import com.kok.kokcore.location.port.out.ReadLocationPort;
 import com.kok.kokcore.location.domain.Location;
-import com.kok.kokcore.station.port.out.RetrieveStationsPort;
+import com.kok.kokcore.location.port.out.ReadLocationPort;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.station.port.out.RetrieveStationsPort;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
@@ -15,10 +18,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @EnableConfigurationProperties(TmapComplexClientProperties.class)

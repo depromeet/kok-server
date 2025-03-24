@@ -16,6 +16,6 @@ import org.springframework.test.context.TestPropertySource;
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @TestPropertySource(properties = {"spring.config.location = classpath:application-test.yml"})
 @Profile("test")
-public abstract class RepositoryTest extends ContainerBaseTest{
+public abstract class RepositoryTest extends ContainerBaseTest {
 
 }

@@ -60,7 +60,7 @@ public class TmapPublicTransportationService implements RetrievePublicTransporta
         if (response == null || response.getMetaData() == null
             || response.getMetaData().getPlan() == null
             || response.getMetaData().getPlan().getItineraries() == null || response.getMetaData()
-                .getPlan().getItineraries().isEmpty()) {
+            .getPlan().getItineraries().isEmpty()) {
             return null;
         }
 

@@ -29,14 +29,17 @@ class RoomCreationServiceTest extends ServiceTest {
         Room createdRoom = roomCreationService.createRoom(roomName, capacity, host);
 
         assertAll("Room Create Test",
-                () -> assertNotNull(createdRoom, "Room 객체는 null이 아니어야 합니다."),
-                () -> assertNotNull(createdRoom.getId(), "약속방 ID는 null이 아니어야 합니다."),
-                () -> assertEquals(roomName, createdRoom.getRoomName(), "약속방 이름이 일치해야 합니다."),
-                () -> assertEquals(capacity, createdRoom.getCapacity(), "참여 인원 수가 일치해야 합니다."),
-                () -> assertNotNull(createdRoom.getMember(), "방장 정보는 null이 아니어야 합니다."),
-                () -> assertEquals(hostNickname, createdRoom.getMember().getNickname(), "방장 닉네임이 일치해야 합니다."),
-                () -> assertEquals(hostProfile, createdRoom.getMember().getProfile(), "방장 프로필이 일치해야 합니다."),
-                () -> assertEquals(MemberRole.LEADER, createdRoom.getMember().getRole(), "방장 역할은 Leader여야 합니다.")
+            () -> assertNotNull(createdRoom, "Room 객체는 null이 아니어야 합니다."),
+            () -> assertNotNull(createdRoom.getId(), "약속방 ID는 null이 아니어야 합니다."),
+            () -> assertEquals(roomName, createdRoom.getRoomName(), "약속방 이름이 일치해야 합니다."),
+            () -> assertEquals(capacity, createdRoom.getCapacity(), "참여 인원 수가 일치해야 합니다."),
+            () -> assertNotNull(createdRoom.getMember(), "방장 정보는 null이 아니어야 합니다."),
+            () -> assertEquals(hostNickname, createdRoom.getMember().getNickname(),
+                "방장 닉네임이 일치해야 합니다."),
+            () -> assertEquals(hostProfile, createdRoom.getMember().getProfile(),
+                "방장 프로필이 일치해야 합니다."),
+            () -> assertEquals(MemberRole.LEADER, createdRoom.getMember().getRole(),
+                "방장 역할은 Leader여야 합니다.")
         );
     }
 }

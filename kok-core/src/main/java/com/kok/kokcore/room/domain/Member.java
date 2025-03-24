@@ -1,16 +1,16 @@
 package com.kok.kokcore.room.domain;
 
 import com.kok.kokcore.room.domain.vo.MemberRole;
+import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.util.UUID;
 
 @Getter
 @ToString
 @EqualsAndHashCode
 public class Member {
+
     private final String memberId;
     private final String nickname;
     private final String profile;

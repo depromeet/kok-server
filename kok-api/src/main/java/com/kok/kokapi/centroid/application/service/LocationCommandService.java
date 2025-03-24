@@ -6,11 +6,10 @@ import com.kok.kokcore.location.port.out.ReadLocationPort;
 import com.kok.kokcore.location.port.out.SaveLocationPort;
 import com.kok.kokcore.location.usecase.CreateLocationUseCase;
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
