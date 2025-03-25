@@ -19,7 +19,7 @@ public class VoteCommandRedisAdapter implements SaveVotePort {
     private static final String CANDIDATE_KEY = "candidate:";
     private static final String MEMBER_KEY = "member:";
 
-    public final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public void saveByCandidate(Vote vote) {
