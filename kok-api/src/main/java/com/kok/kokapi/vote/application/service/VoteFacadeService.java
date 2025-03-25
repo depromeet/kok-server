@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kok.kokapi.public_transportation.adapter.in.dto.TmapPublicTransportationParsedResponse;
 import com.kok.kokapi.public_transportation.application.service.TmapPublicTransportationService;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
-import com.kok.kokcore.station.application.usecase.GetRecommendStationUseCase;
 import com.kok.kokcore.station.application.usecase.GetStationUseCase;
 import com.kok.kokcore.station.application.usecase.RetrieveRouteUseCase;
 import com.kok.kokcore.station.domain.entity.Route;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 public class VoteFacadeService {
 
     private final GetCandidateUseCase getCandidateUseCase;
-    private final GetRecommendStationUseCase getRecommendStationUseCase;
     private final GetStationUseCase getStationUseCase;
     private final RetrieveRouteUseCase retrieveRouteUseCase;
     private final TmapPublicTransportationService tmapPublicTransportationService;
@@ -30,8 +28,7 @@ public class VoteFacadeService {
 
     public List<CandidateResponse> getCandidates(String roomId, String memberId) {
         List<CandidateResponse> responses = new ArrayList<>();
-        List<Station> stations = getRecommendStationUseCase.getRecommendedStations(roomId);
-        List<Candidate> candidates = getCandidateUseCase.getCandidate(roomId, stations);
+        List<Candidate> candidates = getCandidateUseCase.getCandidate(roomId);
         for (Candidate candidate : candidates) {
             Station station = getStationUseCase.getStation(candidate.getStationId());
             List<Route> routes = retrieveRouteUseCase.retrieveRoutes(station);

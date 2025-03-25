@@ -5,11 +5,10 @@ import com.kok.kokcore.station.application.port.out.ReadStationsPort;
 import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
-
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
@@ -22,7 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort, RetrieveStationsPort {
+public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort,
+    RetrieveStationsPort {
 
     private final PointConverter pointConverter;
 
@@ -76,7 +76,8 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
     @Transactional(readOnly = true)
     public List<Station> retrieveInRangeStations(Point centroid, double dist) {
         Pair<BigDecimal, BigDecimal> lonLat = pointConverter.toCoordinates(centroid);
-        return stationRepository.findInRangeStationsByCentroid(lonLat.getFirst(), lonLat.getSecond(), dist);
+        return stationRepository.findInRangeStationsByCentroid(lonLat.getFirst(),
+            lonLat.getSecond(), dist);
     }
 }
 
