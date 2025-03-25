@@ -10,7 +10,6 @@ import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringJoiner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,29 +17,27 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 class VoteServiceTest extends ServiceTest {
 
-    private static final String VOTES_KEY = "vote:";
-    private static final String CANDIDATE_KEY = "candidate:";
-    private static final String MEMBER_KEY = "member:";
+    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
+    private static final String CANDIDATE_VOTE_KEY_FORMAT = "vote:%s:candidate:%d:%s";
 
     @Autowired
     private VoteService voteService;
-
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
     @DisplayName("사용자 투표 정보를 후보별/사용자별로 모두 저장한다.")
     @Test
-    void saveVotesToRedis() {
+    void saveVotes() {
         // given
         String roomId = "roomId";
-        String memberId = "memberTest";
+        String memberId = "memberId";
         List<Vote> votes = List.of(
             new Vote(new Candidate(roomId, 1), memberId, VoteStatus.AGREE),
             new Vote(new Candidate(roomId, 2), memberId, VoteStatus.DISAGREE)
         );
-        String memberKey = getMemberKey(roomId, memberId);
-        String agreeCandidateKey = getCandidateKey(roomId, 1, VoteStatus.AGREE);
-        String disagreeCandidateKey = getCandidateKey(roomId, 2, VoteStatus.DISAGREE);
+        String memberKey = getMemberVoteKey(roomId, memberId);
+        String agreeCandidateKey = getCandidateVoteKey(roomId, 1, VoteStatus.AGREE);
+        String disagreeCandidateKey = getCandidateVoteKey(roomId, 2, VoteStatus.DISAGREE);
 
         // when
         voteService.saveVotes(votes);
@@ -58,19 +55,50 @@ class VoteServiceTest extends ServiceTest {
         );
     }
 
-    private String getCandidateKey(String roomId, long stationId, VoteStatus voteStatus) {
-        return new StringJoiner(":")
-            .add(VOTES_KEY + roomId)
-            .add(CANDIDATE_KEY + stationId)
-            .add(voteStatus.getName())
-            .toString();
+    @DisplayName("사용자 투표 정보를 저장하기 전에 이전 투표 내역을 삭제한다.")
+    @Test
+    void initiateBeforeSaveVote() {
+        // given
+        String roomId = "roomId";
+        String memberId = "memberId";
+        Candidate candidate = new Candidate(roomId, 1);
+        Candidate candidate2 = new Candidate(roomId, 2);
+        List<Vote> votes = List.of(
+            new Vote(candidate, memberId, VoteStatus.AGREE),
+            new Vote(candidate2, memberId, VoteStatus.DISAGREE)
+        );
+        voteService.saveVotes(votes);
+        List<Vote> newVotes = List.of(
+            new Vote(candidate, memberId, VoteStatus.DISAGREE),
+            new Vote(candidate2, memberId, VoteStatus.DISAGREE)
+        );
+
+        // when
+        voteService.saveVotes(newVotes);
+
+        // then
+        Long storedVoteCount = redisTemplate.opsForHash()
+            .size(getMemberVoteKey(roomId, memberId));
+        Long agreeCountForStation1 = redisTemplate.opsForSet()
+            .size(getCandidateVoteKey(roomId, 1, VoteStatus.AGREE));
+        Long disagreeCountForStation1 = redisTemplate.opsForSet()
+            .size(getCandidateVoteKey(roomId, 1, VoteStatus.DISAGREE));
+        Long disagreeCountForStation2 = redisTemplate.opsForSet()
+            .size(getCandidateVoteKey(roomId, 2, VoteStatus.DISAGREE));
+        assertAll(
+            () -> assertThat(storedVoteCount).isEqualTo(2),
+            () -> assertThat(agreeCountForStation1).isZero(),
+            () -> assertThat(disagreeCountForStation1).isEqualTo(1),
+            () -> assertThat(disagreeCountForStation2).isEqualTo(1)
+        );
     }
 
-    private String getMemberKey(String roomId, String memberId) {
-        return new StringJoiner(":")
-            .add(VOTES_KEY + roomId)
-            .add(MEMBER_KEY + memberId)
-            .toString();
+    private String getMemberVoteKey(String roomId, String memberId) {
+        return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
+    }
+
+    private String getCandidateVoteKey(String roomId, long stationId, VoteStatus status) {
+        return String.format(CANDIDATE_VOTE_KEY_FORMAT, roomId, stationId, status.getName());
     }
 }
 
