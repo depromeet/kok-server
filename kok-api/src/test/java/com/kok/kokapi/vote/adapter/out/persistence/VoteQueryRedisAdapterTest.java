@@ -3,7 +3,9 @@ package com.kok.kokapi.vote.adapter.out.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.kok.kokapi.common.template.RepositoryTest;
+import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.domain.vo.VoteStatus;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +28,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         String roomId = "roomId";
         String memberId = "memberId";
         String key = getMemberVoteKey(roomId, memberId);
-        redisTemplate.opsForHash().putAll(key, Map.of(1L, VoteStatus.AGREE.isAgree()));
+        redisTemplate.opsForHash().putAll(key, Map.of(1L, VoteStatus.AGREE.getName()));
 
         // when
         boolean result = voteQueryRedisAdapter.isExistsByRoomIdAndMemberId(roomId, memberId);
@@ -47,6 +49,24 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
 
         // then
         assertThat(result).isFalse();
+    }
+
+    @DisplayName("roomId와 memberId 조합으로 모든 투표 정보를 조회한다.")
+    @Test
+    void findAllByRoomIdAndMemberId() {
+        // given
+        String roomId = "roomId";
+        String memberId = "memberId";
+        String key = getMemberVoteKey(roomId, memberId);
+        Vote vote = new Vote(roomId, 1L, memberId, VoteStatus.AGREE.getName());
+        redisTemplate.opsForHash()
+            .putAll(key, Map.of(vote.getStationId(), vote.getVoteStatus().getName()));
+
+        // when
+        List<Vote> votes = voteQueryRedisAdapter.findAllByRoomIdAndMemberId(roomId, memberId);
+
+        // then
+        assertThat(votes).containsExactlyInAnyOrder(vote);
     }
 
     private String getMemberVoteKey(String roomId, String memberId) {
