@@ -8,6 +8,7 @@ import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.application.port.out.SaveRoutePort;
 import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
+import com.kok.kokcore.station.application.usecase.DeleteRecommendStationUseCase;
 import com.kok.kokcore.station.application.usecase.GetRecommendStationUseCase;
 import com.kok.kokcore.station.application.usecase.GetStationUseCase;
 import com.kok.kokcore.station.application.usecase.RecommendStationUseCase;
@@ -22,6 +23,7 @@ import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class StationService implements SaveStationUseCase, RecommendStationUseCase,
-    GetRecommendStationUseCase, GetStationUseCase {
+    GetRecommendStationUseCase, GetStationUseCase, DeleteRecommendStationUseCase {
 
     private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
@@ -177,4 +179,11 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
             .orElseThrow(
                 () -> new IllegalArgumentException("Cannot find station with id: " + stationId));
     }
+
+    @Override
+    @CacheEvict(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
+    public void deleteRecommendedStations(String roomId) {
+        log.debug("Deleted recommended stations from cache for roomId={}", roomId);
+    }
+
 }
