@@ -1,7 +1,6 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
 import com.kok.kokcore.vote.application.port.out.LoadVotePort;
-import java.util.StringJoiner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -10,21 +9,17 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class VoteQueryRedisAdapter implements LoadVotePort {
 
-    private static final String VOTES_KEY = "vote:";
-    private static final String MEMBER_KEY = "member:";
+    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public boolean isExistsByRoomIdAndMemberId(String roomId, String memberId) {
-        String key = getMemberKey(roomId, memberId);
+        String key = getMemberVoteKey(roomId, memberId);
         return !redisTemplate.opsForHash().entries(key).isEmpty();
     }
 
-    private String getMemberKey(String roomId, String memberId) {
-        StringJoiner joiner = new StringJoiner(":");
-        joiner.add(VOTES_KEY + roomId);
-        joiner.add(MEMBER_KEY + memberId);
-        return joiner.toString();
+    private String getMemberVoteKey(String roomId, String memberId) {
+        return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
     }
 }

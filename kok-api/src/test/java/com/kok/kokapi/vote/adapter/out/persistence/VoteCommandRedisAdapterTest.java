@@ -18,7 +18,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 class VoteCommandRedisAdapterTest extends RepositoryTest {
 
     private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
-    private static final String CANDIDATE_VOTE_FORMAT = "vote:%s:candidate:%d:%s";
+    private static final String CANDIDATE_VOTE_KEY_FORMAT = "vote:%s:candidate:%d:%s";
 
     @Autowired
     private VoteCommandRedisAdapter voteCommandRedisAdapter;
@@ -128,7 +128,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
     }
 
     private String getCandidateVoteKey(Vote vote) {
-        return String.format(CANDIDATE_VOTE_FORMAT, vote.getRoomId(), vote.getStationId(),
+        return String.format(CANDIDATE_VOTE_KEY_FORMAT, vote.getRoomId(), vote.getStationId(),
             vote.getVoteStatus().getName());
     }
 
