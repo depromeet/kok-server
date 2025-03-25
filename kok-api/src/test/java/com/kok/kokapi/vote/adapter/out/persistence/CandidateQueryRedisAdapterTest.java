@@ -12,7 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 class CandidateQueryRedisAdapterTest extends RepositoryTest {
 
-    private static final String CANDIDATES_KEY = "vote:candidates:";
+    private static final String CANDIDATE_KEY_FORMAT = "vote:%s:candidates";
 
     @Autowired
     private CandidateQueryRedisAdapter candidateQueryRedisAdapter;
@@ -24,7 +24,7 @@ class CandidateQueryRedisAdapterTest extends RepositoryTest {
     void findByRoomId() {
         // given
         String roomId = "roomId";
-        String key = CANDIDATES_KEY + roomId;
+        String key = getCandidateKey(roomId);
         Candidate candidate = new Candidate(roomId, 1);
         Candidate candidate2 = new Candidate(roomId, 2);
         Candidate candidate3 = new Candidate(roomId, 3);
@@ -55,7 +55,7 @@ class CandidateQueryRedisAdapterTest extends RepositoryTest {
     void isExistsByRoomId() {
         // given
         String roomId = "roomId";
-        String key = CANDIDATES_KEY + roomId;
+        String key = getCandidateKey(roomId);
         redisTemplate.opsForSet().add(key, "1");
 
         // when
@@ -76,5 +76,9 @@ class CandidateQueryRedisAdapterTest extends RepositoryTest {
 
         // then
         assertThat(result).isFalse();
+    }
+
+    private String getCandidateKey(String roomId) {
+        return String.format(CANDIDATE_KEY_FORMAT, roomId);
     }
 }

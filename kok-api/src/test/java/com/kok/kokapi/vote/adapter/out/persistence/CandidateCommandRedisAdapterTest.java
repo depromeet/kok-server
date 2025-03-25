@@ -13,7 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 class CandidateCommandRedisAdapterTest extends RepositoryTest {
 
-    private static final String CANDIDATES_KEY = "vote:candidates:";
+    private static final String CANDIDATE_KEY_FORMAT = "vote:%s:candidates";
 
     @Autowired
     private CandidateCommandRedisAdapter candidateCommandRedisAdapter;
@@ -25,6 +25,7 @@ class CandidateCommandRedisAdapterTest extends RepositoryTest {
     void saveAllCandidates() {
         // given
         String roomId = "roomId";
+        String key = getCandidateKey(roomId);
         List<Candidate> candidates = List.of(
             new Candidate(roomId, 1),
             new Candidate(roomId, 2)
@@ -34,7 +35,11 @@ class CandidateCommandRedisAdapterTest extends RepositoryTest {
         candidateCommandRedisAdapter.saveAll(candidates);
 
         // then
-        Set<Object> results = redisTemplate.opsForSet().members(CANDIDATES_KEY + roomId);
+        Set<Object> results = redisTemplate.opsForSet().members(key);
         assertThat(results).containsExactlyInAnyOrder(1, 2);
+    }
+
+    private String getCandidateKey(String roomId) {
+        return String.format(CANDIDATE_KEY_FORMAT, roomId);
     }
 }
