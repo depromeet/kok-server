@@ -8,6 +8,7 @@ import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,25 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
     private VoteCommandRedisAdapter voteCommandRedisAdapter;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+
+    @DisplayName("후보별로 사용자의 투표 정보를 저장한다.")
+    @Test
+    void saveVoteByCandidate() {
+        // given
+        String existingMemberId = "memberId2";
+        String memberId = "memberId";
+        Candidate candidate = new Candidate("roomId", 1);
+        Vote vote = new Vote(candidate, memberId, VoteStatus.AGREE);
+        String key = getCandidateKey(vote);
+        redisTemplate.opsForSet().add(key, existingMemberId);
+
+        // when
+        voteCommandRedisAdapter.saveByCandidate(vote);
+
+        // then
+        Set<Object> memberIds = redisTemplate.opsForSet().members(key);
+        assertThat(memberIds).containsExactlyInAnyOrder(existingMemberId, memberId);
+    }
 
     @DisplayName("사용자의 투표 결과를 저장한다.")
     @Test
@@ -55,11 +75,11 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         );
     }
 
-    private String getCandidateKey(String roomId, long stationId, VoteStatus voteStatus) {
+    private String getCandidateKey(Vote vote) {
         StringJoiner joiner = new StringJoiner(":");
-        joiner.add(VOTES_KEY + roomId);
-        joiner.add(CANDIDATE_KEY + stationId);
-        joiner.add(voteStatus.getName());
+        joiner.add(VOTES_KEY + vote.getRoomId());
+        joiner.add(CANDIDATE_KEY + vote.getStationId());
+        joiner.add(vote.getVoteStatus().getName());
         return joiner.toString();
     }
 
