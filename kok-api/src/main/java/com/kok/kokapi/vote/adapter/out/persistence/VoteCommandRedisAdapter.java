@@ -29,7 +29,9 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
     @Override
     public void saveAllByMember(List<Vote> votes) {
         validate(votes);
-        String key = getMemberVoteKey(votes.getFirst());
+        String roomId = votes.getFirst().getRoomId();
+        String memberId = votes.getFirst().getMemberId();
+        String key = getMemberVoteKey(roomId, memberId);
         Map<Long, String> value = votes.stream()
             .collect(Collectors.toMap(
                 Vote::getStationId,
@@ -46,12 +48,18 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
 
     @Override
     public void deleteByCandidate(Vote vote) {
-        String candidateVoteKey = getCandidateVoteKey(vote);
-        redisTemplate.opsForSet().remove(candidateVoteKey, vote.getMemberId());
+        String key = getCandidateVoteKey(vote);
+        redisTemplate.opsForSet().remove(key, vote.getMemberId());
     }
 
-    private String getMemberVoteKey(Vote vote) {
-        return String.format(MEMBER_VOTE_KEY_FORMAT, vote.getRoomId(), vote.getMemberId());
+    @Override
+    public void deleteAllByRoomIdAndMemberId(String roomId, String memberId) {
+        String key = getMemberVoteKey(roomId, memberId);
+        redisTemplate.delete(key);
+    }
+
+    private String getMemberVoteKey(String roomId, String memberId) {
+        return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
     }
 
     private String getCandidateVoteKey(Vote vote) {
