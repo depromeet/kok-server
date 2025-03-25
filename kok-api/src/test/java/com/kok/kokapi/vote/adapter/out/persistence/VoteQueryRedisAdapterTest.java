@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.kok.kokapi.common.template.RepositoryTest;
 import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import java.util.Map;
-import java.util.StringJoiner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 class VoteQueryRedisAdapterTest extends RepositoryTest {
 
-    private static final String VOTES_KEY = "vote:";
-    private static final String MEMBER_KEY = "member:";
+    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
 
     @Autowired
     private VoteQueryRedisAdapter voteQueryRedisAdapter;
@@ -27,7 +25,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         // given
         String roomId = "roomId";
         String memberId = "memberId";
-        String key = getMemberKey(roomId, memberId);
+        String key = getMemberVoteKey(roomId, memberId);
         redisTemplate.opsForHash().putAll(key, Map.of(1L, VoteStatus.AGREE.isAgree()));
 
         // when
@@ -51,10 +49,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         assertThat(result).isFalse();
     }
 
-    private String getMemberKey(String roomId, String memberId) {
-        StringJoiner joiner = new StringJoiner(":");
-        joiner.add(VOTES_KEY + roomId);
-        joiner.add(MEMBER_KEY + memberId);
-        return joiner.toString();
+    private String getMemberVoteKey(String roomId, String memberId) {
+        return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
     }
 }

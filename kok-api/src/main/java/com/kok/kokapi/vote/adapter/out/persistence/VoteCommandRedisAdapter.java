@@ -1,11 +1,11 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
+import com.kok.kokcore.vote.application.port.out.DeleteVotePort;
 import com.kok.kokcore.vote.application.port.out.SaveVotePort;
 import com.kok.kokcore.vote.domain.Vote;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,24 +13,23 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class VoteCommandRedisAdapter implements SaveVotePort {
+public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
 
-    private static final String VOTES_KEY = "vote:";
-    private static final String CANDIDATE_KEY = "candidate:";
-    private static final String MEMBER_KEY = "member:";
+    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
+    private static final String CANDIDATE_VOTE_FORMAT = "vote:%s:candidate:%d:%s";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public void saveByCandidate(Vote vote) {
-        String key = getCandidateKey(vote);
+        String key = getCandidateVoteKey(vote);
         redisTemplate.opsForSet().add(key, vote.getMemberId());
     }
 
     @Override
     public void saveAllByMember(List<Vote> votes) {
         validate(votes);
-        String key = getMemberKey(votes.getFirst());
+        String key = getMemberVoteKey(votes.getFirst());
         Map<Long, String> value = votes.stream()
             .collect(Collectors.toMap(
                 Vote::getStationId,
@@ -45,18 +44,18 @@ public class VoteCommandRedisAdapter implements SaveVotePort {
         }
     }
 
-    private String getCandidateKey(Vote vote) {
-        StringJoiner joiner = new StringJoiner(":");
-        joiner.add(VOTES_KEY + vote.getRoomId());
-        joiner.add(CANDIDATE_KEY + vote.getStationId());
-        joiner.add(vote.getVoteStatus().getName());
-        return joiner.toString();
+    @Override
+    public void deleteByCandidate(Vote vote) {
+        String candidateVoteKey = getCandidateVoteKey(vote);
+        redisTemplate.opsForSet().remove(candidateVoteKey, vote.getMemberId());
     }
 
-    private String getMemberKey(Vote vote) {
-        StringJoiner joiner = new StringJoiner(":");
-        joiner.add(VOTES_KEY + vote.getRoomId());
-        joiner.add(MEMBER_KEY + vote.getMemberId());
-        return joiner.toString();
+    private String getMemberVoteKey(Vote vote) {
+        return String.format(MEMBER_VOTE_KEY_FORMAT, vote.getRoomId(), vote.getMemberId());
+    }
+
+    private String getCandidateVoteKey(Vote vote) {
+        return String.format(CANDIDATE_VOTE_FORMAT, vote.getRoomId(), vote.getStationId(),
+            vote.getVoteStatus().getName());
     }
 }
