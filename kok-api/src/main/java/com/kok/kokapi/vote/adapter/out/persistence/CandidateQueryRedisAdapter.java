@@ -13,13 +13,13 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class CandidateQueryRedisAdapter implements LoadCandidatePort {
 
-    private static final String CANDIDATES_KEY = "vote:candidates:";
+    private static final String CANDIDATE_KEY_FORMAT = "vote:%s:candidates";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public List<Candidate> findByRoomId(String roomId) {
-        Set<Object> stationIds = redisTemplate.opsForSet().members(getKey(roomId));
+        Set<Object> stationIds = redisTemplate.opsForSet().members(getCandidateKey(roomId));
         if (Objects.isNull(stationIds)) {
             return List.of();
         }
@@ -30,10 +30,10 @@ public class CandidateQueryRedisAdapter implements LoadCandidatePort {
 
     @Override
     public boolean isExistsByRoomId(String roomId) {
-        return redisTemplate.hasKey(getKey(roomId));
+        return redisTemplate.hasKey(getCandidateKey(roomId));
     }
 
-    private String getKey(String roomId) {
-        return CANDIDATES_KEY + roomId;
+    private String getCandidateKey(String roomId) {
+        return String.format(CANDIDATE_KEY_FORMAT, roomId);
     }
 }

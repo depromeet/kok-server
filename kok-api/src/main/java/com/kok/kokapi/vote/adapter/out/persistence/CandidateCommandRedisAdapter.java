@@ -12,14 +12,14 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class CandidateCommandRedisAdapter implements SaveCandidatePort {
 
-    private static final String CANDIDATES_KEY = "vote:candidates:";
+    private static final String CANDIDATE_KEY_FORMAT = "vote:%s:candidates";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public void saveAll(List<Candidate> candidates) {
         validate(candidates);
-        String key = getKey(candidates);
+        String key = getCandidateKey(candidates);
         Object[] stationIds = candidates.stream()
             .map(Candidate::getStationId)
             .toArray();
@@ -33,7 +33,8 @@ public class CandidateCommandRedisAdapter implements SaveCandidatePort {
         }
     }
 
-    private String getKey(List<Candidate> candidates) {
-        return CANDIDATES_KEY + candidates.getFirst().getRoomId();
+    private String getCandidateKey(List<Candidate> candidates) {
+        String roomId = candidates.getFirst().getRoomId();
+        return String.format(CANDIDATE_KEY_FORMAT, roomId);
     }
 }
