@@ -4,6 +4,7 @@ import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.port.out.DeleteVotePort;
 import com.kok.kokcore.vote.port.out.LoadVotePort;
 import com.kok.kokcore.vote.port.out.SaveVotePort;
+import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class VoteService implements SaveVoteUseCase {
+public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
     private final SaveVotePort saveVotePort;
     private final LoadVotePort loadVotePort;
@@ -34,5 +35,10 @@ public class VoteService implements SaveVoteUseCase {
             votes.forEach(deleteVotePort::deleteByCandidate);
             deleteVotePort.deleteAllByRoomIdAndMemberId(roomId, memberId);
         }
+    }
+
+    @Override
+    public boolean isVotedByMember(String roomId, String memberId) {
+        return loadVotePort.isExistsByRoomIdAndMemberId(roomId, memberId);
     }
 }

@@ -44,7 +44,7 @@ public class VoteController {
     @GetMapping("/vote/{roomId}/status")
     public ResponseEntity<ApiResponseDto<List<MemberVoteStatusResponse>>> getMemberVoteStatus(
         @PathVariable String roomId) {
-        List<MemberVoteStatusResponse> responses = voteFacadeService.getVoteMembers(roomId);
+        List<MemberVoteStatusResponse> responses = voteFacadeService.getVoteMembersStatus(roomId);
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 }

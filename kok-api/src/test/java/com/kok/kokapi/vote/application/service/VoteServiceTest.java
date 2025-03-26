@@ -7,6 +7,7 @@ import com.kok.kokapi.common.template.ServiceTest;
 import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.domain.vo.VoteStatus;
+import com.kok.kokcore.vote.port.out.SaveVotePort;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +23,8 @@ class VoteServiceTest extends ServiceTest {
 
     @Autowired
     private VoteService voteService;
+    @Autowired
+    private SaveVotePort saveVotePort;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -67,7 +70,10 @@ class VoteServiceTest extends ServiceTest {
             new Vote(candidate, memberId, VoteStatus.AGREE),
             new Vote(candidate2, memberId, VoteStatus.DISAGREE)
         );
-        voteService.saveVotes(votes);
+        saveVotePort.saveAllByMember(votes);
+        for (Vote vote : votes) {
+            saveVotePort.saveByCandidate(vote);
+        }
         List<Vote> newVotes = List.of(
             new Vote(candidate, memberId, VoteStatus.DISAGREE),
             new Vote(candidate2, memberId, VoteStatus.DISAGREE)
@@ -91,6 +97,40 @@ class VoteServiceTest extends ServiceTest {
             () -> assertThat(disagreeCountForStation1).isEqualTo(1),
             () -> assertThat(disagreeCountForStation2).isEqualTo(1)
         );
+    }
+
+    @DisplayName("사용자가 투표를 완료했으면 true를 반환한다.")
+    @Test
+    void isVotedByMember() {
+        // given
+        String roomId = "roomId";
+        String memberId = "memberId";
+        Candidate candidate = new Candidate(roomId, 1);
+        List<Vote> votes = List.of(new Vote(candidate, memberId, VoteStatus.AGREE));
+        saveVotePort.saveAllByMember(votes);
+        for (Vote vote : votes) {
+            saveVotePort.saveByCandidate(vote);
+        }
+
+        // when
+        boolean result = voteService.isVotedByMember(roomId, memberId);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("사용자가 투표를 완료하지 않았으면 false를 반환한다.")
+    @Test
+    void isNotVotedByMember() {
+        // given
+        String roomId = "roomId";
+        String memberId = "memberId";
+
+        // when
+        boolean result = voteService.isVotedByMember(roomId, memberId);
+
+        // then
+        assertThat(result).isFalse();
     }
 
     private String getMemberVoteKey(String roomId, String memberId) {
