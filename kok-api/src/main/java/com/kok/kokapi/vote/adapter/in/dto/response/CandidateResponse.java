@@ -1,6 +1,6 @@
 package com.kok.kokapi.vote.adapter.in.dto.response;
 
-import com.kok.kokapi.public_transportation.adapter.in.dto.TmapPublicTransportationParsedResponse;
+import com.kok.kokapi.public_transportation.adapter.in.dto.response.TmapPublicTransportationParsedResponse;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;

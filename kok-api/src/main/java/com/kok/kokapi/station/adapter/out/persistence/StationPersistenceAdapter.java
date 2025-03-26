@@ -1,10 +1,10 @@
 package com.kok.kokapi.station.adapter.out.persistence;
 
 import com.kok.kokapi.config.geometry.PointConverter;
-import com.kok.kokcore.station.application.port.out.ReadStationsPort;
-import com.kok.kokcore.station.application.port.out.RetrieveStationsPort;
-import com.kok.kokcore.station.application.port.out.SaveStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.station.port.out.ReadStationsPort;
+import com.kok.kokcore.station.port.out.RetrieveStationsPort;
+import com.kok.kokcore.station.port.out.SaveStationsPort;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;

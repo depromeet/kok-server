@@ -21,8 +21,8 @@ class StationPersistenceAdapterTest extends ServiceTest {
     @Test
     void saveStationsAndReturn() {
         // given
-        Station savedStation = new Station("망원역", "12.345","123.456");
-        List<Station> stations = List.of(new Station("합정역", "12.345","123.456"));
+        Station savedStation = new Station("망원역", "12.345", "123.456");
+        List<Station> stations = List.of(new Station("합정역", "12.345", "123.456"));
         stationRepository.save(savedStation);
 
         // when

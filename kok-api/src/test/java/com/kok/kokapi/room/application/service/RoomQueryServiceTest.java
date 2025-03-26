@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.kok.kokapi.common.template.ServiceTest;
-import com.kok.kokcore.room.application.port.out.SaveRoomPort;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.domain.vo.MemberRole;
+import com.kok.kokcore.room.port.out.SaveRoomPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

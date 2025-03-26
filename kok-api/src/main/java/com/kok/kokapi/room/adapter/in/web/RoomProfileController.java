@@ -21,8 +21,8 @@ public class RoomProfileController {
     public ResponseEntity<ApiResponseDto<RandomProfileResponse>> getRandomProfile() {
         Profile profile = createRandomProfileUseCase.createProfile();
         RandomProfileResponse response = new RandomProfileResponse(
-                profile.getImageUrl(),
-                profile.getNickname()
+            profile.getImageUrl(),
+            profile.getNickname()
         );
 
         return ResponseEntity.ok(ApiResponseDto.success(response));

@@ -4,8 +4,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "tmap-sub")
 public record TmapClientProperties(
-        String key,
-        String url,
-        String keyname
-){
+    String key,
+    String url,
+    String keyname
+) {
+
 }

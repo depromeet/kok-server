@@ -1,8 +1,8 @@
 package com.kok.kokapi.station.adapter.out.external;
 
-import com.kok.kokcore.station.application.port.out.LoadStationsPort;
-import com.kok.kokcore.station.application.port.out.dto.StationRouteDto;
-import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
+import com.kok.kokcore.station.port.out.LoadStationsPort;
+import com.kok.kokcore.station.port.out.dto.StationRouteDto;
+import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
 import java.util.List;
 
 public class FakeStationClient implements LoadStationsPort {

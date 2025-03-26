@@ -2,14 +2,14 @@ package com.kok.kokapi.vote.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kok.kokapi.public_transportation.adapter.in.dto.TmapPublicTransportationParsedResponse;
+import com.kok.kokapi.public_transportation.adapter.in.dto.response.TmapPublicTransportationParsedResponse;
 import com.kok.kokapi.public_transportation.application.service.TmapPublicTransportationService;
 import com.kok.kokapi.vote.adapter.in.dto.request.VoteRequest;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
-import com.kok.kokcore.station.application.usecase.GetStationUseCase;
-import com.kok.kokcore.station.application.usecase.RetrieveRouteUseCase;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.station.usecase.GetStationUseCase;
+import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
 import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.domain.vo.VoteStatus;

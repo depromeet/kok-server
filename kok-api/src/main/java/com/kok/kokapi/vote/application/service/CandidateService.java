@@ -1,8 +1,8 @@
 package com.kok.kokapi.vote.application.service;
 
-import com.kok.kokcore.station.application.usecase.DeleteRecommendStationUseCase;
-import com.kok.kokcore.station.application.usecase.GetRecommendStationUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.station.usecase.DeleteRecommendStationUseCase;
+import com.kok.kokcore.station.usecase.GetRecommendStationUseCase;
 import com.kok.kokcore.vote.application.port.out.LoadCandidatePort;
 import com.kok.kokcore.vote.application.port.out.SaveCandidatePort;
 import com.kok.kokcore.vote.domain.Candidate;

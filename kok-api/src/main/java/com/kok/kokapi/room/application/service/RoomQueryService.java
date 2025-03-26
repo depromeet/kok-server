@@ -2,10 +2,10 @@ package com.kok.kokapi.room.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kok.kokcore.room.application.port.out.LoadRoomParticipantPort;
-import com.kok.kokcore.room.application.port.out.LoadRoomPort;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
+import com.kok.kokcore.room.port.out.LoadRoomParticipantPort;
+import com.kok.kokcore.room.port.out.LoadRoomPort;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import java.util.ArrayList;
 import java.util.List;

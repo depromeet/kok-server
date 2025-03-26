@@ -16,7 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @Import({StationTestConfiguration.class})
 @TestPropertySource(properties = {"spring.config.location = classpath:application-test.yml"})
 @Profile("test")
-public abstract class ServiceTest extends ContainerBaseTest{
+public abstract class ServiceTest extends ContainerBaseTest {
 
     @MockitoBean
     protected PublicTransportationComplexClient publicTransportationComplexClient;

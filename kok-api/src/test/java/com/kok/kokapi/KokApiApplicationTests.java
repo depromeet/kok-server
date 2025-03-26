@@ -7,8 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class KokApiApplicationTests extends ServiceTest {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }

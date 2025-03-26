@@ -1,9 +1,9 @@
 package com.kok.kokapi.station.adapter.out.persistence;
 
-import com.kok.kokcore.station.application.port.out.RetrieveRoutePort;
-import com.kok.kokcore.station.application.port.out.SaveRoutePort;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.station.port.out.RetrieveRoutePort;
+import com.kok.kokcore.station.port.out.SaveRoutePort;
 import java.util.List;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
