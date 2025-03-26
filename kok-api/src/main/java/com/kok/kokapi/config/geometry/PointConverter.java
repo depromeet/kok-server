@@ -1,11 +1,10 @@
 package com.kok.kokapi.config.geometry;
 
+import java.math.BigDecimal;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.util.Pair;
-
-import java.math.BigDecimal;
 
 public class PointConverter {
 
@@ -22,7 +21,7 @@ public class PointConverter {
         return point;
     }
 
-    public Pair<BigDecimal,BigDecimal> toCoordinates(Point point) {
+    public Pair<BigDecimal, BigDecimal> toCoordinates(Point point) {
         return Pair.of(BigDecimal.valueOf(point.getY()), BigDecimal.valueOf(point.getX()));
     }
 

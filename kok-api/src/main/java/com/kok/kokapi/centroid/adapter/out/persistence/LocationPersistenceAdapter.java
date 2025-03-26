@@ -2,21 +2,21 @@ package com.kok.kokapi.centroid.adapter.out.persistence;
 
 
 import com.kok.kokcore.location.domain.Location;
-import com.kok.kokcore.location.application.port.out.ReadCentroidPort;
-import com.kok.kokcore.location.application.port.out.ReadLocationPort;
-import com.kok.kokcore.location.application.port.out.SaveLocationPort;
-import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.Point;
-import org.springframework.stereotype.Repository;
-import org.locationtech.jts.io.WKTReader;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.kok.kokcore.location.port.out.ReadCentroidPort;
+import com.kok.kokcore.location.port.out.ReadLocationPort;
+import com.kok.kokcore.location.port.out.SaveLocationPort;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.WKTReader;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
-public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocationPort, ReadLocationPort {
+public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocationPort,
+    ReadLocationPort {
 
     private final LocationRepository locationRepository;
 
