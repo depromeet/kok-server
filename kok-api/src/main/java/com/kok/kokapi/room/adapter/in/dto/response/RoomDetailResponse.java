@@ -5,20 +5,14 @@ import com.kok.kokcore.room.domain.Room;
 public record RoomDetailResponse(
     String id,
     String roomName,
-    int nonParticipantCount,
-    boolean isFulled
+    int nonParticipantCount
 ) {
 
     public static RoomDetailResponse of(Room room, int participantCount) {
         return new RoomDetailResponse(
             room.getId(),
             room.getRoomName(),
-            room.getCapacity() - participantCount,
-            isFulled(room, participantCount)
+            room.getCapacity() - participantCount
         );
-    }
-
-    private static boolean isFulled(Room room, int participantCount) {
-        return room.getCapacity() == participantCount;
     }
 }

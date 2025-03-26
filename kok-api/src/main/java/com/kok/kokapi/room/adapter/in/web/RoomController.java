@@ -7,7 +7,7 @@ import com.kok.kokapi.room.adapter.in.dto.request.JoinRoomParticipantRequest;
 import com.kok.kokapi.room.adapter.in.dto.response.CreateRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.JoinRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomDetailResponse;
-import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponse;
+import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponses;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomStatusResponse;
 import com.kok.kokapi.room.application.service.RoomFacadeService;
 import com.kok.kokcore.room.domain.Member;
@@ -75,20 +75,13 @@ public class RoomController {
 
     @Operation(summary = "약속방 참여자 프로필 목록 조회", description = "약속방에 참여 중인 참여자들의 프로필 목록을 반환합니다.")
     @GetMapping("/rooms/{roomId}/participants")
-    public ResponseEntity<ApiResponseDto<List<RoomMembersResponse>>> getParticipants(
+    public ResponseEntity<ApiResponseDto<RoomMembersResponses>> getParticipants(
         @PathVariable String roomId) {
         Room room = getRoomUseCase.findRoomById(roomId);
         List<Member> participants = getRoomUseCase.getParticipants(room.getId());
+        RoomMembersResponses responses = RoomMembersResponses.of(room, participants);
 
-        List<RoomMembersResponse> response = participants.stream()
-            .map(member -> new RoomMembersResponse(
-                member.getMemberId(),
-                member.getProfile(),
-                member.getNickname(),
-                member.getRole()
-            )).toList();
-
-        return ResponseEntity.ok(ApiResponseDto.success(response));
+        return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 
     @Operation(summary = "약속방 참여", description = "사용자가 약속방에 참여합니다.")
