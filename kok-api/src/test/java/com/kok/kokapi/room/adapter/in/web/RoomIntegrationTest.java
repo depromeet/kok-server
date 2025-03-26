@@ -7,8 +7,8 @@ import com.kok.kokapi.centroid.adapter.in.dto.request.LocationRequest;
 import com.kok.kokapi.common.template.IntegrationTest;
 import com.kok.kokapi.room.adapter.in.dto.request.CreateRoomRequest;
 import com.kok.kokapi.room.adapter.in.dto.request.JoinRoomParticipantRequest;
+import com.kok.kokapi.room.adapter.in.dto.response.CreateRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.JoinRoomResponse;
-import com.kok.kokapi.room.adapter.in.dto.response.RoomCreateResponse;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.math.BigDecimal;
@@ -23,7 +23,7 @@ class RoomIntegrationTest extends IntegrationTest {
     @DisplayName("약속방 시나리오")
     @TestFactory
     Stream<DynamicTest> getRoomDetail() {
-        AtomicReference<RoomCreateResponse> createRoomResponse = new AtomicReference<>();
+        AtomicReference<CreateRoomResponse> createRoomResponse = new AtomicReference<>();
         AtomicReference<JoinRoomResponse> joinRoomResponse = new AtomicReference<>();
 
         return Stream.of(
@@ -53,14 +53,14 @@ class RoomIntegrationTest extends IntegrationTest {
         );
     }
 
-    private RoomCreateResponse createRoom(CreateRoomRequest request) {
+    private CreateRoomResponse createRoom(CreateRoomRequest request) {
         return RestAssured.given().log().all()
             .contentType(ContentType.JSON)
             .body(request)
             .when().post("/v1/api/rooms")
             .then().log().all()
             .assertThat().statusCode(201)
-            .extract().body().jsonPath().getObject("data", RoomCreateResponse.class);
+            .extract().body().jsonPath().getObject("data", CreateRoomResponse.class);
     }
 
     private JoinRoomResponse joinRoom(String roomId, JoinRoomParticipantRequest request) {
@@ -74,7 +74,7 @@ class RoomIntegrationTest extends IntegrationTest {
     }
 
     private static DynamicTest inputLocation(String message,
-        AtomicReference<RoomCreateResponse> createRoomResponse) {
+        AtomicReference<CreateRoomResponse> createRoomResponse) {
         return DynamicTest.dynamicTest(message,
             () -> {
                 String roomId = createRoomResponse.get().id();
@@ -121,7 +121,7 @@ class RoomIntegrationTest extends IntegrationTest {
     }
 
     private static DynamicTest inputLocation(String message,
-        AtomicReference<RoomCreateResponse> createRoomResponse,
+        AtomicReference<CreateRoomResponse> createRoomResponse,
         AtomicReference<JoinRoomResponse> joinRoomResponse) {
         return DynamicTest.dynamicTest(message,
             () -> {
@@ -139,7 +139,7 @@ class RoomIntegrationTest extends IntegrationTest {
     }
 
     private static DynamicTest checkVoteMode(String message,
-        AtomicReference<RoomCreateResponse> createRoomResponse, boolean expectedIsVoteMode) {
+        AtomicReference<CreateRoomResponse> createRoomResponse, boolean expectedIsVoteMode) {
         return DynamicTest.dynamicTest(message,
             () -> {
                 String roomId = createRoomResponse.get().id();

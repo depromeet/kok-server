@@ -1,6 +1,6 @@
 package com.kok.kokapi.room.adapter.out.persistence;
 
-import com.kok.kokcore.room.application.port.out.LoadRoomParticipantPort;
+import com.kok.kokcore.room.port.out.LoadRoomParticipantPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;

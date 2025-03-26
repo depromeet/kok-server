@@ -16,13 +16,13 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {"spring.config.location = classpath:application-test.yml"})
 @Profile("test")
-public abstract class IntegrationTest extends ContainerBaseTest{
+public abstract class IntegrationTest extends ContainerBaseTest {
 
     @LocalServerPort
     private int port;
 
     @BeforeEach
-    void setPort(){
+    void setPort() {
         RestAssured.port = port;
     }
 }

@@ -4,16 +4,17 @@ import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.vo.MemberRole;
 
 public record MemberResponse(
-        String id,
-        String nickname,
-        String profile,
-        MemberRole role
+    String id,
+    String nickname,
+    String profile,
+    MemberRole role
 ) {
+
     public static MemberResponse from(Member member) {
         return new MemberResponse(
-                member.getMemberId(),
-                member.getNickname(),
-                member.getProfile(),
-                member.getRole());
+            member.getMemberId(),
+            member.getNickname(),
+            member.getProfile(),
+            member.getRole());
     }
 }

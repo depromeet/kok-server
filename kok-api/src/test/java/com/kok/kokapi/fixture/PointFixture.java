@@ -6,7 +6,7 @@ import org.locationtech.jts.geom.Point;
 
 public class PointFixture {
 
-    public static Point create(){
+    public static Point create() {
         GeometryFactory geometryFactory = new GeometryFactory();
         Coordinate coordinate = new Coordinate(127.02758, 37.49794);
 

@@ -2,21 +2,22 @@ package com.kok.kokapi.public_transportation.adapter.out.external.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TmapComplexPublicTransportationResponse {
+
     @JsonProperty("metaData")
     private MetaData metaData;
 
     @Getter
     @Setter
     public static class MetaData {
+
         @JsonProperty("requestParameters")
         private RequestParameters requestParameters;
 
@@ -27,6 +28,7 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class RequestParameters {
+
         private int busCount;
         private int expressbusCount;
         private int subwayCount;
@@ -46,6 +48,7 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class Plan {
+
         @JsonProperty("itineraries")
         private List<Itinerary> itineraries;
     }
@@ -53,6 +56,7 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class Itinerary {
+
         @JsonProperty("fare")
         private Fare fare;
 
@@ -68,6 +72,7 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class Fare {
+
         @JsonProperty("regular")
         private RegularFare regular;
     }
@@ -75,6 +80,7 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class RegularFare {
+
         private int totalFare;
         private Currency currency;
     }
@@ -82,6 +88,7 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class Currency {
+
         private String symbol;
         private String currency;
         private String currencyCode;
@@ -90,6 +97,7 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class Leg {
+
         private String mode;
         private int sectionTime;
         private int distance;
@@ -108,6 +116,7 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class Location {
+
         private String name;
         private double lon;
         private double lat;
@@ -116,6 +125,7 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class Step {
+
         private String streetName;
         private int distance;
         private String description;
@@ -125,12 +135,14 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class PassStopList {
+
         private List<Station> stationList;
     }
 
     @Getter
     @Setter
     public static class Station {
+
         private int index;
         private String stationName;
         private String lon;
@@ -141,6 +153,7 @@ public class TmapComplexPublicTransportationResponse {
     @Getter
     @Setter
     public static class PassShape {
+
         private String linestring;
     }
 

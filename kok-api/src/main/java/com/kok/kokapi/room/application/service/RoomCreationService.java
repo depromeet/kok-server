@@ -1,8 +1,8 @@
 package com.kok.kokapi.room.application.service;
 
-import com.kok.kokcore.room.application.port.out.SaveRoomPort;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
+import com.kok.kokcore.room.port.out.SaveRoomPort;
 import com.kok.kokcore.room.usecase.CreateRoomUseCase;
 import com.kok.kokcore.room.usecase.JoinRoomUseCase;
 import lombok.RequiredArgsConstructor;

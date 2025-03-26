@@ -28,7 +28,8 @@ public class StationErrorHandler implements ResponseErrorHandler {
     }
 
     @Override
-    public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
+    public void handleError(URI url, HttpMethod method, ClientHttpResponse response)
+        throws IOException {
         throw new RuntimeException("서버 오류입니다. 지속적으로 발생시 열린 데이터 광장으로 문의(Q&A) 바랍니다.");
     }
 }

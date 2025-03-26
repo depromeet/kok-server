@@ -8,6 +8,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class Profile {
+
     private final String imageUrl;
     private final String nickname;
 

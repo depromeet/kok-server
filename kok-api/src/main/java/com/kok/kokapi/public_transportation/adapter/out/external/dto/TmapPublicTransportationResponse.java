@@ -1,10 +1,9 @@
 package com.kok.kokapi.public_transportation.adapter.out.external.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 // Tmap 처리를 위한 POJO
 @Getter
@@ -22,6 +21,7 @@ public class TmapPublicTransportationResponse {
     @Getter
     @Setter
     public static class MetaData {
+
         private RequestParameters requestParameters;
         private Plan plan;
 
@@ -30,6 +30,7 @@ public class TmapPublicTransportationResponse {
     @Getter
     @Setter
     public static class RequestParameters {
+
         private String endY;
         private String endX;
         private String startY;
@@ -41,6 +42,7 @@ public class TmapPublicTransportationResponse {
     @Getter
     @Setter
     public static class Plan {
+
         private List<Itinerary> itineraries;
 
     }
@@ -48,6 +50,7 @@ public class TmapPublicTransportationResponse {
     @Getter
     @Setter
     public static class Itinerary {
+
         private Fare fare;
         private int totalTime;
         private int totalWalkTime;
@@ -61,6 +64,7 @@ public class TmapPublicTransportationResponse {
     @Getter
     @Setter
     public static class Fare {
+
         private RegularFare regular;
 
     }
@@ -68,6 +72,7 @@ public class TmapPublicTransportationResponse {
     @Getter
     @Setter
     public static class RegularFare {
+
         private int totalFare;
         private Currency currency;
 
@@ -76,6 +81,7 @@ public class TmapPublicTransportationResponse {
     @Getter
     @Setter
     public static class Currency {
+
         private String symbol;
         private String currency;
         private String currencyCode;
