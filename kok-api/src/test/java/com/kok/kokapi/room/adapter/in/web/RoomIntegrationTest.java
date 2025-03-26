@@ -91,7 +91,7 @@ class RoomIntegrationTest extends IntegrationTest {
     }
 
     private static DynamicTest getRoomDetail(String message,
-        AtomicReference<RoomCreateResponse> createRoomResponse, int nonParticipantCount) {
+        AtomicReference<CreateRoomResponse> createRoomResponse, int nonParticipantCount) {
         return DynamicTest.dynamicTest(message,
             () -> {
                 String roomId = createRoomResponse.get().id();
@@ -105,7 +105,7 @@ class RoomIntegrationTest extends IntegrationTest {
     }
 
     private static DynamicTest getRoomMembers(String message,
-        AtomicReference<RoomCreateResponse> createRoomResponse, int profileCount,
+        AtomicReference<CreateRoomResponse> createRoomResponse, int profileCount,
         boolean expectedIsFull) {
         return DynamicTest.dynamicTest(message,
             () -> {
