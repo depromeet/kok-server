@@ -1,16 +1,22 @@
 package com.kok.kokapi.station.application.service;
 
 import com.kok.kokapi.config.geometry.PointConverter;
-import com.kok.kokcore.location.application.port.out.ReadCentroidPort;
-import com.kok.kokcore.station.application.port.out.*;
-import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
-import com.kok.kokcore.station.application.usecase.RecommendStationUseCase;
-import com.kok.kokcore.station.application.usecase.SaveStationUseCase;
+import com.kok.kokcore.location.port.out.ReadCentroidPort;
 import com.kok.kokcore.station.domain.entity.Station;
-
+import com.kok.kokcore.station.port.out.LoadStationsPort;
+import com.kok.kokcore.station.port.out.ReadStationsPort;
+import com.kok.kokcore.station.port.out.RetrieveStationsPort;
+import com.kok.kokcore.station.port.out.SaveRoutePort;
+import com.kok.kokcore.station.port.out.SaveStationsPort;
+import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
+import com.kok.kokcore.station.usecase.RecommendStationUseCase;
+import com.kok.kokcore.station.usecase.SaveStationUseCase;
 import java.math.BigDecimal;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
@@ -35,7 +41,7 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     @Override
     @Transactional
     public void saveStations() {
-        if(readStationsPort.hasNoStations()) {
+        if (readStationsPort.hasNoStations()) {
             StationRouteDtos stationRouteDtos = loadStationsPort.loadAllStations();
             List<Station> stations = saveStationsPort.saveStations(stationRouteDtos.toStations());
             saveRoutePort.saveRoutes(stationRouteDtos.toRoutesByStations(stations));
@@ -43,7 +49,7 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     }
 
     @Override
-    @Cacheable(value = "recommendStations",cacheManager = "stationCacheManager", key = "#roomId")
+    @Cacheable(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
     public List<Station> recommendStations(String roomId) {
         Point centroid = readCentroidPort.findCentroidByRoomId(roomId);
         int RECOMMEND_NUM = 2;
@@ -79,7 +85,9 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
 
         for (Station station : stations) {
             double distance = calculateDistance(centroid, station);
-            if (distance == 0) distance = Double.MIN_VALUE; // 0 거리 방지
+            if (distance == 0) {
+                distance = Double.MIN_VALUE; // 0 거리 방지
+            }
 
             double weight = (1 / distance) * station.getPriority();
             weightedDistances.put(station, weight);

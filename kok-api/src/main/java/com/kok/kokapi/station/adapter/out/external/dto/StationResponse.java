@@ -1,7 +1,7 @@
 package com.kok.kokapi.station.adapter.out.external.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kok.kokcore.station.application.port.out.dto.StationRouteDto;
+import com.kok.kokcore.station.port.out.dto.StationRouteDto;
 
 public record StationResponse(
     @JsonProperty("BLDN_ID")

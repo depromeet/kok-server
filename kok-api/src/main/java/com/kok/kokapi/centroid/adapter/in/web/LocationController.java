@@ -13,13 +13,16 @@ import com.kok.kokcore.location.usecase.LoadCentroidUseCase;
 import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @V1Controller
 @RequiredArgsConstructor
@@ -32,35 +35,39 @@ public class LocationController {
 
     @Operation(summary = "위치 입력", description = "Create a new location with the provided details.")
     @PostMapping("/locations")
-    public ResponseEntity<ApiResponseDto<CentroidResponse>> createLocation(@Valid @RequestBody LocationRequest locationRequest) {
+    public ResponseEntity<ApiResponseDto<CentroidResponse>> createLocation(
+        @Valid @RequestBody LocationRequest locationRequest) {
         createLocationUsecase.createLocation(
-                locationRequest.roomId(),
-                locationRequest.memberId(),
-                locationRequest.latitude(),
-                locationRequest.longitude()
+            locationRequest.roomId(),
+            locationRequest.memberId(),
+            locationRequest.latitude(),
+            locationRequest.longitude()
         );
 
-        Pair<BigDecimal, BigDecimal> centroid = loadCentroidUsecase.readCentroidCoordinates(locationRequest.roomId());
+        Pair<BigDecimal, BigDecimal> centroid = loadCentroidUsecase.readCentroidCoordinates(
+            locationRequest.roomId());
 
         return ResponseEntity.ok(ApiResponseDto.success(
-                CentroidResponse.of(locationRequest.roomId(), centroid.getFirst(), centroid.getSecond())
+            CentroidResponse.of(locationRequest.roomId(), centroid.getFirst(), centroid.getSecond())
         ));
     }
 
     // For Test
     @Operation(summary = "중심 좌표 조회", description = "Retrieve the centroid coordinates for a location using its roomId")
     @GetMapping("/locations/centroid/{roomId}")
-    public ResponseEntity<ApiResponseDto<CentroidResponse>> getCentroid(@PathVariable String roomId) {
+    public ResponseEntity<ApiResponseDto<CentroidResponse>> getCentroid(
+        @PathVariable String roomId) {
         Pair<BigDecimal, BigDecimal> centroid = loadCentroidUsecase.readCentroidCoordinates(roomId);
 
         return ResponseEntity.ok(ApiResponseDto.success(
-                CentroidResponse.of(roomId, centroid.getFirst(), centroid.getSecond())
+            CentroidResponse.of(roomId, centroid.getFirst(), centroid.getSecond())
         ));
     }
 
     @Operation(summary = "위치 조회 Basic", description = "Retrieve detailed information for a location using its roomId and member ID")
     @GetMapping("/locations/{roomId}/{memberId}")
-    public ResponseEntity<ApiResponseDto<LocationResponse>> getLocation(@PathVariable String roomId, @PathVariable String memberId) {
+    public ResponseEntity<ApiResponseDto<LocationResponse>> getLocation(@PathVariable String roomId,
+        @PathVariable String memberId) {
         Location location = readLocationUsecase.readLocation(roomId, memberId);
 
         return ResponseEntity.ok(ApiResponseDto.success(locationMapper.toResponse(location)));
@@ -68,29 +75,36 @@ public class LocationController {
 
     @Operation(summary = "위치조회 ConvexHull", description = "Retrieve the ConvexHull inside list, outside list of locations for a roomId")
     @GetMapping("/locations/ConvH/{roomId}")
-    public ResponseEntity<ApiResponseDto<ConvexHullLocationResponse>> getConvexHullLocations(@PathVariable String roomId){
-        List<LocationResponse> convexHull = locationMapper.toResponseList(readLocationUsecase.readConvexHull(roomId));
-        List<LocationResponse> inside = locationMapper.toResponseList(readLocationUsecase.readInsideConvexHull(roomId));
+    public ResponseEntity<ApiResponseDto<ConvexHullLocationResponse>> getConvexHullLocations(
+        @PathVariable String roomId) {
+        List<LocationResponse> convexHull = locationMapper.toResponseList(
+            readLocationUsecase.readConvexHull(roomId));
+        List<LocationResponse> inside = locationMapper.toResponseList(
+            readLocationUsecase.readInsideConvexHull(roomId));
 
-        return ResponseEntity.ok(ApiResponseDto.success(ConvexHullLocationResponse.of(convexHull, inside )));
+        return ResponseEntity.ok(
+            ApiResponseDto.success(ConvexHullLocationResponse.of(convexHull, inside)));
     }
 
     @Operation(summary = "위치 목록 조회", description = "Retrieve the list of locations for a roomId")
     @GetMapping("/locations/{roomId}")
-    public ResponseEntity<ApiResponseDto<List<LocationResponse>>> getLocations(@PathVariable String roomId) {
-        List<LocationResponse> responses = locationMapper.toResponseList(readLocationUsecase.readLocations(roomId));
+    public ResponseEntity<ApiResponseDto<List<LocationResponse>>> getLocations(
+        @PathVariable String roomId) {
+        List<LocationResponse> responses = locationMapper.toResponseList(
+            readLocationUsecase.readLocations(roomId));
 
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 
     @Operation(summary = "위치 수정", description = "Update the location with the provided details.")
     @PutMapping("/locations")
-    public ResponseEntity<ApiResponseDto<LocationResponse>> updateLocation(@Valid @RequestBody LocationRequest locationRequest) {
+    public ResponseEntity<ApiResponseDto<LocationResponse>> updateLocation(
+        @Valid @RequestBody LocationRequest locationRequest) {
         Location location = createLocationUsecase.updateLocation(
-                locationRequest.roomId(),
-                locationRequest.memberId(),
-                locationRequest.latitude(),
-                locationRequest.longitude()
+            locationRequest.roomId(),
+            locationRequest.memberId(),
+            locationRequest.latitude(),
+            locationRequest.longitude()
         );
         LocationResponse response = locationMapper.toResponse(location);
 
