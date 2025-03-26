@@ -1,9 +1,9 @@
 package com.kok.kokapi.vote.application.service;
 
-import com.kok.kokcore.vote.application.port.out.DeleteVotePort;
-import com.kok.kokcore.vote.application.port.out.LoadVotePort;
-import com.kok.kokcore.vote.application.port.out.SaveVotePort;
 import com.kok.kokcore.vote.domain.Vote;
+import com.kok.kokcore.vote.port.out.DeleteVotePort;
+import com.kok.kokcore.vote.port.out.LoadVotePort;
+import com.kok.kokcore.vote.port.out.SaveVotePort;
 import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

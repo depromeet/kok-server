@@ -1,8 +1,8 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
-import com.kok.kokcore.vote.application.port.out.DeleteVotePort;
-import com.kok.kokcore.vote.application.port.out.SaveVotePort;
 import com.kok.kokcore.vote.domain.Vote;
+import com.kok.kokcore.vote.port.out.DeleteVotePort;
+import com.kok.kokcore.vote.port.out.SaveVotePort;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

@@ -1,7 +1,7 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
-import com.kok.kokcore.vote.application.port.out.LoadVotePort;
 import com.kok.kokcore.vote.domain.Vote;
+import com.kok.kokcore.vote.port.out.LoadVotePort;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
-import com.kok.kokcore.vote.application.port.out.SaveCandidatePort;
 import com.kok.kokcore.vote.domain.Candidate;
+import com.kok.kokcore.vote.port.out.SaveCandidatePort;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
