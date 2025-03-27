@@ -29,22 +29,7 @@ public class PlacesController {
                 request.maxCount()
         );
         PlacesResult result = searchPlaceUseCase.getPlaces(input);
-        PlacesResponse response = mapToResponse(result);
+        PlacesResponse response = new PlacesResponse(result);
         return ResponseEntity.ok(ApiResponseDto.success(response));
-    }
-
-    private PlacesResponse mapToResponse(PlacesResult result) {
-        PlacesResponse response = new PlacesResponse();
-        response.setPlaceResponses(result.getPlaces().stream().map(place -> {
-            PlacesResponse.PlaceResponse pr = new PlacesResponse.PlaceResponse();
-            pr.setDisplayName(place.getName());
-            pr.setFormattedAddress(place.getAddress());
-            PlacesResponse.PlaceResponse.Location loc = new PlacesResponse.PlaceResponse.Location();
-            loc.setLatitude(place.getLatitude());
-            loc.setLongitude(place.getLongitude());
-            pr.setLocation(loc);
-            return pr;
-        }).toList());
-        return response;
     }
 }
