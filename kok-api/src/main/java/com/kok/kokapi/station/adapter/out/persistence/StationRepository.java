@@ -1,15 +1,12 @@
 package com.kok.kokapi.station.adapter.out.persistence;
 
 import com.kok.kokcore.station.domain.entity.Station;
-
+import io.lettuce.core.dynamic.annotation.Param;
 import java.math.BigDecimal;
 import java.util.List;
-
-import io.lettuce.core.dynamic.annotation.Param;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.Optional;
 
 public interface StationRepository extends JpaRepository<Station, Long> {
 
@@ -21,11 +18,12 @@ public interface StationRepository extends JpaRepository<Station, Long> {
     Optional<Station> findStationById(Long stationId);
 
     @Query(value = """
-        SELECT * FROM station
-        WHERE ST_Distance_Sphere(Point(longitude, latitude), Point(:lon, :lat)) < :distance
-            AND priority > 0
-    """, nativeQuery = true)
-    List<Station> findInRangeStationsByCentroid(@Param("lon") BigDecimal lon, @Param("lat") BigDecimal lat, @Param("distance") Double distance);
+            SELECT * FROM station
+            WHERE ST_Distance_Sphere(Point(longitude, latitude), Point(:lon, :lat)) < :distance
+                AND priority > 0
+        """, nativeQuery = true)
+    List<Station> findInRangeStationsByCentroid(@Param("lon") BigDecimal lon,
+        @Param("lat") BigDecimal lat, @Param("distance") Double distance);
 
     @Query(value = """
         SELECT * FROM station

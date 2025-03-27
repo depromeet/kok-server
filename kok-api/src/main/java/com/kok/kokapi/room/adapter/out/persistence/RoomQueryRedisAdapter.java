@@ -2,13 +2,12 @@ package com.kok.kokapi.room.adapter.out.persistence;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kok.kokcore.room.application.port.out.LoadRoomPort;
 import com.kok.kokcore.room.domain.Room;
+import com.kok.kokcore.room.port.out.LoadRoomPort;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,7 +21,7 @@ public class RoomQueryRedisAdapter implements LoadRoomPort {
     public Optional<Room> findRoomById(String roomId) {
         String key = buildKey(roomId);
         return Optional.ofNullable(redisTemplate.opsForValue().get(key))
-                .flatMap(this::deserializeRoom);
+            .flatMap(this::deserializeRoom);
     }
 
     private Optional<Room> deserializeRoom(String roomJson) {

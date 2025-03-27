@@ -1,9 +1,9 @@
 package com.kok.kokapi.station.application.service;
 
 import com.kok.kokapi.station.adapter.in.dto.response.RecommendedStationResponse;
-import com.kok.kokcore.station.application.usecase.CustomStationUseCase;
-import com.kok.kokcore.station.application.usecase.RecommendStationUseCase;
-import com.kok.kokcore.station.application.usecase.RetrieveRouteUseCase;
+import com.kok.kokcore.station.usecase.CustomStationUseCase;
+import com.kok.kokcore.station.usecase.RecommendStationUseCase;
+import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;
 import java.util.stream.Stream;

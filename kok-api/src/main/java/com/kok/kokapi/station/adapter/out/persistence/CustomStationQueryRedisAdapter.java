@@ -3,7 +3,7 @@ package com.kok.kokapi.station.adapter.out.persistence;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kok.kokcore.station.application.port.out.ReadCustomStationsPort;
+import com.kok.kokcore.station.port.out.ReadCustomStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.Collections;
 import java.util.List;

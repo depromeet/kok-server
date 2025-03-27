@@ -3,12 +3,12 @@ package com.kok.kokapi.station.application.service;
 import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokapi.station.adapter.out.persistence.CustomStationCommandRedisAdapter;
 import com.kok.kokapi.station.adapter.out.persistence.CustomStationQueryRedisAdapter;
-import com.kok.kokcore.location.application.port.out.ReadCentroidPort;
-import com.kok.kokcore.station.application.port.out.*;
-import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
-import com.kok.kokcore.station.application.usecase.CustomStationUseCase;
-import com.kok.kokcore.station.application.usecase.RecommendStationUseCase;
-import com.kok.kokcore.station.application.usecase.SaveStationUseCase;
+import com.kok.kokcore.location.port.out.ReadCentroidPort;
+import com.kok.kokcore.station.port.out.*;
+import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
+import com.kok.kokcore.station.usecase.CustomStationUseCase;
+import com.kok.kokcore.station.usecase.RecommendStationUseCase;
+import com.kok.kokcore.station.usecase.SaveStationUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
 
 import java.math.BigDecimal;
