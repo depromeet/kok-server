@@ -27,4 +27,9 @@ public interface StationRepository extends JpaRepository<Station, Long> {
     """, nativeQuery = true)
     List<Station> findInRangeStationsByCentroid(@Param("lon") BigDecimal lon, @Param("lat") BigDecimal lat, @Param("distance") Double distance);
 
+    @Query(value = """
+        SELECT * FROM station
+        WHERE name LIKE CONCAT('%', :keyword, '%')
+    """, nativeQuery = true)
+    List<Station> findStationsByKeyword(@Param("keyword") String keyword);
 }

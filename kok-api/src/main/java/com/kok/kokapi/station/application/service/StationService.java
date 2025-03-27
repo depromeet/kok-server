@@ -1,9 +1,12 @@
 package com.kok.kokapi.station.application.service;
 
 import com.kok.kokapi.config.geometry.PointConverter;
+import com.kok.kokapi.station.adapter.out.persistence.CustomStationCommandRedisAdapter;
+import com.kok.kokapi.station.adapter.out.persistence.CustomStationQueryRedisAdapter;
 import com.kok.kokcore.location.application.port.out.ReadCentroidPort;
 import com.kok.kokcore.station.application.port.out.*;
 import com.kok.kokcore.station.application.port.out.dto.StationRouteDtos;
+import com.kok.kokcore.station.application.usecase.CustomStationUseCase;
 import com.kok.kokcore.station.application.usecase.RecommendStationUseCase;
 import com.kok.kokcore.station.application.usecase.SaveStationUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
@@ -22,7 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StationService implements SaveStationUseCase, RecommendStationUseCase {
+public class StationService implements SaveStationUseCase, RecommendStationUseCase,
+    CustomStationUseCase {
 
     private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
@@ -30,6 +34,8 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     private final ReadCentroidPort readCentroidPort;
     private final SaveRoutePort saveRoutePort;
     private final RetrieveStationsPort retrieveStationsPort;
+    private final CustomStationQueryRedisAdapter customStationQueryRedisAdapter;
+    private final CustomStationCommandRedisAdapter customStationCommandRedisAdapter;
     private final PointConverter pointConverter;
 
     @Override
@@ -40,6 +46,24 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
             List<Station> stations = saveStationsPort.saveStations(stationRouteDtos.toStations());
             saveRoutePort.saveRoutes(stationRouteDtos.toRoutesByStations(stations));
         }
+    }
+
+    @Override
+    @Cacheable(value = "searchStations",cacheManager = "stationCacheManager", key = "#keyword")
+    public List<Station> searchStations(String keyword) {
+        return retrieveStationsPort.retrieveStationsByKeyword(keyword);
+    }
+
+    @Override
+    public Station addCustomStations(String roomId, Long stationId) {
+        Station station = retrieveStationsPort.retrieveStation(stationId)
+            .orElseThrow(() -> new RuntimeException("해당 역이 존재하지 않습니다."));
+        return customStationCommandRedisAdapter.addCustomStations(roomId, station);
+    }
+
+    @Override
+    public List<Station> getCustomRecommendedStations(String roomId) {
+        return customStationQueryRedisAdapter.findRecommendedStationsByRoomId(roomId);
     }
 
     @Override

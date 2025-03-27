@@ -8,4 +8,5 @@ import java.util.List;
 public interface RecommendStationUseCase {
 
     List<Station> recommendStations(String roomId);
+
 }
