@@ -7,6 +7,7 @@ import com.kok.kokcore.places.application.port.in.PlaceInput;
 import com.kok.kokcore.places.application.port.out.LoadPlacesPort;
 import com.kok.kokcore.places.domain.model.Place;
 import com.kok.kokcore.places.domain.model.PlacesResult;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,41 +36,44 @@ public class GooglePlaceAdapter implements LoadPlacesPort {
     @Override
     public PlacesResult getPlaces(PlaceInput input) {
         int maxResultCount = input.maxCount() != null ? input.maxCount() : 20;
+        String includedTypes = input.placeType().getPlaceCategories().stream()
+            .map(category -> "\"" + category + "\"")
+            .collect(Collectors.joining(", "));
 
         String jsonBody = String.format("""
-                        {
-                            "includedTypes": ["%s"],
-                            "maxResultCount": %d,
-                            "locationRestriction": {
-                                "circle": {
-                                    "center": {
-                                        "latitude": %.6f,
-                                        "longitude": %.6f
-                                    },
-                                    "radius": %.1f
-                                }
+                {
+                    "includedTypes": [%s],
+                    "maxResultCount": %d,
+                    "locationRestriction": {
+                        "circle": {
+                            "center": {
+                                "latitude": %.6f,
+                                "longitude": %.6f
                             },
-                            "languageCode": "ko"
+                            "radius": %.1f
                         }
-                        """,
-                input.placeType().getType(),
-                maxResultCount,
-                input.latitude(),
-                input.longitude(),
-                DEFAULT_RADIUS
+                    },
+                    "languageCode": "ko"
+                }
+                """,
+            includedTypes,
+            maxResultCount,
+            input.latitude(),
+            input.longitude(),
+            DEFAULT_RADIUS
         );
 
         RestClient restClient = RestClient.create();
 
         try {
             String responseBody = restClient.method(HttpMethod.POST)
-                    .uri(GOOGLE_PLACE_BASE_URL)
-                    .header("Content-Type", "application/json")
-                    .header("X-Goog-Api-Key", apiKey)
-                    .header("X-Goog-FieldMask", "places.displayName,places.formattedAddress,places.location")
-                    .body(jsonBody)
-                    .retrieve()
-                    .body(String.class);
+                .uri(GOOGLE_PLACE_BASE_URL)
+                .header("Content-Type", "application/json")
+                .header("X-Goog-Api-Key", apiKey)
+                .header("X-Goog-FieldMask", "places.displayName,places.formattedAddress,places.location")
+                .body(jsonBody)
+                .retrieve()
+                .body(String.class);
 
             log.debug("Google Places API Response: {}", responseBody);
 
@@ -100,8 +104,7 @@ public class GooglePlaceAdapter implements LoadPlacesPort {
             places.add(place);
         }
 
-        PlacesResult result = new PlacesResult();
-        result.setPlaces(places);
+        PlacesResult result = new PlacesResult(places);
         return result;
     }
 }
