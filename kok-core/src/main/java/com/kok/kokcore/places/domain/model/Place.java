@@ -1,15 +1,17 @@
 package com.kok.kokcore.places.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.kok.kokcore.places.domain.model.vo.PlaceType;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Builder
+@ToString
 public class Place {
-    private String name;
-    private String address;
-    private double latitude;
-    private double longitude;
+    private final String name;
+    private final String address;
+    private final double latitude;
+    private final double longitude;
+    private final PlaceType placeType;
 }

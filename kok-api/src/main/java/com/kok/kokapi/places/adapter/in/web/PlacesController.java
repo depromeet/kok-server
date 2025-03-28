@@ -4,7 +4,6 @@ import com.kok.kokapi.common.response.ApiResponseDto;
 import com.kok.kokapi.config.annotion.V1Controller;
 import com.kok.kokapi.places.adapter.in.dto.request.PlacesRequest;
 import com.kok.kokapi.places.adapter.in.dto.response.PlacesResponse;
-import com.kok.kokcore.places.application.port.in.PlaceInput;
 import com.kok.kokcore.places.application.usecase.SearchPlaceUseCase;
 import com.kok.kokcore.places.domain.model.PlacesResult;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,13 +21,7 @@ public class PlacesController {
     @Operation(summary = "주변 플레이스 조회", description = "추천 장소 주변의 핫플레이스 목록을 조회합니다.")
     @PostMapping("/search/places")
     public ResponseEntity<ApiResponseDto<PlacesResponse>> searchPlaces(@RequestBody PlacesRequest request) throws Exception {
-        PlaceInput input = new PlaceInput(
-                request.placeType(),
-                request.latitude(),
-                request.longitude(),
-                request.maxCount()
-        );
-        PlacesResult result = searchPlaceUseCase.getPlaces(input);
+        PlacesResult result = searchPlaceUseCase.getPlaces(request.toPlaceInput());
         PlacesResponse response = new PlacesResponse(result);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
