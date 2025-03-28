@@ -18,9 +18,7 @@ public enum PlaceType {
     CAFE(List.of(
         "cafe", "bakery"
     )),
-    BAR(List.of(
-        "bar"
-    )),
+    BAR(List.of("bar")),
     PARK(List.of(
         "park", "campground", "rv_park"
     )),
