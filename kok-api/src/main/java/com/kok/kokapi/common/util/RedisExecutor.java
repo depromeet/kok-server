@@ -5,26 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.RedisSystemException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 
 @Slf4j
 public class RedisExecutor {
-
-    private static final int DEFAULT_RETRY_COUNT = 3;
-    private static final long DEFAULT_RETRY_DELAY_MS = 300;
-
-    /**
-     * Redis 작업을 실행하고 예외 발생 시 null을 반환합니다.
-     */
-    public static <T> T run(String operationName, Supplier<T> operation) {
-        return runOrElseGet(operationName, operation, null);
-    }
 
     /**
      * Redis 작업을 실행하고 예외 발생 시 fallback 값을 반환합니다.
      */
     public static <T> T runOrElseGet(String operationName, Supplier<T> operation, T fallbackValue) {
         try {
-            return operation.get();
+            return retry(operationName, operation);
         } catch (RedisConnectionFailureException e) {
             log.error("[Redis][{}] Connection failure. Retry or alert needed.", operationName, e);
         } catch (RedisSystemException e) {
@@ -42,7 +34,7 @@ public class RedisExecutor {
      */
     public static <T> T runOrThrow(String operationName, Supplier<T> operation) {
         try {
-            return operation.get();
+            return retry(operationName, operation);
         } catch (RedisConnectionFailureException e) {
             log.error("[Redis][{}] Connection failure.", operationName, e);
             throw e;
@@ -66,5 +58,18 @@ public class RedisExecutor {
             operation.run();
             return null;
         });
+    }
+
+    /**
+     * Redis 연결 실패에 대해서만 재시도하고, 나머지는 즉시 처리
+     */
+    @Retryable(
+        value = RedisConnectionFailureException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 300)
+    )
+    protected static <T> T retry(String operationName, Supplier<T> operation) {
+        log.debug("[Redis][{}] Retrying operation.", operationName);
+        return operation.get();
     }
 }
