@@ -35,7 +35,6 @@ public class GooglePlaceAdapter implements LoadPlacesPort {
 
     @Override
     public PlacesResult getPlaces(PlaceInput input) {
-        int maxResultCount = input.maxCount() != null ? input.maxCount() : 20;
         String includedTypes = input.placeType().getPlaceCategories().stream()
             .map(category -> "\"" + category + "\"")
             .collect(Collectors.joining(", "));
@@ -57,7 +56,7 @@ public class GooglePlaceAdapter implements LoadPlacesPort {
                 }
                 """,
             includedTypes,
-            maxResultCount,
+            input.maxCount(),
             input.latitude(),
             input.longitude(),
             DEFAULT_RADIUS
@@ -70,7 +69,8 @@ public class GooglePlaceAdapter implements LoadPlacesPort {
                 .uri(GOOGLE_PLACE_BASE_URL)
                 .header("Content-Type", "application/json")
                 .header("X-Goog-Api-Key", apiKey)
-                .header("X-Goog-FieldMask", "places.displayName,places.formattedAddress,places.location")
+                .header("X-Goog-FieldMask",
+                    "places.displayName,places.formattedAddress,places.location")
                 .body(jsonBody)
                 .retrieve()
                 .body(String.class);

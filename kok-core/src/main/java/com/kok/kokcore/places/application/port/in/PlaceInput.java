@@ -7,4 +7,8 @@ public record PlaceInput(
         double latitude,
         double longitude,
         Integer maxCount
-) {}
+) {
+    public PlaceInput {
+        maxCount = (maxCount == null) ? 20 : maxCount;
+    }
+}
