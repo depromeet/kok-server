@@ -1,5 +1,6 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
+import com.kok.kokapi.common.util.RedisExecutor;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.port.out.LoadVotePort;
 import java.util.ArrayList;
@@ -11,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-@Repository
 @Slf4j
+@Repository
 @RequiredArgsConstructor
 public class VoteQueryRedisAdapter implements LoadVotePort {
 
@@ -23,20 +24,27 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
     @Override
     public boolean isExistsByRoomIdAndMemberId(String roomId, String memberId) {
         String key = getMemberVoteKey(roomId, memberId);
-        return !redisTemplate.opsForHash().entries(key).isEmpty();
+        return RedisExecutor.runOrElseGet("isExistsByRoomIdAndMemberId", () ->
+            !redisTemplate.opsForHash().entries(key).isEmpty(), false
+        );
     }
 
     @Override
     public List<Vote> findAllByRoomIdAndMemberId(String roomId, String memberId) {
         String key = getMemberVoteKey(roomId, memberId);
-        List<Vote> votes = new ArrayList<>();
-        Map<Object, Object> voteInfos = redisTemplate.opsForHash().entries(key);
-        for (Entry<Object, Object> voteInfo : voteInfos.entrySet()) {
-            Long stationId = getStationId(voteInfo);
-            String voteStatus = voteInfo.getValue().toString();
-            votes.add(new Vote(roomId, stationId, memberId, voteStatus));
-        }
-        return votes;
+        return RedisExecutor.runOrElseGet("findAllByRoomIdAndMemberId", () -> {
+            Map<Object, Object> voteInfos = redisTemplate.opsForHash().entries(key);
+            List<Vote> votes = new ArrayList<>(voteInfos.size());
+            for (Entry<Object, Object> voteInfo : voteInfos.entrySet()) {
+                Long stationId = getStationId(voteInfo);
+                if (stationId == null) {
+                    continue;
+                }
+                String voteStatus = String.valueOf(voteInfo.getValue());
+                votes.add(new Vote(roomId, stationId, memberId, voteStatus));
+            }
+            return votes;
+        }, List.of());
     }
 
     private Long getStationId(Entry<Object, Object> voteInfo) {
@@ -44,8 +52,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
             return Long.valueOf(voteInfo.getKey().toString());
         } catch (NumberFormatException e) {
             log.warn("Invalid stationId format in Redis: {}", voteInfo.getKey(), e);
-            throw new RuntimeException(
-                "Unexpected error while parsing stationId: " + voteInfo.getKey().toString());
+            return null;
         }
     }
 
