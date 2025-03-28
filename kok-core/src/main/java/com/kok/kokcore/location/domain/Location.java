@@ -36,15 +36,22 @@ public class Location {
     @Column(nullable = false, columnDefinition = "POINT SRID 4326")
     private Point location_point;
 
+    @Column(nullable = false)
+    private String locationName;
 
-    public Location(String roomId, String memberId, Point location_point) {
+    public Location(String roomId, String memberId, Point location_point, String locationName) {
         this.roomId = roomId;
         this.memberId = memberId;
         this.location_point = location_point;
+        this.locationName = locationName;
     }
 
     // 더티체킹
     public void changePoint(Point point) {
         this.location_point = point;
+    }
+
+    public void changeLocationName(String name) {
+        this.locationName = name;
     }
 }

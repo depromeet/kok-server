@@ -61,7 +61,7 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
     }
 
     @Override
-    public Location saveLocation(String roomId, String memberId, Point point) {
-        return locationRepository.save(new Location(roomId, memberId, point));
+    public Location saveLocation(String roomId, String memberId, Point point, String locationName) {
+        return locationRepository.save(new Location(roomId, memberId, point, locationName));
     }
 }

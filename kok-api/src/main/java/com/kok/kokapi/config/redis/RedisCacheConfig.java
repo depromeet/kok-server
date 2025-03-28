@@ -67,7 +67,7 @@ public class RedisCacheConfig {
                 new StringRedisSerializer()))
             .serializeValuesWith(
                 RedisSerializationContext.SerializationPair.fromSerializer(genericSerializer))
-            .entryTtl(Duration.ofMinutes(30L)); // 캐시 수명 30분
+            .entryTtl(Duration.ofDays(3)); // 캐시 수명 3일
 
         return RedisCacheManager.RedisCacheManagerBuilder
             .fromConnectionFactory(redisConnectionFactory)
