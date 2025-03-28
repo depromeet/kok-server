@@ -47,6 +47,12 @@ public class RoomQueryService implements GetRoomUseCase {
         return members;
     }
 
+    private void validate(String roomId) {
+        if (!loadRoomPort.isExistsByRoomId(roomId)) {
+            throw new IllegalArgumentException("Room not found with id: " + roomId);
+        }
+    }
+
     @Override
     public int getParticipantsCount(String roomId) {
         Long participantCount = loadRoomParticipantPort.countParticipantsById(roomId);
