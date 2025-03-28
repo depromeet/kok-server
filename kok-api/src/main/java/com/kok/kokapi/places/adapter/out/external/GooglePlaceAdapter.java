@@ -29,8 +29,7 @@ public class GooglePlaceAdapter implements LoadPlacesPort {
     private String apiKey;
 
     private static final String GOOGLE_PLACE_BASE_URL = "https://places.googleapis.com/v1/places:searchNearby";
-    public static final double DEFAULT_RADIUS = 5000.0;
-
+    private static final double DEFAULT_RADIUS = 5000.0;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
