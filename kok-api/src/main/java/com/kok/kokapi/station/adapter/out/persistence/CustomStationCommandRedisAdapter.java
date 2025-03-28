@@ -3,8 +3,8 @@ package com.kok.kokapi.station.adapter.out.persistence;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kok.kokcore.station.port.out.SaveCustomStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.station.port.out.SaveCustomStationsPort;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,8 @@ public class CustomStationCommandRedisAdapter implements SaveCustomStationsPort 
             String stationJson = redisTemplate.opsForValue().get(key);
             List<Station> stationList = (stationJson == null)
                 ? new ArrayList<>()
-                : objectMapper.readValue(stationJson, new TypeReference<>() {});
+                : objectMapper.readValue(stationJson, new TypeReference<>() {
+                });
 
             stationList.add(station);
             String updatedJson = objectMapper.writeValueAsString(stationList);

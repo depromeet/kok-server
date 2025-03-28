@@ -3,8 +3,8 @@ package com.kok.kokapi.station.adapter.out.persistence;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kok.kokcore.station.port.out.ReadCustomStationsPort;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.station.port.out.ReadCustomStationsPort;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,8 @@ public class CustomStationQueryRedisAdapter implements ReadCustomStationsPort {
         }
 
         try {
-            return objectMapper.readValue(stationJson, new TypeReference<>() {});
+            return objectMapper.readValue(stationJson, new TypeReference<>() {
+            });
         } catch (JsonProcessingException e) {
             return Collections.emptyList();
         }

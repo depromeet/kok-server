@@ -41,7 +41,7 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     @Override
     @Transactional
     public void saveStations() {
-        if(readStationsPort.hasNoStations()) {
+        if (readStationsPort.hasNoStations()) {
             StationRouteDtos stationRouteDtos = loadStationsPort.loadAllStations();
             List<Station> stations = saveStationsPort.saveStations(stationRouteDtos.toStations());
             saveRoutePort.saveRoutes(stationRouteDtos.toRoutesByStations(stations));
@@ -49,7 +49,7 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     }
 
     @Override
-    @Cacheable(value = "searchStations",cacheManager = "stationCacheManager", key = "#keyword")
+    @Cacheable(value = "searchStations", cacheManager = "stationCacheManager", key = "#keyword")
     public List<Station> searchStations(String keyword) {
         return retrieveStationsPort.retrieveStationsByKeyword(keyword);
     }
@@ -67,7 +67,7 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     }
 
     @Override
-    @Cacheable(value = "recommendStations",cacheManager = "stationCacheManager", key = "#roomId")
+    @Cacheable(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
     public List<Station> recommendStations(String roomId) {
         Point centroid = readCentroidPort.findCentroidByRoomId(roomId);
         int RECOMMEND_NUM = 2;
@@ -103,7 +103,9 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
 
         for (Station station : stations) {
             double distance = calculateDistance(centroid, station);
-            if (distance == 0) distance = Double.MIN_VALUE; // 0 거리 방지
+            if (distance == 0) {
+                distance = Double.MIN_VALUE; // 0 거리 방지
+            }
 
             double weight = (1 / distance) * station.getPriority();
             weightedDistances.put(station, weight);

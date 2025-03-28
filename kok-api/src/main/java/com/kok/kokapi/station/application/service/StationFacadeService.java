@@ -22,7 +22,8 @@ public class StationFacadeService {
 
         return getCandidateStation(roomId).stream()
             .map(station ->
-                RecommendedStationResponse.of(station, retrieveRouteUseCase.retrieveRoutes(station)))
+                RecommendedStationResponse.of(station,
+                    retrieveRouteUseCase.retrieveRoutes(station)))
             .toList();
     }
 
