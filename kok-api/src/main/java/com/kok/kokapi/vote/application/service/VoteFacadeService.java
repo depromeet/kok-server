@@ -89,7 +89,7 @@ public class VoteFacadeService {
         return agreedStationIds.contains(candidate.getStationId());
     }
 
-    public List<MemberVoteStatusResponse> getVoteMembersStatus(String roomId) {
+    public List<MemberVoteStatusResponse> getMemberVoteStatus(String roomId) {
         List<Member> members = getRoomUseCase.getParticipants(roomId);
         List<MemberVoteStatusResponse> responses = new ArrayList<>();
         for (Member member : members) {
