@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kok.kokcore.station.domain.entity.Station;
-import com.kok.kokcore.station.port.out.ReadCustomStationsPort;
+import com.kok.kokcore.station.port.out.ReadUserRecommendStationsPort;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +13,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class CustomStationQueryRedisAdapter implements ReadCustomStationsPort {
+public class UserRecommendStationQueryRedisAdapter implements ReadUserRecommendStationsPort {
 
-    private final String CUSTOM_STATION_PREFIX = "customStations:";
+    private final String USER_RECOMMEND_STATION_PREFIX = "userRecommendStations:";
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
     @Override
-    public List<Station> findRecommendedStationsByRoomId(String roomId) {
+    public List<Station> findUserRecommendedStationsByRoomId(String roomId) {
         String key = buildKey(roomId);
         String stationJson = redisTemplate.opsForValue().get(key);
 
@@ -37,6 +37,6 @@ public class CustomStationQueryRedisAdapter implements ReadCustomStationsPort {
     }
 
     private String buildKey(String roomId) {
-        return CUSTOM_STATION_PREFIX + roomId;
+        return USER_RECOMMEND_STATION_PREFIX + roomId;
     }
 }

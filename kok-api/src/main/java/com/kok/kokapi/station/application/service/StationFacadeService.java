@@ -1,10 +1,10 @@
 package com.kok.kokapi.station.application.service;
 
 import com.kok.kokapi.station.adapter.in.dto.response.RecommendedStationResponse;
-import com.kok.kokcore.station.usecase.CustomStationUseCase;
-import com.kok.kokcore.station.usecase.RecommendStationUseCase;
 import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
+import com.kok.kokcore.station.usecase.UserRecommendUseCase;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class StationFacadeService {
 
-    private final RecommendStationUseCase recommendStationUseCase;
-    private final CustomStationUseCase customStationUseCase;
+    private final SystemRecommendUseCase systemRecommendedUseCase;
+    private final UserRecommendUseCase userRecommendUseCase;
     private final RetrieveRouteUseCase retrieveRouteUseCase;
 
     public List<RecommendedStationResponse> getCandidateStationResponse(String roomId) {
@@ -28,8 +28,8 @@ public class StationFacadeService {
     }
 
     public List<Station> getCandidateStation(String roomId) {
-        List<Station> recommendedStations = recommendStationUseCase.recommendStations(roomId);
-        List<Station> customStations = customStationUseCase.getCustomRecommendedStations(roomId);
+        List<Station> recommendedStations = systemRecommendedUseCase.systemRecommendStation(roomId);
+        List<Station> customStations = userRecommendUseCase.getUserRecommendStation(roomId);
 
         return Stream.concat(
             recommendedStations.stream(),

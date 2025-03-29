@@ -5,9 +5,9 @@ import com.kok.kokapi.config.annotion.V1Controller;
 import com.kok.kokapi.station.adapter.in.dto.response.RecommendedStationResponse;
 import com.kok.kokapi.station.application.service.StationFacadeService;
 import com.kok.kokcore.station.domain.entity.Station;
-import com.kok.kokcore.station.usecase.CustomStationUseCase;
-import com.kok.kokcore.station.usecase.RecommendStationUseCase;
 import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
+import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
+import com.kok.kokcore.station.usecase.UserRecommendUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequiredArgsConstructor
 public class StationController {
 
-    private final RecommendStationUseCase recommendStationUseCase;
-    private final CustomStationUseCase customStationUseCase;
+    private final SystemRecommendUseCase systemRecommendUseCase;
+    private final UserRecommendUseCase userRecommendUseCase;
     private final RetrieveRouteUseCase retrieveRouteUseCase;
     private final StationFacadeService stationFacadeService;
 
@@ -30,7 +30,7 @@ public class StationController {
     public ResponseEntity<ApiResponseDto<List<RecommendedStationResponse>>> recommendStations(
         @PathVariable String roomId) {
 
-        List<RecommendedStationResponse> recommendedStations = recommendStationUseCase.recommendStations(
+        List<RecommendedStationResponse> recommendedStations = systemRecommendUseCase.systemRecommendStation(
                 roomId).stream()
             .map(station ->
                 RecommendedStationResponse.of(station,
@@ -45,7 +45,7 @@ public class StationController {
     public ResponseEntity<ApiResponseDto<List<RecommendedStationResponse>>> searchStations(
         @PathVariable String keyword) {
 
-        List<RecommendedStationResponse> recommendedStations = customStationUseCase.searchStations(
+        List<RecommendedStationResponse> recommendedStations = userRecommendUseCase.searchStations(
                 keyword).stream()
             .map(station ->
                 RecommendedStationResponse.of(station,
@@ -59,7 +59,7 @@ public class StationController {
     @PostMapping("/stations/custom/{roomId}/{stationId}")
     public ResponseEntity<ApiResponseDto<RecommendedStationResponse>> addCustomStations(
         @PathVariable String roomId, @PathVariable Long stationId) {
-        Station station = customStationUseCase.addCustomStations(roomId, stationId);
+        Station station = userRecommendUseCase.addUserRecommendStation(roomId, stationId);
         return ResponseEntity.ok(ApiResponseDto.success(
             RecommendedStationResponse.of(station, retrieveRouteUseCase.retrieveRoutes(station))));
     }

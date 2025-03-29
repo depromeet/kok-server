@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kok.kokcore.station.domain.entity.Station;
-import com.kok.kokcore.station.port.out.SaveCustomStationsPort;
+import com.kok.kokcore.station.port.out.SaveUserRecommendStationsPort;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +13,14 @@ import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
-public class CustomStationCommandRedisAdapter implements SaveCustomStationsPort {
+public class UserRecommendStationCommandRedisAdapter implements SaveUserRecommendStationsPort {
 
-    private final String CUSTOM_STATION_PREFIX = "customStations:";
+    private final String USER_RECOMMEND_STATION_PREFIX = "userRecommendStation:";
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
     @Override
-    public Station addCustomStations(String roomId, Station station) {
+    public Station addUserRecommendStation(String roomId, Station station) {
         String key = buildKey(roomId);
 
         try {
@@ -41,6 +41,6 @@ public class CustomStationCommandRedisAdapter implements SaveCustomStationsPort 
     }
 
     private String buildKey(String roomId) {
-        return CUSTOM_STATION_PREFIX + roomId;
+        return USER_RECOMMEND_STATION_PREFIX + roomId;
     }
 }
