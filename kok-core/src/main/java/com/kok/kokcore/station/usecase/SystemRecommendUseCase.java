@@ -4,7 +4,7 @@ import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;
 
 
-public interface RecommendStationUseCase {
+public interface SystemRecommendUseCase {
 
-    List<Station> recommendStations(String roomId);
+    List<Station> systemRecommendStation(String roomId);
 }

@@ -83,7 +83,7 @@ class RoomIntegrationTest extends IntegrationTest {
                 RestAssured.given().log().all()
                     .contentType(ContentType.JSON)
                     .body(new LocationRequest(roomId, memberId, new BigDecimal("37"),
-                        new BigDecimal("127")))
+                        new BigDecimal("127"), "test"))
                     .when().post("/v1/api/locations")
                     .then().log().all()
                     .assertThat().statusCode(200);
@@ -91,7 +91,7 @@ class RoomIntegrationTest extends IntegrationTest {
     }
 
     private static DynamicTest getRoomDetail(String message,
-        AtomicReference<RoomCreateResponse> createRoomResponse, int nonParticipantCount) {
+        AtomicReference<CreateRoomResponse> createRoomResponse, int nonParticipantCount) {
         return DynamicTest.dynamicTest(message,
             () -> {
                 String roomId = createRoomResponse.get().id();
@@ -105,7 +105,7 @@ class RoomIntegrationTest extends IntegrationTest {
     }
 
     private static DynamicTest getRoomMembers(String message,
-        AtomicReference<RoomCreateResponse> createRoomResponse, int profileCount,
+        AtomicReference<CreateRoomResponse> createRoomResponse, int profileCount,
         boolean expectedIsFull) {
         return DynamicTest.dynamicTest(message,
             () -> {
@@ -131,7 +131,7 @@ class RoomIntegrationTest extends IntegrationTest {
                 RestAssured.given().log().all()
                     .contentType(ContentType.JSON)
                     .body(new LocationRequest(roomId, memberId, new BigDecimal("37"),
-                        new BigDecimal("127")))
+                        new BigDecimal("127"), "test"))
                     .when().post("/v1/api/locations")
                     .then().log().all()
                     .assertThat().statusCode(200);
