@@ -14,12 +14,14 @@ public class Room implements Serializable {
 
     private static final int REQUIRED_CAPACITY = 2;
     private static final long LOCATION_INPUT_TIME_LIMIT = 6;
+    private static final long VOTE_TIME_LIMIT = 12;
 
     private final String id;               // 약속방 ID (UUID)
     private final String roomName;         // 약속방 이름
     private final int capacity;            // 참여인원 수 (최소 2명 이상)
     private final Member member;           // 방 참여자
     private final LocalDateTime locationInputLimitDateTime; // 출발지 입력 마감일시
+    private final LocalDateTime voteLimitDateTime; // 투표 마감일시
     private final LocalDateTime createdDateTime; // 방 생성일시
 
     private Room(String id, String roomName, int capacity, Member member) {
@@ -29,6 +31,7 @@ public class Room implements Serializable {
         this.member = member;
         this.createdDateTime = LocalDateTime.now().withNano(0);
         this.locationInputLimitDateTime = createdDateTime.plusHours(LOCATION_INPUT_TIME_LIMIT);
+        this.voteLimitDateTime = locationInputLimitDateTime.plusHours(VOTE_TIME_LIMIT);
     }
 
     public static Room create(String roomName, int capacity, Member member) {
