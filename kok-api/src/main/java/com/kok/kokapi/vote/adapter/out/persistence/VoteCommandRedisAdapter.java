@@ -1,30 +1,50 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
-import com.kok.kokcore.vote.application.port.out.SaveVotePort;
+import com.kok.kokapi.common.util.RedisExecutor;
 import com.kok.kokcore.vote.domain.Vote;
+import com.kok.kokcore.vote.port.out.DeleteVotePort;
+import com.kok.kokcore.vote.port.out.SaveVotePort;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.StringJoiner;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
-public class VoteCommandRedisAdapter implements SaveVotePort {
+public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
 
-    private static final String VOTES_KEY = "vote:";
-    private static final String CANDIDATE_KEY = "candidate:";
+    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
+    private static final String CANDIDATE_VOTE_KEY_FORMAT = "vote:%s:candidate:%d:%s";
 
-    public final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public void saveAll(List<Vote> votes) {
+    public void saveByCandidate(Vote vote) {
+        String key = getCandidateVoteKey(vote);
+        RedisExecutor.runOrThrow("saveByCandidate", () ->
+            redisTemplate.opsForSet().add(key, vote.getMemberId())
+        );
+    }
+
+    @Override
+    public void saveAllByMember(List<Vote> votes) {
         validate(votes);
-        List<Vote> agreeVotes = getAgreeVotes(votes);
-        List<Vote> disagreeVotes = getDisagreeVotes(votes);
-        save(agreeVotes);
-        save(disagreeVotes);
+        String roomId = votes.getFirst().getRoomId();
+        String memberId = votes.getFirst().getMemberId();
+        String key = getMemberVoteKey(roomId, memberId);
+        Map<Long, String> value = votes.stream()
+            .collect(Collectors.toMap(
+                Vote::getStationId,
+                vote -> vote.getVoteStatus().getName()
+            ));
+        RedisExecutor.runOrThrow("saveAllByMember", () ->
+            redisTemplate.opsForHash().putAll(key, value)
+        );
     }
 
     private void validate(List<Vote> votes) {
@@ -33,25 +53,46 @@ public class VoteCommandRedisAdapter implements SaveVotePort {
         }
     }
 
-    private List<Vote> getAgreeVotes(List<Vote> votes) {
-        return votes.stream().filter(vote -> vote.getVoteStatus().isAgree()).toList();
+    @Override
+    public void deleteByCandidate(Vote vote) {
+        String key = getCandidateVoteKey(vote);
+        RedisExecutor.runOrThrow("deleteByCandidate", () -> {
+            Long result = redisTemplate.opsForSet().remove(key, vote.getMemberId());
+            if (isNotRemoved(result)) {
+                log.warn(
+                    "Failed to remove memberId from candidate set or key not found: key={}, memberId={}",
+                    key,
+                    vote.getMemberId()
+                );
+            }
+        });
     }
 
-    private List<Vote> getDisagreeVotes(List<Vote> votes) {
-        return votes.stream().filter(vote -> vote.getVoteStatus().isDisagree()).toList();
+    private static boolean isNotRemoved(Long removed) {
+        return Objects.isNull(removed) || removed == 0L;
     }
 
-    private void save(List<Vote> agreeVotes) {
-        String key = getKey(agreeVotes.getFirst());
-        Object[] memberIds = agreeVotes.stream().map(Vote::getMemberId).toArray();
-        redisTemplate.opsForSet().add(key, memberIds);
+    @Override
+    public void deleteAllByRoomIdAndMemberId(String roomId, String memberId) {
+        String key = getMemberVoteKey(roomId, memberId);
+        RedisExecutor.runOrThrow("deleteAllRoomIdAndMemberId", () -> {
+            Boolean result = redisTemplate.delete(key);
+            if (isNotRemoved(result)) {
+                log.warn("Key not found or already expired: {}", key);
+            }
+        });
     }
 
-    private String getKey(Vote vote) {
-        StringJoiner joiner = new StringJoiner(":");
-        joiner.add(VOTES_KEY + vote.getRoomId());
-        joiner.add(CANDIDATE_KEY + vote.getStationId());
-        joiner.add(vote.getVoteStatus().getName());
-        return joiner.toString();
+    private static boolean isNotRemoved(Boolean result) {
+        return result.equals(Boolean.FALSE);
+    }
+
+    private String getMemberVoteKey(String roomId, String memberId) {
+        return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
+    }
+
+    private String getCandidateVoteKey(Vote vote) {
+        return String.format(CANDIDATE_VOTE_KEY_FORMAT, vote.getRoomId(), vote.getStationId(),
+            vote.getVoteStatus().getName());
     }
 }

@@ -6,5 +6,7 @@ import java.util.List;
 
 public interface GetCandidateUseCase {
 
-    List<Candidate> getCandidate(String roomId, List<Station> stations);
+    List<Candidate> saveAndGetCandidates(String roomId, List<Station> stations);
+
+    List<Candidate> getCandidates(String roomId);
 }
