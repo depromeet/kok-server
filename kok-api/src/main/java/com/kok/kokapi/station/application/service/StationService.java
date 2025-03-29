@@ -1,13 +1,19 @@
 package com.kok.kokapi.station.application.service;
 
 import com.kok.kokapi.config.geometry.PointConverter;
+import com.kok.kokapi.station.adapter.out.persistence.UserRecommendStationCommandRedisAdapter;
+import com.kok.kokapi.station.adapter.out.persistence.UserRecommendStationQueryRedisAdapter;
 import com.kok.kokcore.location.port.out.ReadCentroidPort;
+import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
+import com.kok.kokcore.station.usecase.SaveStationUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.port.out.LoadStationsPort;
 import com.kok.kokcore.station.port.out.ReadStationsPort;
 import com.kok.kokcore.station.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.port.out.SaveRoutePort;
 import com.kok.kokcore.station.port.out.SaveStationsPort;
+import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
+import com.kok.kokcore.station.usecase.UserRecommendUseCase;
 import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
 import com.kok.kokcore.station.usecase.DeleteRecommendStationUseCase;
 import com.kok.kokcore.station.usecase.GetRecommendStationUseCase;
@@ -32,8 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StationService implements SaveStationUseCase, RecommendStationUseCase,
-    GetRecommendStationUseCase, GetStationUseCase, DeleteRecommendStationUseCase {
+public class StationService implements SaveStationUseCase, SystemRecommendUseCase,
+    UserRecommendUseCase, GetRecommendStationUseCase, GetStationUseCase, DeleteRecommendStationUseCase {
 
     private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
@@ -41,6 +47,8 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     private final ReadCentroidPort readCentroidPort;
     private final SaveRoutePort saveRoutePort;
     private final RetrieveStationsPort retrieveStationsPort;
+    private final UserRecommendStationQueryRedisAdapter userRecommendStationQueryRedisAdapter;
+    private final UserRecommendStationCommandRedisAdapter userRecommendStationCommandRedisAdapter;
     private final PointConverter pointConverter;
 
     @Override
@@ -54,8 +62,26 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     }
 
     @Override
-    @Cacheable(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
-    public List<Station> recommendStations(String roomId) {
+    @Cacheable(value = "searchStations", cacheManager = "stationCacheManager", key = "#keyword")
+    public List<Station> searchStations(String keyword) {
+        return retrieveStationsPort.retrieveStationsByKeyword(keyword);
+    }
+
+    @Override
+    public Station addUserRecommendStation(String roomId, Long stationId) {
+        Station station = retrieveStationsPort.retrieveStation(stationId)
+            .orElseThrow(() -> new RuntimeException("해당 역이 존재하지 않습니다."));
+        return userRecommendStationCommandRedisAdapter.addUserRecommendStation(roomId, station);
+    }
+
+    @Override
+    public List<Station> getUserRecommendStation(String roomId) {
+        return userRecommendStationQueryRedisAdapter.findUserRecommendedStationsByRoomId(roomId);
+    }
+
+    @Override
+    @Cacheable(value = "systemRecommendStations", cacheManager = "stationCacheManager", key = "#roomId")
+    public List<Station> systemRecommendStation(String roomId) {
         Point centroid = readCentroidPort.findCentroidByRoomId(roomId);
         int RECOMMEND_NUM = 2;
         double dist = 100;
@@ -185,5 +211,4 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     public void deleteRecommendedStations(String roomId) {
         log.debug("Deleted recommended stations from cache for roomId={}", roomId);
     }
-
 }

@@ -1,0 +1,5 @@
+ALTER TABLE location
+    ADD COLUMN name VARCHAR(255) DEFAULT 'unknown';
+
+ALTER TABLE location
+    MODIFY COLUMN name VARCHAR(255) NOT NULL;

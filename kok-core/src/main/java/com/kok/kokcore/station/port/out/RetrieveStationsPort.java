@@ -10,4 +10,6 @@ public interface RetrieveStationsPort {
     Optional<Station> retrieveStation(Long stationId);
 
     List<Station> retrieveInRangeStations(Point centroid, double dist);
+
+    List<Station> retrieveStationsByKeyword(String keyword);
 }
