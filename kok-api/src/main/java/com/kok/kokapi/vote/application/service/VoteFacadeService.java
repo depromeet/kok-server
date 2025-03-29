@@ -39,15 +39,17 @@ public class VoteFacadeService {
             Station station = getStationUseCase.getStation(candidate.getStationId());
             List<Route> routes = retrieveRouteUseCase.retrieveRoutes(station);
             TmapPublicTransportationParsedResponse transportationParsedResponse = getTransportationParsedResponse(
-                roomId, memberId, station);
+                roomId,
+                memberId,
+                station
+            );
             CandidateResponse.of(station, routes, transportationParsedResponse, List.of());
         }
         return responses;
     }
 
     private TmapPublicTransportationParsedResponse getTransportationParsedResponse(
-        String roomId, String memberId, Station station
-    ) {
+        String roomId, String memberId, Station station) {
         String content = tmapPublicTransportationService.retrievePublicTransportation(
             station.getId(),
             roomId,

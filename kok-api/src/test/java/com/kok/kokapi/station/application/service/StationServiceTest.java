@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class StationServiceTest extends ServiceTest {
-    
+
     @Autowired
     private StationRepository stationRepository;
     @Autowired
