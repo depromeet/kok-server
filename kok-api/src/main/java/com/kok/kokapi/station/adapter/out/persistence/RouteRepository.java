@@ -4,15 +4,8 @@ import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface RouteRepository extends JpaRepository<Route, Long> {
 
     List<Route> findAllByStationOrderByName(Station station);
-
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Route r SET r.name = '1호선' WHERE r.name IN :names")
-    int updateRouteNameToRouteOne(@Param("names") List<String> names);
 }

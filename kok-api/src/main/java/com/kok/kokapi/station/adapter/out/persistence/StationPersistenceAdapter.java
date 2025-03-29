@@ -76,16 +76,8 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
     @Transactional(readOnly = true)
     public List<Station> retrieveInRangeStations(Point centroid, double dist) {
         Pair<BigDecimal, BigDecimal> lonLat = pointConverter.toCoordinates(centroid);
-        return stationRepository.findInRangeStationsByCentroid(
-            lonLat.getFirst(),
-            lonLat.getSecond(),
-            dist
-        );
-    }
-
-    @Override
-    public List<Station> retrieveStationsByKeyword(String keyword) {
-        return stationRepository.findByNameContaining(keyword);
+        return stationRepository.findInRangeStationsByCentroid(lonLat.getFirst(),
+            lonLat.getSecond(), dist);
     }
 }
 

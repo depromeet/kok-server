@@ -24,12 +24,6 @@ public class RoomQueryRedisAdapter implements LoadRoomPort {
             .flatMap(this::deserializeRoom);
     }
 
-    @Override
-    public boolean isExistsByRoomId(String roomId) {
-        String key = buildKey(roomId);
-        return redisTemplate.hasKey(key);
-    }
-
     private Optional<Room> deserializeRoom(String roomJson) {
         try {
             Room room = objectMapper.readValue(roomJson, Room.class);

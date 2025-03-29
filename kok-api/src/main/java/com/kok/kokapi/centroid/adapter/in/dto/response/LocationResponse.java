@@ -7,15 +7,13 @@ public record LocationResponse(
     String roomId,
     String memberId,
     BigDecimal latitude,
-    BigDecimal longitude,
-    String name
+    BigDecimal longitude
 ) {
 
     public static LocationResponse of(String roomId, String memberId, BigDecimal latitude,
-        BigDecimal longitude, String name) {
+        BigDecimal longitude) {
         return new LocationResponse(roomId, memberId,
             latitude.setScale(6, RoundingMode.HALF_UP),
-            longitude.setScale(6, RoundingMode.HALF_UP),
-            name);
+            longitude.setScale(6, RoundingMode.HALF_UP));
     }
 }

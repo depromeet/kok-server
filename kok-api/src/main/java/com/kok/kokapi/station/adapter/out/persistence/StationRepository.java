@@ -25,5 +25,4 @@ public interface StationRepository extends JpaRepository<Station, Long> {
     List<Station> findInRangeStationsByCentroid(@Param("lon") BigDecimal lon,
         @Param("lat") BigDecimal lat, @Param("distance") Double distance);
 
-    List<Station> findByNameContaining(String keyword);
 }

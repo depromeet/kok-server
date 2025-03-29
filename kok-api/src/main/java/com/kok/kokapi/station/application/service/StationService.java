@@ -5,16 +5,12 @@ import com.kok.kokcore.location.port.out.ReadCentroidPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.port.out.LoadStationsPort;
 import com.kok.kokcore.station.port.out.ReadStationsPort;
-import com.kok.kokcore.station.port.out.ReadUserRecommendStationsPort;
 import com.kok.kokcore.station.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.port.out.SaveRoutePort;
 import com.kok.kokcore.station.port.out.SaveStationsPort;
-import com.kok.kokcore.station.port.out.SaveUserRecommendStationsPort;
 import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
-import com.kok.kokcore.station.usecase.GetStationUseCase;
+import com.kok.kokcore.station.usecase.RecommendStationUseCase;
 import com.kok.kokcore.station.usecase.SaveStationUseCase;
-import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
-import com.kok.kokcore.station.usecase.UserRecommendUseCase;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,8 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StationService implements SaveStationUseCase, SystemRecommendUseCase,
-    UserRecommendUseCase, GetStationUseCase {
+public class StationService implements SaveStationUseCase, RecommendStationUseCase {
 
     private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
@@ -41,8 +36,6 @@ public class StationService implements SaveStationUseCase, SystemRecommendUseCas
     private final ReadCentroidPort readCentroidPort;
     private final SaveRoutePort saveRoutePort;
     private final RetrieveStationsPort retrieveStationsPort;
-    private final ReadUserRecommendStationsPort readUserRecommendStationPort;
-    private final SaveUserRecommendStationsPort saveUserRecommendStationsPort;
     private final PointConverter pointConverter;
 
     @Override
@@ -56,26 +49,8 @@ public class StationService implements SaveStationUseCase, SystemRecommendUseCas
     }
 
     @Override
-    @Cacheable(value = "searchStations", cacheManager = "stationCacheManager", key = "#keyword")
-    public List<Station> searchStations(String keyword) {
-        return retrieveStationsPort.retrieveStationsByKeyword(keyword);
-    }
-
-    @Override
-    public Station addUserRecommendStation(String roomId, Long stationId) {
-        Station station = retrieveStationsPort.retrieveStation(stationId)
-            .orElseThrow(() -> new RuntimeException("해당 역이 존재하지 않습니다."));
-        return saveUserRecommendStationsPort.addUserRecommendStation(roomId, station);
-    }
-
-    @Override
-    public List<Station> getUserRecommendStation(String roomId) {
-        return readUserRecommendStationPort.findUserRecommendedStationsByRoomId(roomId);
-    }
-
-    @Override
-    @Cacheable(value = "systemRecommendStations", cacheManager = "stationCacheManager", key = "#roomId")
-    public List<Station> systemRecommendStation(String roomId) {
+    @Cacheable(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
+    public List<Station> recommendStations(String roomId) {
         Point centroid = readCentroidPort.findCentroidByRoomId(roomId);
         int RECOMMEND_NUM = 2;
         double dist = 100;
@@ -185,12 +160,5 @@ public class StationService implements SaveStationUseCase, SystemRecommendUseCas
 
         // 유클리드 거리 공식 적용
         return Math.sqrt(Math.pow(lat2 - lat1, 2) + Math.pow(lon2 - lon1, 2));
-    }
-
-    @Override
-    public Station getStation(long stationId) {
-        return retrieveStationsPort.retrieveStation(stationId)
-            .orElseThrow(
-                () -> new IllegalArgumentException("Cannot find station with id: " + stationId));
     }
 }

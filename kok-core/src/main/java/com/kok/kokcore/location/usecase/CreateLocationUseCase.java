@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 public interface CreateLocationUseCase {
 
     Location createLocation(String roomId, String memberId, BigDecimal latitude,
-        BigDecimal longitude, String name);
+        BigDecimal longitude);
 
     Location updateLocation(String roomId, String memberId, BigDecimal latitude,
-        BigDecimal longitude, String name);
+        BigDecimal longitude);
 }

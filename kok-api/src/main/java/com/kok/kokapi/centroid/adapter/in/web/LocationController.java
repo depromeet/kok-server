@@ -41,8 +41,7 @@ public class LocationController {
             locationRequest.roomId(),
             locationRequest.memberId(),
             locationRequest.latitude(),
-            locationRequest.longitude(),
-            locationRequest.name()
+            locationRequest.longitude()
         );
 
         Pair<BigDecimal, BigDecimal> centroid = loadCentroidUsecase.readCentroidCoordinates(
@@ -105,8 +104,7 @@ public class LocationController {
             locationRequest.roomId(),
             locationRequest.memberId(),
             locationRequest.latitude(),
-            locationRequest.longitude(),
-            locationRequest.name()
+            locationRequest.longitude()
         );
         LocationResponse response = locationMapper.toResponse(location);
 
