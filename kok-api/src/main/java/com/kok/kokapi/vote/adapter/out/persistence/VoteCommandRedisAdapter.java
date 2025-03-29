@@ -1,5 +1,6 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
+import com.kok.kokapi.common.util.RedisExecutor;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.port.out.DeleteVotePort;
 import com.kok.kokcore.vote.port.out.SaveVotePort;
@@ -8,9 +9,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
@@ -23,7 +26,9 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
     @Override
     public void saveByCandidate(Vote vote) {
         String key = getCandidateVoteKey(vote);
-        redisTemplate.opsForSet().add(key, vote.getMemberId());
+        RedisExecutor.runOrThrow("saveByCandidate", () ->
+            redisTemplate.opsForSet().add(key, vote.getMemberId())
+        );
     }
 
     @Override
@@ -37,7 +42,9 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
                 Vote::getStationId,
                 vote -> vote.getVoteStatus().getName()
             ));
-        redisTemplate.opsForHash().putAll(key, value);
+        RedisExecutor.runOrThrow("saveAllByMember", () ->
+            redisTemplate.opsForHash().putAll(key, value)
+        );
     }
 
     private void validate(List<Vote> votes) {
@@ -49,13 +56,35 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
     @Override
     public void deleteByCandidate(Vote vote) {
         String key = getCandidateVoteKey(vote);
-        redisTemplate.opsForSet().remove(key, vote.getMemberId());
+        RedisExecutor.runOrThrow("deleteByCandidate", () -> {
+            Long result = redisTemplate.opsForSet().remove(key, vote.getMemberId());
+            if (isNotRemoved(result)) {
+                log.warn(
+                    "Failed to remove memberId from candidate set or key not found: key={}, memberId={}",
+                    key,
+                    vote.getMemberId()
+                );
+            }
+        });
+    }
+
+    private static boolean isNotRemoved(Long removed) {
+        return Objects.isNull(removed) || removed == 0L;
     }
 
     @Override
     public void deleteAllByRoomIdAndMemberId(String roomId, String memberId) {
         String key = getMemberVoteKey(roomId, memberId);
-        redisTemplate.delete(key);
+        RedisExecutor.runOrThrow("deleteAllRoomIdAndMemberId", () -> {
+            Boolean result = redisTemplate.delete(key);
+            if (isNotRemoved(result)) {
+                log.warn("Key not found or already expired: {}", key);
+            }
+        });
+    }
+
+    private static boolean isNotRemoved(Boolean result) {
+        return result.equals(Boolean.FALSE);
     }
 
     private String getMemberVoteKey(String roomId, String memberId) {

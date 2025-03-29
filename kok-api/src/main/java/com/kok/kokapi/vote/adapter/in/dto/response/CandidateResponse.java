@@ -8,7 +8,7 @@ import java.util.List;
 public record CandidateResponse(
     long stationId,
     String stationName,
-    List<RouteResponse> routes,
+    List<String> routes,
     int totalTime,
     int transferCount,
     List<CommentResponse> comments
@@ -23,14 +23,14 @@ public record CandidateResponse(
         return new CandidateResponse(
             station.getId(),
             station.getName(),
-            getRouteResponses(routes),
+            getRoutes(routes),
             transportationParsedResponse.totalTime(),
             transportationParsedResponse.transferCount(),
             comments
         );
     }
 
-    private static List<RouteResponse> getRouteResponses(List<Route> routes) {
-        return routes.stream().map(route -> new RouteResponse(route.getName())).toList();
+    private static List<String> getRoutes(List<Route> routes) {
+        return routes.stream().map(Route::getName).toList();
     }
 }

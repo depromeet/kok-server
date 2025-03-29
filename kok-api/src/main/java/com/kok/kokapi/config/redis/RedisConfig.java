@@ -7,9 +7,11 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.retry.annotation.EnableRetry;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableRetry
 public class RedisConfig {
 
     // 추후 ConnectionFactory설정 변경을 고려. (Sentinel, Cluster, etc...)

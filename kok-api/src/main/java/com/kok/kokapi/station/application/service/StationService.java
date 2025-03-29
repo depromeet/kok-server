@@ -5,15 +5,16 @@ import com.kok.kokcore.location.port.out.ReadCentroidPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.port.out.LoadStationsPort;
 import com.kok.kokcore.station.port.out.ReadStationsPort;
+import com.kok.kokcore.station.port.out.ReadUserRecommendStationsPort;
 import com.kok.kokcore.station.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.port.out.SaveRoutePort;
 import com.kok.kokcore.station.port.out.SaveStationsPort;
+import com.kok.kokcore.station.port.out.SaveUserRecommendStationsPort;
 import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
-import com.kok.kokcore.station.usecase.DeleteRecommendStationUseCase;
-import com.kok.kokcore.station.usecase.GetRecommendStationUseCase;
 import com.kok.kokcore.station.usecase.GetStationUseCase;
-import com.kok.kokcore.station.usecase.RecommendStationUseCase;
 import com.kok.kokcore.station.usecase.SaveStationUseCase;
+import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
+import com.kok.kokcore.station.usecase.UserRecommendUseCase;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +24,6 @@ import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -32,8 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StationService implements SaveStationUseCase, RecommendStationUseCase,
-    GetRecommendStationUseCase, GetStationUseCase, DeleteRecommendStationUseCase {
+public class StationService implements SaveStationUseCase, SystemRecommendUseCase,
+    UserRecommendUseCase, GetStationUseCase {
 
     private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
@@ -41,6 +41,8 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     private final ReadCentroidPort readCentroidPort;
     private final SaveRoutePort saveRoutePort;
     private final RetrieveStationsPort retrieveStationsPort;
+    private final ReadUserRecommendStationsPort readUserRecommendStationPort;
+    private final SaveUserRecommendStationsPort saveUserRecommendStationsPort;
     private final PointConverter pointConverter;
 
     @Override
@@ -54,8 +56,26 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     }
 
     @Override
-    @Cacheable(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
-    public List<Station> recommendStations(String roomId) {
+    @Cacheable(value = "searchStations", cacheManager = "stationCacheManager", key = "#keyword")
+    public List<Station> searchStations(String keyword) {
+        return retrieveStationsPort.retrieveStationsByKeyword(keyword);
+    }
+
+    @Override
+    public Station addUserRecommendStation(String roomId, Long stationId) {
+        Station station = retrieveStationsPort.retrieveStation(stationId)
+            .orElseThrow(() -> new RuntimeException("해당 역이 존재하지 않습니다."));
+        return saveUserRecommendStationsPort.addUserRecommendStation(roomId, station);
+    }
+
+    @Override
+    public List<Station> getUserRecommendStation(String roomId) {
+        return readUserRecommendStationPort.findUserRecommendedStationsByRoomId(roomId);
+    }
+
+    @Override
+    @Cacheable(value = "systemRecommendStations", cacheManager = "stationCacheManager", key = "#roomId")
+    public List<Station> systemRecommendStation(String roomId) {
         Point centroid = readCentroidPort.findCentroidByRoomId(roomId);
         int RECOMMEND_NUM = 2;
         double dist = 100;
@@ -168,22 +188,9 @@ public class StationService implements SaveStationUseCase, RecommendStationUseCa
     }
 
     @Override
-    @Cacheable(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
-    public List<Station> getRecommendedStations(String roomId) {
-        throw new IllegalStateException("No recommended stations for roomId: " + roomId);
-    }
-
-    @Override
     public Station getStation(long stationId) {
         return retrieveStationsPort.retrieveStation(stationId)
             .orElseThrow(
                 () -> new IllegalArgumentException("Cannot find station with id: " + stationId));
     }
-
-    @Override
-    @CacheEvict(value = "recommendStations", cacheManager = "stationCacheManager", key = "#roomId")
-    public void deleteRecommendedStations(String roomId) {
-        log.debug("Deleted recommended stations from cache for roomId={}", roomId);
-    }
-
 }
