@@ -10,5 +10,7 @@ public interface GetRoomUseCase {
 
     List<Member> getParticipants(String roomId);
 
+    Member getParticipant(String roomId, String memberId);
+
     int getParticipantsCount(String roomId);
 }
