@@ -3,6 +3,7 @@ package com.kok.kokapi.centroid.adapter.out.mapper;
 import com.kok.kokapi.centroid.adapter.in.dto.response.LocationResponse;
 import com.kok.kokapi.config.geometry.PointConverter;
 import com.kok.kokcore.location.domain.Location;
+import com.kok.kokcore.room.domain.Member;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.util.Pair;
@@ -23,6 +24,18 @@ public class LocationMapper {
         return LocationResponse.of(
             location.getRoomId(),
             location.getMemberId(),
+            coordinates.getFirst(),
+            coordinates.getSecond()
+        );
+    }
+
+    public LocationResponse toResponse(Location location, Member member) {
+        Pair<BigDecimal, BigDecimal> coordinates = pointConverter.toCoordinates(
+            location.getLocation_point());
+        return LocationResponse.of(
+            location.getRoomId(),
+            member.getMemberId(),
+            member.getProfile(),
             coordinates.getFirst(),
             coordinates.getSecond()
         );

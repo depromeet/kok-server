@@ -11,6 +11,8 @@ import com.kok.kokcore.location.domain.Location;
 import com.kok.kokcore.location.usecase.CreateLocationUseCase;
 import com.kok.kokcore.location.usecase.LoadCentroidUseCase;
 import com.kok.kokcore.location.usecase.ReadLocationUseCase;
+import com.kok.kokcore.room.domain.Member;
+import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
@@ -31,6 +33,7 @@ public class LocationController {
     private final CreateLocationUseCase createLocationUsecase;
     private final LoadCentroidUseCase loadCentroidUsecase;
     private final ReadLocationUseCase readLocationUsecase;
+    private final GetRoomUseCase getRoomUseCase;
     private final LocationMapper locationMapper;
 
     @Operation(summary = "위치 입력", description = "Create a new location with the provided details.")
@@ -69,8 +72,11 @@ public class LocationController {
     public ResponseEntity<ApiResponseDto<LocationResponse>> getLocation(@PathVariable String roomId,
         @PathVariable String memberId) {
         Location location = readLocationUsecase.readLocation(roomId, memberId);
+        Member member = getRoomUseCase.getParticipant(roomId, memberId);
 
-        return ResponseEntity.ok(ApiResponseDto.success(locationMapper.toResponse(location)));
+        return ResponseEntity.ok(ApiResponseDto.success(
+            locationMapper.toResponse(location, member)
+        ));
     }
 
     @Operation(summary = "위치조회 ConvexHull", description = "Retrieve the ConvexHull inside list, outside list of locations for a roomId")
