@@ -83,7 +83,7 @@ class RoomIntegrationTest extends IntegrationTest {
                 RestAssured.given().log().all()
                     .contentType(ContentType.JSON)
                     .body(new LocationRequest(roomId, memberId, new BigDecimal("37"),
-                        new BigDecimal("127")))
+                        new BigDecimal("127"), "test"))
                     .when().post("/v1/api/locations")
                     .then().log().all()
                     .assertThat().statusCode(200);
@@ -131,7 +131,7 @@ class RoomIntegrationTest extends IntegrationTest {
                 RestAssured.given().log().all()
                     .contentType(ContentType.JSON)
                     .body(new LocationRequest(roomId, memberId, new BigDecimal("37"),
-                        new BigDecimal("127")))
+                        new BigDecimal("127"), "test"))
                     .when().post("/v1/api/locations")
                     .then().log().all()
                     .assertThat().statusCode(200);
