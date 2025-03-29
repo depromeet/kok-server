@@ -6,4 +6,6 @@ import java.util.Optional;
 public interface LoadRoomPort {
 
     Optional<Room> findRoomById(String roomId);
+
+    boolean isExistsByRoomId(String roomId);
 }

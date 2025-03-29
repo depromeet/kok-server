@@ -6,6 +6,9 @@ import com.kok.kokapi.public_transportation.adapter.in.dto.response.TmapPublicTr
 import com.kok.kokapi.public_transportation.application.service.TmapPublicTransportationService;
 import com.kok.kokapi.vote.adapter.in.dto.request.VoteRequest;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
+import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
+import com.kok.kokcore.room.domain.Member;
+import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.usecase.GetStationUseCase;
@@ -14,6 +17,7 @@ import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
+import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +32,8 @@ public class VoteFacadeService {
     private final GetStationUseCase getStationUseCase;
     private final RetrieveRouteUseCase retrieveRouteUseCase;
     private final SaveVoteUseCase saveVoteUseCase;
+    private final GetVoteUseCase getVoteUseCase;
+    private final GetRoomUseCase getRoomUseCase;
     private final TmapPublicTransportationService tmapPublicTransportationService;
     private final ObjectMapper objectMapper;
 
@@ -84,5 +90,16 @@ public class VoteFacadeService {
 
     private static boolean isAgree(List<Long> agreedStationIds, Candidate candidate) {
         return agreedStationIds.contains(candidate.getStationId());
+    }
+
+    public List<MemberVoteStatusResponse> getMemberVoteStatus(String roomId) {
+        List<Member> members = getRoomUseCase.getParticipants(roomId);
+        List<MemberVoteStatusResponse> responses = new ArrayList<>();
+        for (Member member : members) {
+            boolean isVoted = getVoteUseCase.isVotedByMember(roomId, member.getMemberId());
+            MemberVoteStatusResponse response = MemberVoteStatusResponse.of(member, isVoted);
+            responses.add(response);
+        }
+        return responses;
     }
 }

@@ -5,6 +5,7 @@ import com.kok.kokapi.config.annotion.V1Controller;
 import com.kok.kokapi.station.application.service.StationFacadeService;
 import com.kok.kokapi.vote.adapter.in.dto.request.VoteRequest;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
+import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
 import com.kok.kokapi.vote.application.service.VoteFacadeService;
 import com.kok.kokcore.station.domain.entity.Station;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,5 +43,13 @@ public class VoteController {
     ) {
         voteFacadeService.createVote(roomId, memberId, voteRequest);
         return ResponseEntity.ok(ApiResponseDto.success(null));
+    }
+
+    @Operation(summary = "사용자별 투표 상태 조회", description = "방 ID에 대해 사용자 정보와 투표 상태(투표 전/투표 완료)를 조회합니다.")
+    @GetMapping("/vote/{roomId}/status")
+    public ResponseEntity<ApiResponseDto<List<MemberVoteStatusResponse>>> getMemberVoteStatus(
+        @PathVariable String roomId) {
+        List<MemberVoteStatusResponse> responses = voteFacadeService.getMemberVoteStatus(roomId);
+        return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 }

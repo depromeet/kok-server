@@ -15,7 +15,8 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class UserRecommendStationQueryRedisAdapter implements ReadUserRecommendStationsPort {
 
-    private final String USER_RECOMMEND_STATION_PREFIX = "userRecommendStations:";
+    private static final String USER_RECOMMEND_STATION_PREFIX = "userRecommendStations:";
+
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
