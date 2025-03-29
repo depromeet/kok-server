@@ -34,9 +34,8 @@ public class GlobalExceptionHandler {
             .body(ApiResponseDto.error(ErrorCode.INVALID_INPUT, message));
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponseDto<Void>> handleBadRequestException(
-        IllegalArgumentException ex) {
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    public ResponseEntity<ApiResponseDto<Void>> handleBadRequestException(RuntimeException ex) {
         return ResponseEntity.badRequest()
             .body(ApiResponseDto.error(ErrorCode.BAD_REQUEST, ex.getMessage()));
     }

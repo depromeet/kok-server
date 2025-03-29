@@ -1,17 +1,18 @@
 package com.kok.kokapi.station.application.service;
 
 import com.kok.kokapi.config.geometry.PointConverter;
-import com.kok.kokapi.station.adapter.out.persistence.UserRecommendStationCommandRedisAdapter;
-import com.kok.kokapi.station.adapter.out.persistence.UserRecommendStationQueryRedisAdapter;
 import com.kok.kokcore.location.port.out.ReadCentroidPort;
-import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
-import com.kok.kokcore.station.usecase.SaveStationUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.port.out.LoadStationsPort;
 import com.kok.kokcore.station.port.out.ReadStationsPort;
+import com.kok.kokcore.station.port.out.ReadUserRecommendStationsPort;
 import com.kok.kokcore.station.port.out.RetrieveStationsPort;
 import com.kok.kokcore.station.port.out.SaveRoutePort;
 import com.kok.kokcore.station.port.out.SaveStationsPort;
+import com.kok.kokcore.station.port.out.SaveUserRecommendStationsPort;
+import com.kok.kokcore.station.port.out.dto.StationRouteDtos;
+import com.kok.kokcore.station.usecase.GetStationUseCase;
+import com.kok.kokcore.station.usecase.SaveStationUseCase;
 import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
 import com.kok.kokcore.station.usecase.UserRecommendUseCase;
 import java.math.BigDecimal;
@@ -32,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class StationService implements SaveStationUseCase, SystemRecommendUseCase,
-    UserRecommendUseCase {
+    UserRecommendUseCase, GetStationUseCase {
 
     private final LoadStationsPort loadStationsPort;
     private final SaveStationsPort saveStationsPort;
@@ -40,8 +41,8 @@ public class StationService implements SaveStationUseCase, SystemRecommendUseCas
     private final ReadCentroidPort readCentroidPort;
     private final SaveRoutePort saveRoutePort;
     private final RetrieveStationsPort retrieveStationsPort;
-    private final UserRecommendStationQueryRedisAdapter userRecommendStationQueryRedisAdapter;
-    private final UserRecommendStationCommandRedisAdapter userRecommendStationCommandRedisAdapter;
+    private final ReadUserRecommendStationsPort readUserRecommendStationPort;
+    private final SaveUserRecommendStationsPort saveUserRecommendStationsPort;
     private final PointConverter pointConverter;
 
     @Override
@@ -64,12 +65,12 @@ public class StationService implements SaveStationUseCase, SystemRecommendUseCas
     public Station addUserRecommendStation(String roomId, Long stationId) {
         Station station = retrieveStationsPort.retrieveStation(stationId)
             .orElseThrow(() -> new RuntimeException("해당 역이 존재하지 않습니다."));
-        return userRecommendStationCommandRedisAdapter.addUserRecommendStation(roomId, station);
+        return saveUserRecommendStationsPort.addUserRecommendStation(roomId, station);
     }
 
     @Override
     public List<Station> getUserRecommendStation(String roomId) {
-        return userRecommendStationQueryRedisAdapter.findUserRecommendedStationsByRoomId(roomId);
+        return readUserRecommendStationPort.findUserRecommendedStationsByRoomId(roomId);
     }
 
     @Override
@@ -184,5 +185,12 @@ public class StationService implements SaveStationUseCase, SystemRecommendUseCas
 
         // 유클리드 거리 공식 적용
         return Math.sqrt(Math.pow(lat2 - lat1, 2) + Math.pow(lon2 - lon1, 2));
+    }
+
+    @Override
+    public Station getStation(long stationId) {
+        return retrieveStationsPort.retrieveStation(stationId)
+            .orElseThrow(
+                () -> new IllegalArgumentException("Cannot find station with id: " + stationId));
     }
 }

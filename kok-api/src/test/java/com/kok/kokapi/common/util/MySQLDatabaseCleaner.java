@@ -13,6 +13,7 @@ public class MySQLDatabaseCleaner implements DatabaseCleaner {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Override
     @Transactional
     public void cleanUp() {
         entityManager.flush();

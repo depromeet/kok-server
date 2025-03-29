@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RoutePersistenceAdapter implements SaveRoutePort, RetrieveRoutePort {
 
+    public static final List<String> ROUTE_ONE_LIST = List.of("경부선", "경인선", "경원선", "장항선");
     private final RouteRepository routeRepository;
 
     private static final String INSERT_ROUTE_SQL = """
@@ -39,6 +40,8 @@ public class RoutePersistenceAdapter implements SaveRoutePort, RetrieveRoutePort
             return;
         }
         batchInsertRoutes(routes);
+        int updatedCount = routeRepository.updateRouteNameToRouteOne(ROUTE_ONE_LIST);
+        log.debug("Successfully changed {} route name to \"1호선\".", updatedCount);
     }
 
     private void batchInsertRoutes(List<Route> routes) {
