@@ -31,9 +31,10 @@ public class VoteFacadeService {
     private final TmapPublicTransportationService tmapPublicTransportationService;
     private final ObjectMapper objectMapper;
 
-    public List<CandidateResponse> getCandidates(String roomId, String memberId) {
+    public List<CandidateResponse> getCandidates(String roomId, String memberId,
+        List<Station> stations) {
         List<CandidateResponse> responses = new ArrayList<>();
-        List<Candidate> candidates = getCandidateUseCase.getCandidate(roomId);
+        List<Candidate> candidates = getCandidateUseCase.saveAndGetCandidates(roomId, stations);
         for (Candidate candidate : candidates) {
             Station station = getStationUseCase.getStation(candidate.getStationId());
             List<Route> routes = retrieveRouteUseCase.retrieveRoutes(station);
@@ -68,7 +69,7 @@ public class VoteFacadeService {
     private List<Vote> getVotes(String roomId, String memberId, VoteRequest voteRequest) {
         List<Vote> votes = new ArrayList<>();
         List<Long> agreedStationIds = voteRequest.agreedStationIds();
-        List<Candidate> candidates = getCandidateUseCase.getCandidate(roomId);
+        List<Candidate> candidates = getCandidateUseCase.getCandidates(roomId);
         for (Candidate candidate : candidates) {
             if (isAgree(agreedStationIds, candidate)) {
                 votes.add(new Vote(candidate, memberId, VoteStatus.AGREE));
