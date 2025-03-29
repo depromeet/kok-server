@@ -41,7 +41,7 @@ public class RoomController {
     @GetMapping("/rooms/{roomId}")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> getRoomDetail(
         @PathVariable String roomId) {
-        RoomDetailResponse response = roomFacadeService.findByRoomId(roomId);
+        RoomDetailResponse response = roomFacadeService.findByRoomId(roomId, LocalDateTime.now());
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 

@@ -18,17 +18,22 @@ public class RoomFacadeService {
     private final GetRoomUseCase getRoomUseCase;
     private final ReadLocationUseCase readLocationUseCase;
 
-    public RoomDetailResponse findByRoomId(String roomId) {
+    public RoomDetailResponse findByRoomId(String roomId, LocalDateTime current) {
         Room room = getRoomUseCase.findRoomById(roomId);
         int participantsCount = getRoomUseCase.getParticipantsCount(roomId);
-        return RoomDetailResponse.of(room, participantsCount);
+        boolean isVoteMode = getVoteMode(roomId, current, room);
+        return RoomDetailResponse.of(room, participantsCount, isVoteMode);
     }
 
     public RoomStatusResponse getRoomStatus(String roomId, LocalDateTime current) {
         Room room = getRoomUseCase.findRoomById(roomId);
+        boolean isVoteMode = getVoteMode(roomId, current, room);
+        return new RoomStatusResponse(isVoteMode);
+    }
+
+    private boolean getVoteMode(String roomId, LocalDateTime current, Room room) {
         List<Location> locations = readLocationUseCase.readLocations(roomId);
         int locationInputCount = locations.size();
-        boolean isVoteMode = room.hasLocationInputEnded(locationInputCount, current);
-        return new RoomStatusResponse(isVoteMode);
+        return room.hasLocationInputEnded(locationInputCount, current);
     }
 }

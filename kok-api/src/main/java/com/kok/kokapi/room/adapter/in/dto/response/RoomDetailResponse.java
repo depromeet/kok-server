@@ -5,14 +5,16 @@ import com.kok.kokcore.room.domain.Room;
 public record RoomDetailResponse(
     String id,
     String roomName,
-    int nonParticipantCount
+    int nonParticipantCount,
+    boolean isVoteMode
 ) {
 
-    public static RoomDetailResponse of(Room room, int participantCount) {
+    public static RoomDetailResponse of(Room room, int participantCount, boolean isVoteMode) {
         return new RoomDetailResponse(
             room.getId(),
             room.getRoomName(),
-            room.getCapacity() - participantCount
+            room.getCapacity() - participantCount,
+            isVoteMode
         );
     }
 }
