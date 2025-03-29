@@ -35,6 +35,14 @@ public class RoomQueryService implements GetRoomUseCase {
     }
 
     @Override
+    public Member getParticipant(String roomId, String memberId) {
+        return getParticipants(roomId).stream()
+            .filter(member -> member.getMemberId().equals(memberId))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + memberId));
+    }
+
+    @Override
     public int getParticipantsCount(String roomId) {
         Long participantCount = loadRoomParticipantPort.countParticipantsById(roomId);
         return participantCount.intValue();
