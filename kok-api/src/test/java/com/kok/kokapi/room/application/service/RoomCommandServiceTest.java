@@ -12,10 +12,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-class RoomCreationServiceTest extends ServiceTest {
+class RoomCommandServiceTest extends ServiceTest {
 
     @Autowired
-    private RoomCreationService roomCreationService;
+    private RoomCommandService roomCommandService;
 
     @DisplayName("약속방이 정상적으로 생성된다.")
     @Test
@@ -26,7 +26,7 @@ class RoomCreationServiceTest extends ServiceTest {
         String hostProfile = "hostProfile";
         Member host = new Member(hostNickname, hostProfile, MemberRole.LEADER);
 
-        Room createdRoom = roomCreationService.createRoom(roomName, capacity, host);
+        Room createdRoom = roomCommandService.createRoom(roomName, capacity, host);
 
         assertAll("Room Create Test",
             () -> assertNotNull(createdRoom, "Room 객체는 null이 아니어야 합니다."),

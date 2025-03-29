@@ -20,9 +20,9 @@ public class Room implements Serializable {
     private final String roomName;         // 약속방 이름
     private final int capacity;            // 참여인원 수 (최소 2명 이상)
     private final Member member;           // 방 참여자
-    private final LocalDateTime locationInputLimitDateTime; // 출발지 입력 마감일시
-    private final LocalDateTime voteLimitDateTime; // 투표 마감일시
     private final LocalDateTime createdDateTime; // 방 생성일시
+    private final LocalDateTime locationInputLimitDateTime; // 출발지 입력 마감일시
+    private LocalDateTime voteLimitDateTime; // 투표 마감일시
 
     private Room(String id, String roomName, int capacity, Member member) {
         this.id = id;
@@ -62,5 +62,9 @@ public class Room implements Serializable {
 
     public boolean isFull(int participantCount) {
         return capacity == participantCount;
+    }
+
+    public void updateVoteDeadline(LocalDateTime current) {
+        this.voteLimitDateTime = current.plusHours(VOTE_TIME_LIMIT);
     }
 }
