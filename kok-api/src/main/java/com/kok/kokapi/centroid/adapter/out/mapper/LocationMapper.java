@@ -38,19 +38,8 @@ public class LocationMapper {
             member.getMemberId(),
             member.getProfile(),
             coordinates.getFirst(),
-            coordinates.getSecond()
-        );
-    }
-
-    public LocationResponse toResponse(Location location, Member member) {
-        Pair<BigDecimal, BigDecimal> coordinates = pointConverter.toCoordinates(
-            location.getLocation_point());
-        return LocationResponse.of(
-            location.getRoomId(),
-            member.getMemberId(),
-            member.getProfile(),
-            coordinates.getFirst(),
-            coordinates.getSecond()
+            coordinates.getSecond(),
+            location.getName()
         );
     }
 
