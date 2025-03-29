@@ -13,9 +13,11 @@ import com.kok.kokcore.location.usecase.LoadCentroidUseCase;
 import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
+import com.kok.kokcore.room.usecase.UpdateRoomUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
@@ -34,6 +36,7 @@ public class LocationController {
     private final LoadCentroidUseCase loadCentroidUsecase;
     private final ReadLocationUseCase readLocationUsecase;
     private final GetRoomUseCase getRoomUseCase;
+    private final UpdateRoomUseCase updateRoomUseCase;
     private final LocationMapper locationMapper;
 
     @Operation(summary = "위치 입력", description = "Create a new location with the provided details.")
@@ -50,6 +53,8 @@ public class LocationController {
 
         Pair<BigDecimal, BigDecimal> centroid = loadCentroidUsecase.readCentroidCoordinates(
             locationRequest.roomId());
+
+        updateRoomUseCase.updateRoomVoteDeadline(locationRequest.roomId(), LocalDateTime.now());
 
         return ResponseEntity.ok(ApiResponseDto.success(
             CentroidResponse.of(locationRequest.roomId(), centroid.getFirst(), centroid.getSecond())

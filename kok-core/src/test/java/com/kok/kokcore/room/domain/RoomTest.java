@@ -22,7 +22,8 @@ class RoomTest {
         int capacity = 4;
         String hostProfile = "hostProfile";
         String hostNickname = "test";
-        LocalDateTime deadline = LocalDateTime.now().withNano(0).plusHours(6);
+        LocalDateTime locationInputDeadline = LocalDateTime.now().withNano(0).plusHours(6);
+        LocalDateTime voteDeadline = locationInputDeadline.plusHours(12);
         Member host = new Member(hostNickname, hostProfile, MemberRole.LEADER);
 
         // When
@@ -33,8 +34,12 @@ class RoomTest {
             () -> assertNotNull(room.getId(), "ID는 null이 아니어야 합니다."),
             () -> assertEquals(roomName, room.getRoomName(), "방 이름이 일치해야 합니다."),
             () -> assertEquals(capacity, room.getCapacity(), "참여 인원 수가 일치해야 합니다."),
-            () -> assertEquals(deadline.getHour(), room.getLocationInputLimitDateTime().getHour(),
-                "출발지 입력 마감 시간이 정확해야 합니다."),
+            () -> assertEquals(locationInputDeadline.getHour(),
+                room.getLocationInputLimitDateTime().getHour(),
+                "출발지 입력 마감 시간 방 생성 시점으로부터 6시간 뒤입니다."),
+            () -> assertEquals(voteDeadline.getHour(),
+                room.getVoteLimitDateTime().getHour(),
+                "투표 마감 시간은 처음에는 출발지 입력 마감 시점으로부터 12시간 뒤입니다."),
             () -> assertEquals(hostNickname, room.getMember().getNickname(), "방장 닉네임이 일치해야 합니다."),
             () -> assertEquals(hostProfile, room.getMember().getProfile(), "방장 프로필이 일치해야 합니다."),
             () -> assertEquals(MemberRole.LEADER, room.getMember().getRole(),
