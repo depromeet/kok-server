@@ -6,7 +6,10 @@ import com.kok.kokapi.station.application.service.StationFacadeService;
 import com.kok.kokapi.vote.adapter.in.dto.request.VoteRequest;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
+import com.kok.kokapi.vote.adapter.in.dto.response.VoteDeadlineResponse;
 import com.kok.kokapi.vote.application.service.VoteFacadeService;
+import com.kok.kokcore.room.domain.Room;
+import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
@@ -23,6 +26,7 @@ public class VoteController {
 
     private final VoteFacadeService voteFacadeService;
     private final StationFacadeService stationFacadeService;
+    private final GetRoomUseCase getRoomUseCase;
 
     @Operation(summary = "투표 후보지 목록 조회", description = "방 ID과 사용자 ID를 기반으로 투표 후보지 상세 정보를 조회합니다.")
     @GetMapping("/votes/{roomId}/{memberId}/candidates")
@@ -51,5 +55,14 @@ public class VoteController {
         @PathVariable String roomId) {
         List<MemberVoteStatusResponse> responses = voteFacadeService.getMemberVoteStatus(roomId);
         return ResponseEntity.ok(ApiResponseDto.success(responses));
+    }
+
+    @Operation(summary = "투표 마감 시간 조회", description = "방 ID에 대한 투표 마감 시간을 조회합니다.")
+    @GetMapping("/vote/{roomId}/deadline")
+    public ResponseEntity<ApiResponseDto<VoteDeadlineResponse>> getVoteDeadline(
+        @PathVariable String roomId) {
+        Room room = getRoomUseCase.findRoomById(roomId);
+        VoteDeadlineResponse response = VoteDeadlineResponse.from(room);
+        return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 }

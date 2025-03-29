@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.port.out.SaveRoomPort;
+import com.kok.kokcore.room.port.out.UpdateRoomPort;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class RoomSaveRedisAdapter implements SaveRoomPort {
+public class RoomSaveRedisAdapter implements SaveRoomPort, UpdateRoomPort {
 
     private static final String ROOM_KEY_PREFIX = "room";
     private static final Duration ROOM_TTL = Duration.ofDays(3);
@@ -29,6 +30,19 @@ public class RoomSaveRedisAdapter implements SaveRoomPort {
             throw new RuntimeException("failed to save room to Redis", e);
         }
         return room;
+    }
+
+    @Override
+    public void update(Room room) {
+        String key = buildKey(room.getId());
+        try {
+            String roomJson = objectMapper.writeValueAsString(room);
+            Duration currentTtl = Duration.ofSeconds(redisTemplate.getExpire(key));
+
+            redisTemplate.opsForValue().set(key, roomJson, currentTtl);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("failed to update room in Redis", e);
+        }
     }
 
     private String buildKey(String roomId) {
