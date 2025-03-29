@@ -24,7 +24,8 @@ public class LocationMapper {
             location.getRoomId(),
             location.getMemberId(),
             coordinates.getFirst(),
-            coordinates.getSecond()
+            coordinates.getSecond(),
+            location.getName()
         );
     }
 

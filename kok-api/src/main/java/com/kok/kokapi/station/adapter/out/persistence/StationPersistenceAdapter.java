@@ -82,5 +82,10 @@ public class StationPersistenceAdapter implements SaveStationsPort, ReadStations
             dist
         );
     }
+
+    @Override
+    public List<Station> retrieveStationsByKeyword(String keyword) {
+        return stationRepository.findByNameContaining(keyword);
+    }
 }
 
