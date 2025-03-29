@@ -7,9 +7,11 @@ import com.kok.kokapi.room.adapter.in.dto.request.JoinRoomParticipantRequest;
 import com.kok.kokapi.room.adapter.in.dto.response.CreateRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.JoinRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomDetailResponse;
-import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponses;
+import com.kok.kokapi.room.adapter.in.dto.response.RoomParticipantsResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomStatusResponse;
 import com.kok.kokapi.room.application.service.RoomFacadeService;
+import com.kok.kokcore.location.domain.Location;
+import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.domain.vo.MemberRole;
@@ -36,6 +38,7 @@ public class RoomController {
     private final GetRoomUseCase getRoomUseCase;
     private final CreateRoomUseCase createRoomUseCase;
     private final JoinRoomUseCase joinRoomUseCase;
+    private final ReadLocationUseCase readLocationUseCase;
 
     @Operation(summary = "약속방 조회", description = "약속방 ID를 통해 약속방을 조회합니다. 투표 모드에 대한 값을 포함합니다.")
     @GetMapping("/rooms/{roomId}")
@@ -75,12 +78,13 @@ public class RoomController {
 
     @Operation(summary = "약속방 참여자 프로필 목록 조회", description = "약속방에 참여 중인 참여자들의 프로필 목록을 반환합니다.")
     @GetMapping("/rooms/{roomId}/participants")
-    public ResponseEntity<ApiResponseDto<RoomMembersResponses>> getParticipants(
+    public ResponseEntity<ApiResponseDto<RoomParticipantsResponse>> getParticipants(
         @PathVariable String roomId) {
         Room room = getRoomUseCase.findRoomById(roomId);
         List<Member> participants = getRoomUseCase.getParticipants(room.getId());
-        RoomMembersResponses responses = RoomMembersResponses.of(room, participants);
+        List<Location> locations = readLocationUseCase.readLocations(room.getId());
 
+        RoomParticipantsResponse responses = RoomParticipantsResponse.of(room, participants, locations);
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 
