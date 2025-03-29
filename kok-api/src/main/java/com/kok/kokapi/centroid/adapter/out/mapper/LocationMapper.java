@@ -42,6 +42,18 @@ public class LocationMapper {
         );
     }
 
+    public LocationResponse toResponse(Location location, Member member) {
+        Pair<BigDecimal, BigDecimal> coordinates = pointConverter.toCoordinates(
+            location.getLocation_point());
+        return LocationResponse.of(
+            location.getRoomId(),
+            member.getMemberId(),
+            member.getProfile(),
+            coordinates.getFirst(),
+            coordinates.getSecond()
+        );
+    }
+
     public List<LocationResponse> toResponseList(List<Location> locations) {
         return locations.stream().map(this::toResponse).toList();
     }
