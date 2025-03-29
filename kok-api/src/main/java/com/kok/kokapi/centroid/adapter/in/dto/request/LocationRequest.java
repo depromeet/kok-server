@@ -24,8 +24,8 @@ public record LocationRequest(
     @DecimalMax(value = "132.0", message = "경도는 132.0 이하여야 합니다.")
     BigDecimal longitude,
 
-    @NotNull(message = "locationName(위치명)은 필수입니다.")
-    String locationName
+    @NotNull(message = "name(위치명)은 필수입니다.")
+    String name
 ) {
 
 }

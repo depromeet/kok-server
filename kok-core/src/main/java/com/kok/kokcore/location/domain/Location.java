@@ -37,13 +37,13 @@ public class Location {
     private Point location_point;
 
     @Column(nullable = false)
-    private String locationName;
+    private String name;
 
-    public Location(String roomId, String memberId, Point location_point, String locationName) {
+    public Location(String roomId, String memberId, Point location_point, String name) {
         this.roomId = roomId;
         this.memberId = memberId;
         this.location_point = location_point;
-        this.locationName = locationName;
+        this.name = name;
     }
 
     // 더티체킹
@@ -51,7 +51,7 @@ public class Location {
         this.location_point = point;
     }
 
-    public void changeLocationName(String name) {
-        this.locationName = name;
+    public void changeName(String name) {
+        this.name = name;
     }
 }

@@ -25,7 +25,7 @@ public class LocationMapper {
             location.getMemberId(),
             coordinates.getFirst(),
             coordinates.getSecond(),
-            location.getLocationName()
+            location.getName()
         );
     }
 

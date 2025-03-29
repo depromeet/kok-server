@@ -8,14 +8,14 @@ public record LocationResponse(
     String memberId,
     BigDecimal latitude,
     BigDecimal longitude,
-    String locationName
+    String name
 ) {
 
     public static LocationResponse of(String roomId, String memberId, BigDecimal latitude,
-        BigDecimal longitude, String locationName) {
+        BigDecimal longitude, String name) {
         return new LocationResponse(roomId, memberId,
             latitude.setScale(6, RoundingMode.HALF_UP),
             longitude.setScale(6, RoundingMode.HALF_UP),
-            locationName);
+            name);
     }
 }

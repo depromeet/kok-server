@@ -21,20 +21,20 @@ public class LocationCommandService implements CreateLocationUseCase {
 
     @Override
     public Location createLocation(String roomId, String memberId, BigDecimal latitude,
-        BigDecimal longitude, String locationName) {
+        BigDecimal longitude, String name) {
         Point point = pointConverter.fromCoordinates(latitude, longitude);
-        return saveLocationPort.saveLocation(roomId, memberId, point, locationName);
+        return saveLocationPort.saveLocation(roomId, memberId, point, name);
     }
 
     @Override
     @Transactional
     public Location updateLocation(String roomId, String memberId, BigDecimal latitude,
-        BigDecimal longitude, String locationName) {
+        BigDecimal longitude, String name) {
         Location location = readLocationPort.findLocationByRoomIdAndMemberId(roomId, memberId)
             .orElseThrow(() -> new IllegalArgumentException("해당 ID의 정보가 없습니다."));
         Point newPoint = pointConverter.fromCoordinates(latitude, longitude);
         location.changePoint(newPoint);
-        location.changeLocationName(locationName);
+        location.changeName(name);
         return location;
     }
 }

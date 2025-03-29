@@ -42,7 +42,7 @@ public class LocationController {
             locationRequest.memberId(),
             locationRequest.latitude(),
             locationRequest.longitude(),
-            locationRequest.locationName()
+            locationRequest.name()
         );
 
         Pair<BigDecimal, BigDecimal> centroid = loadCentroidUsecase.readCentroidCoordinates(
@@ -106,7 +106,7 @@ public class LocationController {
             locationRequest.memberId(),
             locationRequest.latitude(),
             locationRequest.longitude(),
-            locationRequest.locationName()
+            locationRequest.name()
         );
         LocationResponse response = locationMapper.toResponse(location);
 
