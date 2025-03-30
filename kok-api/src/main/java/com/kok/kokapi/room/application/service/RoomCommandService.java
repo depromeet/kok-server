@@ -35,19 +35,24 @@ public class RoomCommandService implements CreateRoomUseCase, UpdateRoomUseCase 
     }
 
     @Override
-    public void updateRoomVoteDeadline(String roomId, LocalDateTime current) {
-        Room room = loadRoomPort.findRoomById(roomId)
-            .orElseThrow(
-                () -> new IllegalArgumentException("Cannot find room with roomId: " + roomId));
+    public void startVoteIfLocationInputEnded(String roomId, LocalDateTime current) {
+        Room room = getRoom(roomId);
         if (shouldUpdateVoteDeadline(room, current)) {
             room.updateVoteDeadline(current);
+            room.startVote();
             updateRoomPort.update(room);
         }
+    }
+
+    private Room getRoom(String roomId) {
+        return loadRoomPort.findRoomById(roomId)
+            .orElseThrow(
+                () -> new IllegalArgumentException("Cannot find room with roomId: " + roomId));
     }
 
     private boolean shouldUpdateVoteDeadline(Room room, LocalDateTime current) {
         List<Location> locations = readLocationPort.findLocationsByRoomId(room.getId());
         int locationInputCount = locations.size();
-        return room.hasLocationInputEnded(locationInputCount, current);
+        return room.shouldEndLocationInput(locationInputCount, current);
     }
 }

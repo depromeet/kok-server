@@ -9,6 +9,7 @@ import com.kok.kokapi.room.adapter.in.dto.request.CreateRoomRequest;
 import com.kok.kokapi.room.adapter.in.dto.request.JoinRoomParticipantRequest;
 import com.kok.kokapi.room.adapter.in.dto.response.CreateRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.JoinRoomResponse;
+import com.kok.kokcore.room.domain.vo.RoomStatus;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.math.BigDecimal;
@@ -33,23 +34,26 @@ class RoomIntegrationTest extends IntegrationTest {
 
             inputLocation("방장이 출발지 정보를 입력한다.", createRoomResponse),
 
-            getRoomDetail("약속방 정보를 조회해보면 미참여자는 1명이다", createRoomResponse, 1, false),
+            getRoomDetail("약속방 정보를 조회해보면 미참여자는 1명이다",
+                createRoomResponse, 1, RoomStatus.LOCATION_INPUT.name()),
 
             DynamicTest.dynamicTest("팔로워가 약속방에 참여한다.",
                 () -> joinRoomResponse.set(joinRoom(createRoomResponse.get().id(),
                     new JoinRoomParticipantRequest("profile", "follower")))),
 
-            getRoomDetail("약속방 정보를 조회해보면 미참여자는 0명이다.", createRoomResponse, 0, false),
+            getRoomDetail("약속방 정보를 조회해보면 미참여자는 0명이다.",
+                createRoomResponse, 0, RoomStatus.LOCATION_INPUT.name()),
 
-            getRoomMembers("약속방 프로필 목록을 조회하면 isFull은 true이고, 2명의 프로필이 있다", createRoomResponse, 2,
-                true),
+            getRoomMembers("약속방 프로필 목록을 조회하면 isFull은 true이고, 2명의 프로필이 있다",
+                createRoomResponse, 2, true),
 
-            checkVoteMode("아직 출발지 입력을 완료하지 않았기에 voteMode는 false이다.", createRoomResponse, false),
+            checkRoomStatus("아직 출발지 입력을 완료하지 않았기에 roomStatuts는 LOCATION_INPUT이다.",
+                createRoomResponse, RoomStatus.LOCATION_INPUT.name()),
 
             inputLocation("팔로워가 출발지 정보를 입력한다.", createRoomResponse, joinRoomResponse),
 
-            checkVoteMode("약속방 정보를 조회해보면 모든 참여자가 출발지 입력을 완료했기에 voteMode는 true이다.",
-                createRoomResponse, true)
+            checkRoomStatus("약속방 정보를 조회해보면 모든 참여자가 출발지 입력을 완료했기에 roomStatus는 VOTE이다.",
+                createRoomResponse, RoomStatus.VOTE.name())
         );
     }
 
@@ -94,7 +98,7 @@ class RoomIntegrationTest extends IntegrationTest {
         String message,
         AtomicReference<CreateRoomResponse> createRoomResponse,
         int nonParticipantCount,
-        boolean isVoteMode
+        String roomStatus
     ) {
         return DynamicTest.dynamicTest(message,
             () -> {
@@ -105,7 +109,7 @@ class RoomIntegrationTest extends IntegrationTest {
                     .then().log().all()
                     .assertThat().statusCode(200)
                     .body("data.nonParticipantCount", is(nonParticipantCount))
-                    .body("data.isVoteMode", is(isVoteMode));
+                    .body("data.roomStatus", is(roomStatus));
             });
     }
 
@@ -143,8 +147,8 @@ class RoomIntegrationTest extends IntegrationTest {
             });
     }
 
-    private static DynamicTest checkVoteMode(String message,
-        AtomicReference<CreateRoomResponse> createRoomResponse, boolean isVoteMode) {
+    private static DynamicTest checkRoomStatus(String message,
+        AtomicReference<CreateRoomResponse> createRoomResponse, String roomStatus) {
         return DynamicTest.dynamicTest(message,
             () -> {
                 String roomId = createRoomResponse.get().id();
@@ -153,7 +157,7 @@ class RoomIntegrationTest extends IntegrationTest {
                     .when().get("/v1/api/rooms/" + roomId + "/status")
                     .then().log().all()
                     .assertThat().statusCode(200)
-                    .body("data.isVoteMode", is(isVoteMode));
+                    .body("data.roomStatus", is(roomStatus));
             });
     }
 }
