@@ -25,6 +25,12 @@ public class StationController {
     private final RetrieveRouteUseCase retrieveRouteUseCase;
     private final StationFacadeService stationFacadeService;
 
+    /**
+     * 1차 MVP 기준 최종 결과 조회 API
+     *
+     * @param keyword
+     * @return
+     */
     @Operation(summary = "추천 지하철역 리턴", description = "Recommend subway stations based on the user's location.")
     @GetMapping("/stations/recommend/{roomId}")
     public ResponseEntity<ApiResponseDto<List<RecommendedStationResponse>>> recommendStations(

@@ -82,4 +82,8 @@ public class Room implements Serializable {
     public void closeVote() {
         this.status = RoomStatus.VOTE_RESULT;
     }
+
+    public boolean isVoteClosed() {
+        return this.status.isVoteResult();
+    }
 }
