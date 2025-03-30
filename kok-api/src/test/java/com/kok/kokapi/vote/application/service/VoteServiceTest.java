@@ -4,6 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.kok.kokapi.common.template.ServiceTest;
+import com.kok.kokapi.fixture.MemberFixture;
+import com.kok.kokapi.room.adapter.out.persistence.RoomParticipantSaveAdapter;
+import com.kok.kokapi.room.adapter.out.persistence.RoomSaveRedisAdapter;
+import com.kok.kokapi.vote.adapter.out.persistence.CandidateCommandRedisAdapter;
+import com.kok.kokcore.room.domain.Member;
+import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.domain.vo.VoteStatus;
@@ -11,6 +17,7 @@ import com.kok.kokcore.vote.port.out.SaveVotePort;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,23 +34,39 @@ class VoteServiceTest extends ServiceTest {
     private SaveVotePort saveVotePort;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private RoomSaveRedisAdapter roomSaveRedisAdapter;
+    @Autowired
+    private RoomParticipantSaveAdapter roomParticipantSaveAdapter;
+    @Autowired
+    private CandidateCommandRedisAdapter candidateCommandRedisAdapter;
+
+    private Room room;
+    private Member member;
+    private Candidate candidate;
+    private Candidate candidate2;
+
+    @BeforeEach
+    void init() {
+        member = MemberFixture.createLeader();
+        room = Room.create("room", 3, member);
+        roomSaveRedisAdapter.save(room);
+        roomParticipantSaveAdapter.joinRoom(room.getId(), member);
+        candidate = new Candidate(room.getId(), 1);
+        candidate2 = new Candidate(room.getId(), 2);
+        candidateCommandRedisAdapter.saveAll(List.of(candidate, candidate2));
+    }
 
     @DisplayName("사용자 투표 정보를 후보별/사용자별로 모두 저장한다.")
     @Test
     void saveVotes() {
         // given
-        String roomId = "roomId";
-        String memberId = "memberId";
-        List<Vote> votes = List.of(
-            new Vote(new Candidate(roomId, 1), memberId, VoteStatus.AGREE),
-            new Vote(new Candidate(roomId, 2), memberId, VoteStatus.DISAGREE)
-        );
-        String memberKey = getMemberVoteKey(roomId, memberId);
-        String agreeCandidateKey = getCandidateVoteKey(roomId, 1, VoteStatus.AGREE);
-        String disagreeCandidateKey = getCandidateVoteKey(roomId, 2, VoteStatus.DISAGREE);
+        String memberKey = getMemberVoteKey(room.getId(), member.getMemberId());
+        String agreeCandidateKey = getCandidateVoteKey(room.getId(), 1, VoteStatus.AGREE);
+        String disagreeCandidateKey = getCandidateVoteKey(room.getId(), 2, VoteStatus.DISAGREE);
 
         // when
-        voteService.saveVotes(roomId, memberId, List.of(1L, 2L));
+        voteService.saveVotes(room.getId(), member.getMemberId(), List.of(1L));
 
         // then
         Map<Object, Object> storedVotes = redisTemplate.opsForHash().entries(memberKey);
@@ -53,8 +76,8 @@ class VoteServiceTest extends ServiceTest {
         assertAll(
             () -> assertThat(storedVotes).containsEntry(1L, VoteStatus.AGREE.getName()),
             () -> assertThat(storedVotes).containsEntry(2L, VoteStatus.DISAGREE.getName()),
-            () -> assertThat(agreeMemberIds).containsExactlyInAnyOrder(memberId),
-            () -> assertThat(disagreeMemberIds).containsExactlyInAnyOrder(memberId)
+            () -> assertThat(agreeMemberIds).containsExactlyInAnyOrder(member.getMemberId()),
+            () -> assertThat(disagreeMemberIds).containsExactlyInAnyOrder(member.getMemberId())
         );
     }
 
@@ -62,13 +85,9 @@ class VoteServiceTest extends ServiceTest {
     @Test
     void initiateBeforeSaveVote() {
         // given
-        String roomId = "roomId";
-        String memberId = "memberId";
-        Candidate candidate = new Candidate(roomId, 1);
-        Candidate candidate2 = new Candidate(roomId, 2);
         List<Vote> votes = List.of(
-            new Vote(candidate, memberId, VoteStatus.AGREE),
-            new Vote(candidate2, memberId, VoteStatus.DISAGREE)
+            new Vote(candidate, member.getMemberId(), VoteStatus.AGREE),
+            new Vote(candidate2, member.getMemberId(), VoteStatus.DISAGREE)
         );
         saveVotePort.saveAllByMember(votes);
         for (Vote vote : votes) {
@@ -76,17 +95,17 @@ class VoteServiceTest extends ServiceTest {
         }
 
         // when
-        voteService.saveVotes(roomId, memberId, List.of());
+        voteService.saveVotes(room.getId(), member.getMemberId(), List.of());
 
         // then
         Long storedVoteCount = redisTemplate.opsForHash()
-            .size(getMemberVoteKey(roomId, memberId));
+            .size(getMemberVoteKey(room.getId(), member.getMemberId()));
         Long agreeCountForStation1 = redisTemplate.opsForSet()
-            .size(getCandidateVoteKey(roomId, 1, VoteStatus.AGREE));
+            .size(getCandidateVoteKey(room.getId(), 1, VoteStatus.AGREE));
         Long disagreeCountForStation1 = redisTemplate.opsForSet()
-            .size(getCandidateVoteKey(roomId, 1, VoteStatus.DISAGREE));
+            .size(getCandidateVoteKey(room.getId(), 1, VoteStatus.DISAGREE));
         Long disagreeCountForStation2 = redisTemplate.opsForSet()
-            .size(getCandidateVoteKey(roomId, 2, VoteStatus.DISAGREE));
+            .size(getCandidateVoteKey(room.getId(), 2, VoteStatus.DISAGREE));
         assertAll(
             () -> assertThat(storedVoteCount).isEqualTo(2),
             () -> assertThat(agreeCountForStation1).isZero(),
@@ -99,17 +118,15 @@ class VoteServiceTest extends ServiceTest {
     @Test
     void isVotedByMember() {
         // given
-        String roomId = "roomId";
-        String memberId = "memberId";
-        Candidate candidate = new Candidate(roomId, 1);
-        List<Vote> votes = List.of(new Vote(candidate, memberId, VoteStatus.AGREE));
+        Candidate candidate = new Candidate(room.getId(), 1);
+        List<Vote> votes = List.of(new Vote(candidate, member.getMemberId(), VoteStatus.AGREE));
         saveVotePort.saveAllByMember(votes);
         for (Vote vote : votes) {
             saveVotePort.saveByCandidate(vote);
         }
 
         // when
-        boolean result = voteService.isVotedByMember(roomId, memberId);
+        boolean result = voteService.isVotedByMember(room.getId(), member.getMemberId());
 
         // then
         assertThat(result).isTrue();
@@ -118,12 +135,8 @@ class VoteServiceTest extends ServiceTest {
     @DisplayName("사용자가 투표를 완료하지 않았으면 false를 반환한다.")
     @Test
     void isNotVotedByMember() {
-        // given
-        String roomId = "roomId";
-        String memberId = "memberId";
-
         // when
-        boolean result = voteService.isVotedByMember(roomId, memberId);
+        boolean result = voteService.isVotedByMember(room.getId(), member.getMemberId());
 
         // then
         assertThat(result).isFalse();

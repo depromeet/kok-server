@@ -117,10 +117,10 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
             throw new IllegalArgumentException("Cannot find room with roomId: " + roomId);
         }
         Room room = getRoom(roomId);
-        if (room.isLocationInputStatus() || room.isVoteResultStatus()) {
+/*        if (room.isLocationInputStatus() || room.isVoteResultStatus()) {
             throw new IllegalStateException(
                 "Room is not on vote status but status: " + room.getStatus());
-        }
+        }*/
     }
 
     private Room getRoom(String roomId) {
