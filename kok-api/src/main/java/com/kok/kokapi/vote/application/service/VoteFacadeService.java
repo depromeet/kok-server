@@ -7,6 +7,7 @@ import com.kok.kokapi.public_transportation.application.service.TmapPublicTransp
 import com.kok.kokapi.vote.adapter.in.dto.request.VoteRequest;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
+import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultResponse;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Route;
@@ -100,5 +101,9 @@ public class VoteFacadeService {
             responses.add(response);
         }
         return responses;
+    }
+
+    public VoteResultResponse getVoteResult(String roomId, String memberId) {
+        return null;
     }
 }
