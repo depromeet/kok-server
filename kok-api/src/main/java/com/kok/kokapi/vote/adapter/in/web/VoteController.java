@@ -53,7 +53,7 @@ public class VoteController {
     }
 
     @Operation(summary = "사용자별 투표 상태 조회", description = "방 ID에 대해 사용자 정보와 투표 상태(투표 전/투표 완료)를 조회합니다.")
-    @GetMapping("/vote/{roomId}/status")
+    @GetMapping("/votes/{roomId}/status")
     public ResponseEntity<ApiResponseDto<List<MemberVoteStatusResponse>>> getMemberVoteStatus(
         @PathVariable String roomId) {
         List<MemberVoteStatusResponse> responses = voteFacadeService.getMemberVoteStatus(roomId);
@@ -61,7 +61,7 @@ public class VoteController {
     }
 
     @Operation(summary = "투표 마감 시간 조회", description = "방 ID에 대한 투표 마감 시간을 조회합니다.")
-    @GetMapping("/vote/{roomId}/deadline")
+    @GetMapping("/votes/{roomId}/deadline")
     public ResponseEntity<ApiResponseDto<VoteDeadlineResponse>> getVoteDeadline(
         @PathVariable String roomId) {
         Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
@@ -70,7 +70,7 @@ public class VoteController {
     }
 
     @Operation(summary = "투표 종료", description = "방 ID에 대하여 투표 상태를 종료(VOTE_RESULT)로 변경합니다.")
-    @PostMapping("/vote/{roomId}/close")
+    @PostMapping("/votes/{roomId}/close")
     public ResponseEntity<ApiResponseDto<Void>> closeVote(@PathVariable String roomId) {
         updateRoomUseCase.closeVote(roomId);
         return ResponseEntity.ok(ApiResponseDto.success(null));
