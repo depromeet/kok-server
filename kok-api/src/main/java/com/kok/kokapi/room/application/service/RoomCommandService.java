@@ -35,11 +35,11 @@ public class RoomCommandService implements CreateRoomUseCase, UpdateRoomUseCase 
     }
 
     @Override
-    public void updateRoomVoteDeadline(String roomId, LocalDateTime current) {
+    public void startVoteIfLocationInputEnded(String roomId, LocalDateTime current) {
         Room room = getRoom(roomId);
         if (shouldUpdateVoteDeadline(room, current)) {
             room.updateVoteDeadline(current);
-            room.closeVote();
+            room.startVote();
             updateRoomPort.update(room);
         }
     }

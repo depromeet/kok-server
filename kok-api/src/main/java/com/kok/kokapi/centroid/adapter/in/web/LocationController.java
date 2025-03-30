@@ -54,7 +54,8 @@ public class LocationController {
         Pair<BigDecimal, BigDecimal> centroid = loadCentroidUsecase.readCentroidCoordinates(
             locationRequest.roomId());
 
-        updateRoomUseCase.updateRoomVoteDeadline(locationRequest.roomId(), LocalDateTime.now());
+        updateRoomUseCase.startVoteIfLocationInputEnded(
+            locationRequest.roomId(), LocalDateTime.now());
 
         return ResponseEntity.ok(ApiResponseDto.success(
             CentroidResponse.of(locationRequest.roomId(), centroid.getFirst(), centroid.getSecond())

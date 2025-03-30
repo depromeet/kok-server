@@ -45,7 +45,7 @@ public class RoomController {
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
-    @Operation(summary = "약속방 상태 조회", description = "약속방 ID를 통해 현재 약속방이 출발지 입력 중이면 false를, 투표 진행 중이면 true를 반환합니다.")
+    @Operation(summary = "약속방 상태 조회", description = "약속방 ID를 통해 현재 약속방 상태(LOCATION_INPUT/VOTE/VOTE_RESULT)를 반환합니다.")
     @GetMapping("/rooms/{roomId}/status")
     public ResponseEntity<ApiResponseDto<RoomStatusResponse>> getRoomStatus(
         @PathVariable String roomId) {

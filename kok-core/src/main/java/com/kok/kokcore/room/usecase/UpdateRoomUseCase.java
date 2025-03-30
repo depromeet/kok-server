@@ -4,5 +4,5 @@ import java.time.LocalDateTime;
 
 public interface UpdateRoomUseCase {
 
-    void updateRoomVoteDeadline(String roomId, LocalDateTime current);
+    void startVoteIfLocationInputEnded(String roomId, LocalDateTime current);
 }
