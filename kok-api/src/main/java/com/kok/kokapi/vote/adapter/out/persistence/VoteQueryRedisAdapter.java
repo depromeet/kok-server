@@ -2,11 +2,13 @@ package com.kok.kokapi.vote.adapter.out.persistence;
 
 import com.kok.kokapi.common.util.RedisExecutor;
 import com.kok.kokcore.vote.domain.Vote;
+import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import com.kok.kokcore.vote.port.out.LoadVotePort;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.Cursor;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class VoteQueryRedisAdapter implements LoadVotePort {
 
+    private static final String CANDIDATE_VOTE_KEY_FORMAT = "vote:%s:candidate:%d:%s";
     private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
     private static final int MAX_COUNT = 20;
 
@@ -71,6 +74,18 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
         }, 0);
     }
 
+    @Override
+    public List<String> findMemberIdsByRoomIdAndStationIdAndStatus(
+        String roomId, long stationId, VoteStatus voteStatus) {
+        String key = getCandidateVoteKey(roomId, stationId, voteStatus);
+        Set<Object> memberIds = RedisExecutor.runOrElseGet(
+            "findMembersByRoomIdAndStationIdAndStatus",
+            () -> redisTemplate.opsForSet().members(key),
+            Set.of()
+        );
+        return memberIds.stream().map(memberId -> (String) memberId).toList();
+    }
+
     private Long getStationId(Entry<Object, Object> voteInfo) {
         try {
             return Long.valueOf(voteInfo.getKey().toString());
@@ -82,5 +97,9 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
 
     private String getMemberVoteKey(String roomId, String memberId) {
         return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
+    }
+
+    private String getCandidateVoteKey(String roomId, long stationId, VoteStatus voteStatus) {
+        return String.format(CANDIDATE_VOTE_KEY_FORMAT, roomId, stationId, voteStatus.getName());
     }
 }

@@ -15,6 +15,7 @@ import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
     @Override
     public void saveVotes(String roomId, String memberId, List<Long> agreedStationIds) {
+        validate(roomId, memberId);
         initiate(roomId, memberId);
         List<Vote> votes = getVotes(roomId, memberId, agreedStationIds);
         saveVotePort.saveAllByMember(votes);
@@ -77,11 +79,60 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
     @Override
     public List<Vote> getVotesByMember(String roomId, String memberId) {
+        validate(roomId, memberId);
+        validateVote(roomId, memberId);
         return loadVotePort.findAllByRoomIdAndMemberId(roomId, memberId);
     }
 
     @Override
     public List<Member> getMembersByVote(Vote vote) {
-        return List.of();
+        String roomId = vote.getRoomId();
+        String memberId = vote.getMemberId();
+        List<String> memberIds = loadVotePort.findMemberIdsByRoomIdAndStationIdAndStatus(
+            roomId, vote.getStationId(), vote.getVoteStatus());
+        return getMembers(memberIds, roomId);
+    }
+
+    private List<Member> getMembers(List<String> memberIds, String roomId) {
+        return memberIds.stream()
+            .map(memberId -> loadRoomParticipantPort.findByRoomIdAndMemberId(roomId, memberId))
+            .flatMap(Optional::stream)
+            .toList();
+    }
+
+    private void validate(String roomId, String memberId) {
+        validate(roomId);
+        List<String> memberIds = loadRoomParticipantPort.findMembersByRoomId(roomId).stream()
+            .map(Member::getMemberId)
+            .toList();
+        if (!memberIds.contains(memberId)) {
+            throw new IllegalArgumentException(
+                String.format("Cannot find member with id: %s, in room with id: %s", memberId,
+                    roomId));
+        }
+    }
+
+    private void validate(String roomId) {
+        if (!loadRoomPort.isExistsByRoomId(roomId)) {
+            throw new IllegalArgumentException("Cannot find room with roomId: " + roomId);
+        }
+        Room room = getRoom(roomId);
+        if (room.isLocationInputStatus() || room.isVoteResultStatus()) {
+            throw new IllegalStateException(
+                "Room is not on vote status but status: " + room.getStatus());
+        }
+    }
+
+    private Room getRoom(String roomId) {
+        return loadRoomPort.findRoomById(roomId)
+            .orElseThrow(() -> new IllegalArgumentException("Room not found with id: " + roomId));
+    }
+
+    private void validateVote(String roomId, String memberId) {
+        if (!loadVotePort.isExistsByRoomIdAndMemberId(roomId, memberId)) {
+            throw new IllegalArgumentException(
+                String.format("Not voted by member with id: %s, in room with id: %s", memberId,
+                    roomId));
+        }
     }
 }
