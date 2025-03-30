@@ -28,3 +28,7 @@ tmap-complex:
   key: mock
   url: mock
   keyname: mock
+google:
+  places:
+    api:
+      key: mock
