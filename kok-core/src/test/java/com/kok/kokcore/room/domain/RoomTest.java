@@ -119,4 +119,98 @@ class RoomTest {
         // then
         assertThat(result).isFalse();
     }
+
+    @DisplayName("현재 상태가 LOCATION_INPUT이면 true를 반환한다.")
+    @Test
+    void isLocationInputStatus() {
+        // given
+        Room room = Room.create("room", 3, new Member("member", "profile", MemberRole.LEADER));
+
+        // when
+        boolean result = room.isLocationInputStatus();
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("현재 상태가 VOTE_RESULT이면 true를 반환한다.")
+    @Test
+    void isVoteResultStatus() {
+        // given
+        Room room = Room.create("room", 3, new Member("member", "profile", MemberRole.LEADER));
+        room.closeVote(); // 상태를 VOTE_RESULT로 변경
+
+        // when
+        boolean result = room.isVoteResultStatus();
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("참가 인원이 꽉 찼을 경우 true를 반환한다.")
+    @Test
+    void isFull() {
+        // given
+        Room room = Room.create("room", 3, new Member("member", "profile", MemberRole.LEADER));
+
+        // when
+        boolean result = room.isFull(3);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("투표 마감 시간이 현재로부터 12시간 뒤로 갱신된다.")
+    @Test
+    void updateVoteDeadline() {
+        // given
+        Room room = Room.create("room", 3, new Member("member", "profile", MemberRole.LEADER));
+        LocalDateTime now = LocalDateTime.now().withNano(0);
+
+        // when
+        room.updateVoteDeadline(now);
+
+        // then
+        assertThat(room.getVoteLimitDateTime()).isEqualTo(now.plusHours(12));
+    }
+
+    @DisplayName("startVote 호출 시 상태가 VOTE로 변경된다.")
+    @Test
+    void startVote() {
+        // given
+        Room room = Room.create("room", 3, new Member("member", "profile", MemberRole.LEADER));
+
+        // when
+        room.startVote();
+
+        // then
+        assertThat(room.isLocationInputStatus()).isFalse();
+    }
+
+    @DisplayName("closeVote 호출 시 상태가 VOTE_RESULT로 변경된다.")
+    @Test
+    void closeVote() {
+        // given
+        Room room = Room.create("room", 3, new Member("member", "profile", MemberRole.LEADER));
+        room.startVote();
+
+        // when
+        room.closeVote();
+
+        // then
+        assertThat(room.isVoteResultStatus()).isTrue();
+    }
+
+    @DisplayName("투표하지 않은 인원 수를 반환한다.")
+    @Test
+    void getNotVotedCount() {
+        // given
+        Room room = Room.create("room", 5, new Member("member", "profile", MemberRole.LEADER));
+
+        // when
+        int notVoted = room.getNotVotedCount(2);
+
+        // then
+        assertThat(notVoted).isEqualTo(3);
+    }
 }

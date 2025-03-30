@@ -88,6 +88,6 @@ public class Room implements Serializable {
     }
 
     public int getNotVotedCount(int votedCount) {
-        return 0;
+        return capacity - votedCount;
     }
 }
