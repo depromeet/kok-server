@@ -1,5 +1,6 @@
 package com.kok.kokapi.vote.application.service;
 
+import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.port.out.DeleteVotePort;
 import com.kok.kokcore.vote.port.out.LoadVotePort;
@@ -40,5 +41,20 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     @Override
     public boolean isVotedByMember(String roomId, String memberId) {
         return loadVotePort.isExistsByRoomIdAndMemberId(roomId, memberId);
+    }
+
+    @Override
+    public int countVotedMembers(String roomId) {
+        return 0;
+    }
+
+    @Override
+    public List<Vote> getVotesByMember(String roomId, String memberId) {
+        return List.of();
+    }
+
+    @Override
+    public List<Member> getMembersByVote(Vote vote) {
+        return List.of();
     }
 }

@@ -7,8 +7,10 @@ import com.kok.kokapi.public_transportation.application.service.TmapPublicTransp
 import com.kok.kokapi.vote.adapter.in.dto.request.VoteRequest;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
+import com.kok.kokapi.vote.adapter.in.dto.response.ResultResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultResponse;
 import com.kok.kokcore.room.domain.Member;
+import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
@@ -104,6 +106,16 @@ public class VoteFacadeService {
     }
 
     public VoteResultResponse getVoteResult(String roomId, String memberId) {
-        return null;
+        List<ResultResponse> responses = new ArrayList<>();
+        Room room = getRoomUseCase.findRoomById(roomId);
+        int votedCount = getVoteUseCase.countVotedMembers(roomId);
+        List<Vote> votes = getVoteUseCase.getVotesByMember(roomId, memberId);
+        for (Vote vote : votes) {
+            Station station = getStationUseCase.getStation(vote.getStationId());
+            List<Member> members = getVoteUseCase.getMembersByVote(vote);
+            ResultResponse response = ResultResponse.of(station, vote, members);
+            responses.add(response);
+        }
+        return new VoteResultResponse(room.getNotVotedCount(votedCount), responses);
     }
 }

@@ -67,4 +67,8 @@ public class Room implements Serializable {
     public void updateVoteDeadline(LocalDateTime current) {
         this.voteLimitDateTime = current.plusHours(VOTE_TIME_LIMIT);
     }
+
+    public int getNotVotedCount(int votedCount) {
+        return 0;
+    }
 }
