@@ -6,15 +6,15 @@ public record RoomDetailResponse(
     String id,
     String roomName,
     int nonParticipantCount,
-    boolean isVoteMode
+    String roomStatus
 ) {
 
-    public static RoomDetailResponse of(Room room, int participantCount, boolean isVoteMode) {
+    public static RoomDetailResponse of(Room room, int participantCount) {
         return new RoomDetailResponse(
             room.getId(),
             room.getRoomName(),
             room.getCapacity() - participantCount,
-            isVoteMode
+            room.getStatus().name()
         );
     }
 }

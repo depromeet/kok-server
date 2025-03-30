@@ -12,6 +12,7 @@ import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
 import io.swagger.v3.oas.annotations.Operation;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +62,7 @@ public class VoteController {
     @GetMapping("/vote/{roomId}/deadline")
     public ResponseEntity<ApiResponseDto<VoteDeadlineResponse>> getVoteDeadline(
         @PathVariable String roomId) {
-        Room room = getRoomUseCase.findRoomById(roomId);
+        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
         VoteDeadlineResponse response = VoteDeadlineResponse.from(room);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }

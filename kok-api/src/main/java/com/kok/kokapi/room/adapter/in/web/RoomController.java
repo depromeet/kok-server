@@ -9,7 +9,6 @@ import com.kok.kokapi.room.adapter.in.dto.response.JoinRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomDetailResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponses;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomStatusResponse;
-import com.kok.kokapi.room.application.service.RoomFacadeService;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.domain.vo.MemberRole;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class RoomController {
 
-    private final RoomFacadeService roomFacadeService;
     private final GetRoomUseCase getRoomUseCase;
     private final CreateRoomUseCase createRoomUseCase;
     private final JoinRoomUseCase joinRoomUseCase;
@@ -41,7 +39,9 @@ public class RoomController {
     @GetMapping("/rooms/{roomId}")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> getRoomDetail(
         @PathVariable String roomId) {
-        RoomDetailResponse response = roomFacadeService.findByRoomId(roomId, LocalDateTime.now());
+        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
+        int participantsCount = getRoomUseCase.getParticipantsCount(roomId);
+        RoomDetailResponse response = RoomDetailResponse.of(room, participantsCount);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
@@ -49,7 +49,8 @@ public class RoomController {
     @GetMapping("/rooms/{roomId}/status")
     public ResponseEntity<ApiResponseDto<RoomStatusResponse>> getRoomStatus(
         @PathVariable String roomId) {
-        RoomStatusResponse response = roomFacadeService.getRoomStatus(roomId, LocalDateTime.now());
+        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
+        RoomStatusResponse response = RoomStatusResponse.of(room);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
@@ -77,7 +78,7 @@ public class RoomController {
     @GetMapping("/rooms/{roomId}/participants")
     public ResponseEntity<ApiResponseDto<RoomMembersResponses>> getParticipants(
         @PathVariable String roomId) {
-        Room room = getRoomUseCase.findRoomById(roomId);
+        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
         List<Member> participants = getRoomUseCase.getParticipants(room.getId());
         RoomMembersResponses responses = RoomMembersResponses.of(room, participants);
 
@@ -89,7 +90,7 @@ public class RoomController {
     public ResponseEntity<ApiResponseDto<JoinRoomResponse>> joinRoom(@PathVariable String roomId,
         @Valid @RequestBody JoinRoomParticipantRequest request) {
 
-        Room room = getRoomUseCase.findRoomById(roomId);
+        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
 
         Member participant = new Member(request.nickname(), request.profile(), MemberRole.FOLLOWER);
         int participantCount = joinRoomUseCase.joinRoom(roomId, participant);

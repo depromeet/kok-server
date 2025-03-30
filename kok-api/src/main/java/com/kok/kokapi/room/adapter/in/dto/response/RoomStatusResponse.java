@@ -1,5 +1,10 @@
 package com.kok.kokapi.room.adapter.in.dto.response;
 
-public record RoomStatusResponse(boolean isVoteMode) {
+import com.kok.kokcore.room.domain.Room;
 
+public record RoomStatusResponse(String roomStatus) {
+
+    public static RoomStatusResponse of(Room room) {
+        return new RoomStatusResponse(room.getStatus().name());
+    }
 }
