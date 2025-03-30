@@ -43,7 +43,7 @@ class VoteServiceTest extends ServiceTest {
         String disagreeCandidateKey = getCandidateVoteKey(roomId, 2, VoteStatus.DISAGREE);
 
         // when
-        voteService.saveVotes(votes);
+        voteService.saveVotes(roomId, memberId, List.of(1L, 2L));
 
         // then
         Map<Object, Object> storedVotes = redisTemplate.opsForHash().entries(memberKey);
@@ -74,13 +74,9 @@ class VoteServiceTest extends ServiceTest {
         for (Vote vote : votes) {
             saveVotePort.saveByCandidate(vote);
         }
-        List<Vote> newVotes = List.of(
-            new Vote(candidate, memberId, VoteStatus.DISAGREE),
-            new Vote(candidate2, memberId, VoteStatus.DISAGREE)
-        );
 
         // when
-        voteService.saveVotes(newVotes);
+        voteService.saveVotes(roomId, memberId, List.of());
 
         // then
         Long storedVoteCount = redisTemplate.opsForHash()

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kok.kokapi.public_transportation.adapter.in.dto.response.TmapPublicTransportationParsedResponse;
 import com.kok.kokapi.public_transportation.application.service.TmapPublicTransportationService;
-import com.kok.kokapi.vote.adapter.in.dto.request.VoteRequest;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.ResultResponse;
@@ -18,10 +17,8 @@ import com.kok.kokcore.station.usecase.GetStationUseCase;
 import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
 import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
-import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
-import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +31,6 @@ public class VoteFacadeService {
     private final GetCandidateUseCase getCandidateUseCase;
     private final GetStationUseCase getStationUseCase;
     private final RetrieveRouteUseCase retrieveRouteUseCase;
-    private final SaveVoteUseCase saveVoteUseCase;
     private final GetVoteUseCase getVoteUseCase;
     private final GetRoomUseCase getRoomUseCase;
     private final TmapPublicTransportationService tmapPublicTransportationService;
@@ -69,29 +65,6 @@ public class VoteFacadeService {
             throw new RuntimeException(
                 "Failed parsing into \"TmapPublicTransportationParsedResponse\" for " + content);
         }
-    }
-
-    public void createVote(String roomId, String memberId, VoteRequest voteRequest) {
-        List<Vote> votes = getVotes(roomId, memberId, voteRequest);
-        saveVoteUseCase.saveVotes(votes);
-    }
-
-    private List<Vote> getVotes(String roomId, String memberId, VoteRequest voteRequest) {
-        List<Vote> votes = new ArrayList<>();
-        List<Long> agreedStationIds = voteRequest.agreedStationIds();
-        List<Candidate> candidates = getCandidateUseCase.getCandidates(roomId);
-        for (Candidate candidate : candidates) {
-            if (isAgree(agreedStationIds, candidate)) {
-                votes.add(new Vote(candidate, memberId, VoteStatus.AGREE));
-                continue;
-            }
-            votes.add(new Vote(candidate, memberId, VoteStatus.DISAGREE));
-        }
-        return votes;
-    }
-
-    private static boolean isAgree(List<Long> agreedStationIds, Candidate candidate) {
-        return agreedStationIds.contains(candidate.getStationId());
     }
 
     public List<MemberVoteStatusResponse> getMemberVoteStatus(String roomId) {

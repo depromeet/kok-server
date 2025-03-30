@@ -12,6 +12,7 @@ import com.kok.kokapi.vote.application.service.VoteFacadeService;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class VoteController {
     private final VoteFacadeService voteFacadeService;
     private final StationFacadeService stationFacadeService;
     private final GetRoomUseCase getRoomUseCase;
+    private final SaveVoteUseCase saveVoteUseCase;
 
     @Operation(summary = "투표 후보지 목록 조회", description = "방 ID과 사용자 ID를 기반으로 투표 후보지 상세 정보를 조회합니다.")
     @GetMapping("/votes/{roomId}/{memberId}/candidates")
@@ -46,7 +48,7 @@ public class VoteController {
         @PathVariable String memberId,
         @RequestBody VoteRequest voteRequest
     ) {
-        voteFacadeService.createVote(roomId, memberId, voteRequest);
+        saveVoteUseCase.saveVotes(roomId, memberId, voteRequest.agreedStationIds());
         return ResponseEntity.ok(ApiResponseDto.success(null));
     }
 
