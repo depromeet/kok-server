@@ -7,9 +7,10 @@ import com.kok.kokapi.room.adapter.in.dto.request.JoinRoomParticipantRequest;
 import com.kok.kokapi.room.adapter.in.dto.response.CreateRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.JoinRoomResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomDetailResponse;
-import com.kok.kokapi.room.adapter.in.dto.response.RoomMembersResponses;
+import com.kok.kokapi.room.adapter.in.dto.response.RoomParticipantsResponse;
 import com.kok.kokapi.room.adapter.in.dto.response.RoomStatusResponse;
-import com.kok.kokapi.room.application.service.RoomFacadeService;
+import com.kok.kokcore.location.domain.Location;
+import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.domain.vo.MemberRole;
@@ -32,24 +33,27 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class RoomController {
 
-    private final RoomFacadeService roomFacadeService;
     private final GetRoomUseCase getRoomUseCase;
     private final CreateRoomUseCase createRoomUseCase;
     private final JoinRoomUseCase joinRoomUseCase;
+    private final ReadLocationUseCase readLocationUseCase;
 
     @Operation(summary = "약속방 조회", description = "약속방 ID를 통해 약속방을 조회합니다. 투표 모드에 대한 값을 포함합니다.")
     @GetMapping("/rooms/{roomId}")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> getRoomDetail(
         @PathVariable String roomId) {
-        RoomDetailResponse response = roomFacadeService.findByRoomId(roomId, LocalDateTime.now());
+        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
+        int participantsCount = getRoomUseCase.getParticipantsCount(roomId);
+        RoomDetailResponse response = RoomDetailResponse.of(room, participantsCount);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
-    @Operation(summary = "약속방 상태 조회", description = "약속방 ID를 통해 현재 약속방이 출발지 입력 중이면 false를, 투표 진행 중이면 true를 반환합니다.")
+    @Operation(summary = "약속방 상태 조회", description = "약속방 ID를 통해 현재 약속방 상태(LOCATION_INPUT/VOTE/VOTE_RESULT)를 반환합니다.")
     @GetMapping("/rooms/{roomId}/status")
     public ResponseEntity<ApiResponseDto<RoomStatusResponse>> getRoomStatus(
         @PathVariable String roomId) {
-        RoomStatusResponse response = roomFacadeService.getRoomStatus(roomId, LocalDateTime.now());
+        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
+        RoomStatusResponse response = RoomStatusResponse.of(room);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
@@ -75,12 +79,14 @@ public class RoomController {
 
     @Operation(summary = "약속방 참여자 프로필 목록 조회", description = "약속방에 참여 중인 참여자들의 프로필 목록을 반환합니다.")
     @GetMapping("/rooms/{roomId}/participants")
-    public ResponseEntity<ApiResponseDto<RoomMembersResponses>> getParticipants(
+    public ResponseEntity<ApiResponseDto<RoomParticipantsResponse>> getParticipants(
         @PathVariable String roomId) {
-        Room room = getRoomUseCase.findRoomById(roomId);
+        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
         List<Member> participants = getRoomUseCase.getParticipants(room.getId());
-        RoomMembersResponses responses = RoomMembersResponses.of(room, participants);
+        List<Location> locations = readLocationUseCase.readLocations(room.getId());
 
+        RoomParticipantsResponse responses = RoomParticipantsResponse.of(room, participants,
+            locations);
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 
@@ -89,7 +95,7 @@ public class RoomController {
     public ResponseEntity<ApiResponseDto<JoinRoomResponse>> joinRoom(@PathVariable String roomId,
         @Valid @RequestBody JoinRoomParticipantRequest request) {
 
-        Room room = getRoomUseCase.findRoomById(roomId);
+        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
 
         Member participant = new Member(request.nickname(), request.profile(), MemberRole.FOLLOWER);
         int participantCount = joinRoomUseCase.joinRoom(roomId, participant);

@@ -1,5 +1,6 @@
 package com.kok.kokcore.room.domain;
 
+import com.kok.kokcore.room.domain.vo.RoomStatus;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,6 +24,7 @@ public class Room implements Serializable {
     private final LocalDateTime createdDateTime; // 방 생성일시
     private final LocalDateTime locationInputLimitDateTime; // 출발지 입력 마감일시
     private LocalDateTime voteLimitDateTime; // 투표 마감일시
+    private RoomStatus status;
 
     private Room(String id, String roomName, int capacity, Member member) {
         this.id = id;
@@ -32,6 +34,7 @@ public class Room implements Serializable {
         this.createdDateTime = LocalDateTime.now().withNano(0);
         this.locationInputLimitDateTime = createdDateTime.plusHours(LOCATION_INPUT_TIME_LIMIT);
         this.voteLimitDateTime = locationInputLimitDateTime.plusHours(VOTE_TIME_LIMIT);
+        this.status = RoomStatus.LOCATION_INPUT;
     }
 
     public static Room create(String roomName, int capacity, Member member) {
@@ -51,9 +54,13 @@ public class Room implements Serializable {
         }
     }
 
-    public boolean hasLocationInputEnded(long locationInputCount, LocalDateTime currentTime) {
-        return isAllLocationInput(locationInputCount) || currentTime.isAfter(
-            locationInputLimitDateTime);
+    public boolean shouldEndLocationInput(long locationInputCount, LocalDateTime current) {
+        return isLocationInput() &&
+            (isAllLocationInput(locationInputCount) || current.isAfter(locationInputLimitDateTime));
+    }
+
+    private boolean isLocationInput() {
+        return this.status.isLocationInput();
     }
 
     private boolean isAllLocationInput(long participantCount) {
@@ -66,6 +73,14 @@ public class Room implements Serializable {
 
     public void updateVoteDeadline(LocalDateTime current) {
         this.voteLimitDateTime = current.plusHours(VOTE_TIME_LIMIT);
+    }
+
+    public void startVote() {
+        this.status = RoomStatus.VOTE;
+    }
+
+    public void closeVote() {
+        this.status = RoomStatus.VOTE_RESULT;
     }
 
     public int getNotVotedCount(int votedCount) {
