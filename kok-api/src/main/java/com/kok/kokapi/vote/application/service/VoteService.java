@@ -71,12 +71,13 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
     @Override
     public int countVotedMembers(String roomId) {
+        validate(roomId);
         return loadVotePort.countMembersByRoomId(roomId);
     }
 
     @Override
     public List<Vote> getVotesByMember(String roomId, String memberId) {
-        return List.of();
+        return loadVotePort.findAllByRoomIdAndMemberId(roomId, memberId);
     }
 
     @Override
