@@ -8,4 +8,6 @@ public interface LoadVotePort {
     boolean isExistsByRoomIdAndMemberId(String roomId, String memberId);
 
     List<Vote> findAllByRoomIdAndMemberId(String roomId, String memberId);
+
+    int countMembersByRoomId(String roomId);
 }

@@ -69,7 +69,27 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         assertThat(votes).containsExactlyInAnyOrder(vote);
     }
 
+    @DisplayName("roomId로 투표한 member 수를 반환한다.")
+    @Test
+    void countMembersByRoomId() {
+        // given
+        String roomId = "roomId";
+        redisTemplate.opsForHash()
+            .putAll(getMemberVoteKey(roomId, "1"), Map.of(1L, VoteStatus.AGREE.getName()));
+        redisTemplate.opsForHash()
+            .putAll(getMemberVoteKey(roomId, "2"), Map.of(1L, VoteStatus.AGREE.getName()));
+        redisTemplate.opsForHash()
+            .putAll(getMemberVoteKey(roomId, "3"), Map.of(1L, VoteStatus.AGREE.getName()));
+
+        // when
+        int count = voteQueryRedisAdapter.countMembersByRoomId(roomId);
+
+        // then
+        assertThat(count).isEqualTo(3);
+    }
+
     private String getMemberVoteKey(String roomId, String memberId) {
         return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
     }
+
 }
