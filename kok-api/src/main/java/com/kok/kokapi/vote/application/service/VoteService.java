@@ -86,11 +86,9 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
     @Override
     public List<Member> getMembersByVote(Vote vote) {
-        String roomId = vote.getRoomId();
-        String memberId = vote.getMemberId();
         List<String> memberIds = loadVotePort.findMemberIdsByRoomIdAndStationIdAndStatus(
-            roomId, vote.getStationId(), vote.getVoteStatus());
-        return getMembers(memberIds, roomId);
+            vote.getRoomId(), vote.getStationId(), vote.getVoteStatus());
+        return getMembers(memberIds, vote.getRoomId());
     }
 
     private List<Member> getMembers(List<String> memberIds, String roomId) {
@@ -117,10 +115,10 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
             throw new IllegalArgumentException("Cannot find room with roomId: " + roomId);
         }
         Room room = getRoom(roomId);
-/*        if (room.isLocationInputStatus() || room.isVoteResultStatus()) {
+        if (room.isLocationInputStatus() || room.isVoteResultStatus()) {
             throw new IllegalStateException(
                 "Room is not on vote status but status: " + room.getStatus());
-        }*/
+        }
     }
 
     private Room getRoom(String roomId) {

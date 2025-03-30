@@ -19,6 +19,7 @@ import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +81,7 @@ public class VoteFacadeService {
 
     public VoteResultResponse getVoteResult(String roomId, String memberId) {
         List<ResultResponse> responses = new ArrayList<>();
-        Room room = getRoomUseCase.findRoomById(roomId);
+        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
         int votedCount = getVoteUseCase.countVotedMembers(roomId);
         List<Vote> votes = getVoteUseCase.getVotesByMember(roomId, memberId);
         for (Vote vote : votes) {

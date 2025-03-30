@@ -9,4 +9,8 @@ public enum RoomStatus {
     public boolean isLocationInput() {
         return this.equals(LOCATION_INPUT);
     }
+
+    public boolean isVoteResultStatus() {
+        return this.equals(VOTE_RESULT);
+    }
 }
