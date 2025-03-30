@@ -127,7 +127,7 @@ class RoomTest {
         Room room = Room.create("room", 3, new Member("member", "profile", MemberRole.LEADER));
 
         // when
-        boolean result = room.isLocationInputStatus();
+        boolean result = room.isNotOnVote();
 
         // then
         assertThat(result).isTrue();
@@ -135,13 +135,13 @@ class RoomTest {
 
     @DisplayName("현재 상태가 VOTE_RESULT이면 true를 반환한다.")
     @Test
-    void isVoteResultStatus() {
+    void isVoteClosed() {
         // given
         Room room = Room.create("room", 3, new Member("member", "profile", MemberRole.LEADER));
         room.closeVote(); // 상태를 VOTE_RESULT로 변경
 
         // when
-        boolean result = room.isVoteResultStatus();
+        boolean result = room.isVoteClosed();
 
         // then
         assertThat(result).isTrue();
@@ -184,7 +184,7 @@ class RoomTest {
         room.startVote();
 
         // then
-        assertThat(room.isLocationInputStatus()).isFalse();
+        assertThat(room.isNotOnVote()).isFalse();
     }
 
     @DisplayName("closeVote 호출 시 상태가 VOTE_RESULT로 변경된다.")
@@ -198,7 +198,7 @@ class RoomTest {
         room.closeVote();
 
         // then
-        assertThat(room.isVoteResultStatus()).isTrue();
+        assertThat(room.isVoteClosed()).isTrue();
     }
 
     @DisplayName("투표하지 않은 인원 수를 반환한다.")
