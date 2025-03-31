@@ -36,6 +36,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     @Override
     public void saveVotes(String roomId, String memberId, List<Long> agreedStationIds) {
         validate(roomId, memberId);
+        validateRoomStatusIfNotOnVote(roomId);
         initiate(roomId, memberId);
         List<Vote> votes = getVotes(roomId, memberId, agreedStationIds);
         // 1. 멤버의 투표 내용 Hash 저장
@@ -89,6 +90,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     @Override
     public int countVotedMembers(String roomId) {
         validate(roomId);
+        validateRoomStatusIfNotOnVote(roomId);
         return loadVotePort.countMembersByRoomId(roomId);
     }
 
@@ -117,9 +119,9 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     public Station getVoteFinalResult(String roomId) {
         validate(roomId);
         Room room = getRoom(roomId);
-        validateRoomStatus(room);
-        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(roomId,
-            VoteStatus.AGREE);
+        validateRoomStatusIfVoteClosed(room);
+        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(
+            roomId, VoteStatus.AGREE);
         return retrieveStationsPort.retrieveStation(stationId)
             .orElseThrow(
                 () -> new IllegalArgumentException("Station not found with id " + stationId));
@@ -141,6 +143,9 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         if (!loadRoomPort.isExistsByRoomId(roomId)) {
             throw new IllegalArgumentException("Room not found with id: " + roomId);
         }
+    }
+
+    private void validateRoomStatusIfNotOnVote(String roomId) {
         Room room = getRoom(roomId);
         if (room.isNotOnVote()) {
             throw new IllegalStateException(
@@ -161,7 +166,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
             .orElseThrow(() -> new IllegalArgumentException("Room not found with id: " + roomId));
     }
 
-    private static void validateRoomStatus(Room room) {
+    private static void validateRoomStatusIfVoteClosed(Room room) {
         if (!room.isVoteClosed()) {
             throw new IllegalArgumentException(
                 "Vote is not closed for room with id: " + room.getId());

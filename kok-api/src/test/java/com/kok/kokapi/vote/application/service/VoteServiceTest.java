@@ -15,7 +15,6 @@ import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.domain.vo.VoteStatus;
-import com.kok.kokcore.vote.port.out.SaveVotePort;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,8 +28,6 @@ class VoteServiceTest extends ServiceTest {
 
     @Autowired
     private VoteService voteService;
-    @Autowired
-    private SaveVotePort saveVotePort;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
@@ -121,41 +118,54 @@ class VoteServiceTest extends ServiceTest {
     @DisplayName("사용자가 투표를 완료했으면 true를 반환한다.")
     @Test
     void isVotedByMember() {
+        // given
         voteService.saveVotes(room.getId(), member.getMemberId(), List.of(1L));
+
+        // when
         boolean result = voteService.isVotedByMember(room.getId(), member.getMemberId());
+
+        // then
         assertThat(result).isTrue();
     }
 
     @DisplayName("사용자가 투표를 완료하지 않았으면 false를 반환한다.")
     @Test
     void isNotVotedByMember() {
+        // when
         boolean result = voteService.isVotedByMember(room.getId(), member.getMemberId());
+
+        // then
         assertThat(result).isFalse();
     }
 
     @DisplayName("방에 투표를 완료한 인원 수를 반환한다.")
     @Test
     void countVotedMembers() {
+        // given
         voteService.saveVotes(room.getId(), member.getMemberId(), List.of(1L));
         voteService.saveVotes(room.getId(), member2.getMemberId(), List.of(2L));
 
+        // when
         int count = voteService.countVotedMembers(room.getId());
 
+        // then
         assertThat(count).isEqualTo(2);
     }
 
     @DisplayName("사용자의 투표 정보를 반환한다.")
     @Test
     void getVotesByMember() {
+        // given
         voteService.saveVotes(room.getId(), member.getMemberId(), List.of(1L));
 
+        // when
         List<Vote> result = voteService.getVotesByMember(room.getId(), member.getMemberId());
 
+        // then
         assertThat(result).hasSize(2)
-            .extracting("stationId", "voteStatus")
             .containsExactlyInAnyOrder(
-                org.assertj.core.api.Assertions.tuple(1L, VoteStatus.AGREE),
-                org.assertj.core.api.Assertions.tuple(2L, VoteStatus.DISAGREE)
+                new Vote(room.getId(), 1L, member.getMemberId(), VoteStatus.AGREE.getName()),
+                new Vote(room.getId(), 2L, member.getMemberId(), VoteStatus.DISAGREE.getName())
             );
     }
 

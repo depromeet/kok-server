@@ -27,7 +27,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         String roomId = "room1";
         String memberId = "memberA";
         String key = VoteKey.memberKey(roomId, memberId);
-        redisTemplate.opsForHash().putAll(key, Map.of("1", "AGREE"));
+        redisTemplate.opsForHash().putAll(key, Map.of("1", VoteStatus.AGREE.getName()));
 
         // when
         boolean result = voteQueryRedisAdapter.isExistsByRoomIdAndMemberId(roomId, memberId);
@@ -101,8 +101,8 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         // given
         String roomId = "room5";
         String key = VoteKey.voteStatusCountZSetKey(VoteStatus.AGREE, roomId);
-        redisTemplate.opsForZSet().add(key, "10", 5.0); // stationId 10 with 5 votes
-        redisTemplate.opsForZSet().add(key, "11", 8.0); // stationId 11 with 8 votes
+        redisTemplate.opsForZSet().add(key, "10", 5.0);
+        redisTemplate.opsForZSet().add(key, "11", 8.0);
 
         // when
         long result = voteQueryRedisAdapter.getFirstStationIdByRoomIdAndVoteStatus(
