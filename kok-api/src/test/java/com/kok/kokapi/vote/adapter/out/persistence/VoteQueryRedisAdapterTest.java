@@ -14,21 +14,20 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 class VoteQueryRedisAdapterTest extends RepositoryTest {
 
-    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:%s";
-
     @Autowired
     private VoteQueryRedisAdapter voteQueryRedisAdapter;
+
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-    @DisplayName("roomId와 memberId 조합으로 투표 정보가 존재하는지 확인한다.")
     @Test
+    @DisplayName("roomId와 memberId 조합으로 투표 정보가 존재하는지 확인한다.")
     void isExistsByRoomIdAndMemberId() {
         // given
-        String roomId = "roomId";
-        String memberId = "memberId";
-        String key = getMemberVoteKey(roomId, memberId);
-        redisTemplate.opsForHash().putAll(key, Map.of(1L, VoteStatus.AGREE.getName()));
+        String roomId = "room1";
+        String memberId = "memberA";
+        String key = VoteKey.memberKey(roomId, memberId);
+        redisTemplate.opsForHash().putAll(key, Map.of("1", "AGREE"));
 
         // when
         boolean result = voteQueryRedisAdapter.isExistsByRoomIdAndMemberId(roomId, memberId);
@@ -37,49 +36,40 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         assertThat(result).isTrue();
     }
 
-    @DisplayName("해당 roomId와 memberId 조합으로 투표 정보가 없으면 false를 반환한다.")
     @Test
+    @DisplayName("투표 정보가 없으면 false를 반환한다.")
     void isNotExistsByRoomIdAndMemberId() {
-        // given
-        String roomId = "roomId";
-        String memberId = "memberId";
-
-        // when
-        boolean result = voteQueryRedisAdapter.isExistsByRoomIdAndMemberId(roomId, memberId);
-
-        // then
-        assertThat(result).isFalse();
+        assertThat(voteQueryRedisAdapter.isExistsByRoomIdAndMemberId("roomX", "memberY")).isFalse();
     }
 
-    @DisplayName("roomId와 memberId 조합으로 모든 투표 정보를 조회한다.")
     @Test
+    @DisplayName("roomId, memberId로 투표 전체 목록을 조회한다.")
     void findAllByRoomIdAndMemberId() {
         // given
-        String roomId = "roomId";
-        String memberId = "memberId";
-        String key = getMemberVoteKey(roomId, memberId);
+        String roomId = "room2";
+        String memberId = "memberB";
+        String key = VoteKey.memberKey(roomId, memberId);
         Vote vote = new Vote(roomId, 1L, memberId, VoteStatus.AGREE.getName());
-        redisTemplate.opsForHash()
-            .putAll(key, Map.of(vote.getStationId(), vote.getVoteStatus().getName()));
+        Vote vote2 = new Vote(roomId, 2L, memberId, VoteStatus.DISAGREE.getName());
+        redisTemplate.opsForHash().putAll(key, Map.of(
+            "1", VoteStatus.AGREE.getName(),
+            "2", VoteStatus.DISAGREE.getName()
+        ));
 
         // when
-        List<Vote> votes = voteQueryRedisAdapter.findAllByRoomIdAndMemberId(roomId, memberId);
+        List<Vote> result = voteQueryRedisAdapter.findAllByRoomIdAndMemberId(roomId, memberId);
 
         // then
-        assertThat(votes).containsExactlyInAnyOrder(vote);
+        assertThat(result).hasSize(2)
+            .containsExactlyInAnyOrder(vote, vote2);
     }
 
-    @DisplayName("roomId로 투표한 member 수를 반환한다.")
     @Test
+    @DisplayName("roomId에 대해 투표 완료한 멤버 수를 반환한다.")
     void countMembersByRoomId() {
         // given
-        String roomId = "roomId";
-        redisTemplate.opsForHash()
-            .putAll(getMemberVoteKey(roomId, "1"), Map.of(1L, VoteStatus.AGREE.getName()));
-        redisTemplate.opsForHash()
-            .putAll(getMemberVoteKey(roomId, "2"), Map.of(1L, VoteStatus.AGREE.getName()));
-        redisTemplate.opsForHash()
-            .putAll(getMemberVoteKey(roomId, "3"), Map.of(1L, VoteStatus.AGREE.getName()));
+        String roomId = "room3";
+        redisTemplate.opsForSet().add(VoteKey.voteKey(roomId), "member1", "member2", "member3");
 
         // when
         int count = voteQueryRedisAdapter.countMembersByRoomId(roomId);
@@ -88,8 +78,53 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         assertThat(count).isEqualTo(3);
     }
 
-    private String getMemberVoteKey(String roomId, String memberId) {
-        return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
+    @Test
+    @DisplayName("특정 stationId에 대해 투표한 memberId 리스트를 조회한다.")
+    void findMemberIdsByRoomIdAndStationIdAndStatus() {
+        // given
+        String roomId = "room4";
+        long stationId = 11L;
+        String key = VoteKey.voteStatusMemberSetKey(VoteStatus.AGREE, roomId, stationId);
+        redisTemplate.opsForSet().add(key, "member1", "member2");
+
+        // when
+        List<String> result = voteQueryRedisAdapter.findMemberIdsByRoomIdAndStationIdAndStatus(
+            roomId, stationId, VoteStatus.AGREE);
+
+        // then
+        assertThat(result).containsExactlyInAnyOrder("member1", "member2");
     }
 
+    @Test
+    @DisplayName("찬성 수가 가장 많은 stationId를 반환한다.")
+    void getFirstStationIdByRoomIdAndVoteStatus() {
+        // given
+        String roomId = "room5";
+        String key = VoteKey.voteStatusCountZSetKey(VoteStatus.AGREE, roomId);
+        redisTemplate.opsForZSet().add(key, "10", 5.0); // stationId 10 with 5 votes
+        redisTemplate.opsForZSet().add(key, "11", 8.0); // stationId 11 with 8 votes
+
+        // when
+        long result = voteQueryRedisAdapter.getFirstStationIdByRoomIdAndVoteStatus(
+            roomId, VoteStatus.AGREE);
+
+        // then
+        assertThat(result).isEqualTo(11);
+    }
+
+    @Test
+    @DisplayName("찬성 투표자가 아무도 없으면 -1을 반환한다.")
+    void getFirstStationIdWhenNoVotes() {
+        // given
+        String roomId = "room6";
+        String key = VoteKey.voteStatusCountZSetKey(VoteStatus.AGREE, roomId);
+        redisTemplate.delete(key);
+
+        // when
+        long result = voteQueryRedisAdapter.getFirstStationIdByRoomIdAndVoteStatus(
+            roomId, VoteStatus.AGREE);
+
+        // then
+        assertThat(result).isEqualTo(-1L);
+    }
 }

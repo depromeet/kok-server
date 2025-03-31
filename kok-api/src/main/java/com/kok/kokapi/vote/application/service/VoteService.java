@@ -38,9 +38,16 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         validate(roomId, memberId);
         initiate(roomId, memberId);
         List<Vote> votes = getVotes(roomId, memberId, agreedStationIds);
-        saveVotePort.saveAllByMember(votes);
+        // 1. 멤버의 투표 내용 Hash 저장
+        saveVotePort.saveVoteMemberHash(votes);
+
+        // 2. 투표 완료 Set에 멤버 추가
+        saveVotePort.saveVotedMemberSet(roomId, memberId);
+
+        // 3. 각 후보에 대한 Set/ZSet 업데이트
         for (Vote vote : votes) {
-            saveVotePort.saveByVoteStatus(vote);
+            saveVotePort.saveVoteStatusSet(vote);
+            saveVotePort.incrementVoteStatusCountZSet(vote);
         }
     }
 
@@ -64,8 +71,13 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     private void initiate(String roomId, String memberId) {
         if (loadVotePort.isExistsByRoomIdAndMemberId(roomId, memberId)) {
             List<Vote> votes = loadVotePort.findAllByRoomIdAndMemberId(roomId, memberId);
-            votes.forEach(deleteVotePort::deleteByCandidate);
-            deleteVotePort.deleteAllByRoomIdAndMemberId(roomId, memberId);
+            for (Vote vote : votes) {
+                deleteVotePort.removeMemberFromVoteStatusSet(vote);
+                deleteVotePort.decrementVoteCountInZSet(vote);
+            }
+
+            deleteVotePort.deleteMemberVoteHash(roomId, memberId);
+            deleteVotePort.removeMemberFromVotedSet(roomId, memberId);
         }
     }
 
@@ -101,6 +113,18 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
             .toList();
     }
 
+    @Override
+    public Station getVoteFinalResult(String roomId) {
+        validate(roomId);
+        Room room = getRoom(roomId);
+        validateRoomStatus(room);
+        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(roomId,
+            VoteStatus.AGREE);
+        return retrieveStationsPort.retrieveStation(stationId)
+            .orElseThrow(
+                () -> new IllegalArgumentException("Station not found with id " + stationId));
+    }
+
     private void validate(String roomId, String memberId) {
         validate(roomId);
         List<String> memberIds = loadRoomParticipantPort.findMembersByRoomId(roomId).stream()
@@ -108,14 +132,14 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
             .toList();
         if (!memberIds.contains(memberId)) {
             throw new IllegalArgumentException(
-                String.format("Cannot find member with id: %s, in room with id: %s", memberId,
-                    roomId));
+                String.format("Member not found with id: %s, in room with id: %s",
+                    memberId, roomId));
         }
     }
 
     private void validate(String roomId) {
         if (!loadRoomPort.isExistsByRoomId(roomId)) {
-            throw new IllegalArgumentException("Cannot find room with roomId: " + roomId);
+            throw new IllegalArgumentException("Room not found with id: " + roomId);
         }
         Room room = getRoom(roomId);
         if (room.isNotOnVote()) {
@@ -124,30 +148,17 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         }
     }
 
-    private Room getRoom(String roomId) {
-        return loadRoomPort.findRoomById(roomId)
-            .orElseThrow(() -> new IllegalArgumentException("Room not found with id: " + roomId));
-    }
-
     private void validateVote(String roomId, String memberId) {
         if (!loadVotePort.isExistsByRoomIdAndMemberId(roomId, memberId)) {
             throw new IllegalArgumentException(
-                String.format("Not voted by member with id: %s, in room with id: %s", memberId,
-                    roomId));
+                String.format("Not voted by member with id: %s, in room with id: %s",
+                    memberId, roomId));
         }
     }
 
-    @Override
-    public Station getVoteFinalResult(String roomId) {
-        Room room = loadRoomPort.findRoomById(roomId)
-            .orElseThrow(() -> new IllegalArgumentException("Cannot find room with id: " + roomId));
-        validateRoomStatus(room);
-        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(
-            roomId, VoteStatus.AGREE);
-        Station station = retrieveStationsPort.retrieveStation(stationId)
-            .orElseThrow(
-                () -> new IllegalArgumentException("Cannot find station with id " + stationId));
-        return station;
+    private Room getRoom(String roomId) {
+        return loadRoomPort.findRoomById(roomId)
+            .orElseThrow(() -> new IllegalArgumentException("Room not found with id: " + roomId));
     }
 
     private static void validateRoomStatus(Room room) {

@@ -5,7 +5,11 @@ import java.util.List;
 
 public interface SaveVotePort {
 
-    void saveByVoteStatus(Vote vote);
+    void saveVoteMemberHash(List<Vote> votes);
 
-    void saveAllByMember(List<Vote> votes);
+    void saveVoteStatusSet(Vote vote);
+
+    void incrementVoteStatusCountZSet(Vote vote);
+
+    void saveVotedMemberSet(String roomId, String memberId);
 }

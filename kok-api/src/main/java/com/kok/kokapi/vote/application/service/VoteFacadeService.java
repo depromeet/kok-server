@@ -37,8 +37,8 @@ public class VoteFacadeService {
     private final TmapPublicTransportationService tmapPublicTransportationService;
     private final ObjectMapper objectMapper;
 
-    public List<CandidateResponse> getCandidates(String roomId, String memberId,
-        List<Station> stations) {
+    public List<CandidateResponse> getCandidates(
+        String roomId, String memberId, List<Station> stations) {
         List<Candidate> candidates = getCandidateUseCase.saveAndGetCandidates(roomId, stations);
         List<CandidateResponse> responses = new ArrayList<>();
         for (Candidate candidate : candidates) {

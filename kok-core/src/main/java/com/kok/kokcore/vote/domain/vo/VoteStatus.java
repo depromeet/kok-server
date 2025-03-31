@@ -20,4 +20,8 @@ public enum VoteStatus {
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("No status with name: " + name));
     }
+
+    public boolean isAgree() {
+        return this.equals(VoteStatus.AGREE);
+    }
 }
