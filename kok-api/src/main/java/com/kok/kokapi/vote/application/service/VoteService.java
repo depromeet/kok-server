@@ -3,7 +3,9 @@ package com.kok.kokapi.vote.application.service;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.port.out.LoadRoomPort;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.station.port.out.RetrieveStationsPort;
 import com.kok.kokcore.vote.domain.Vote;
+import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import com.kok.kokcore.vote.port.out.DeleteVotePort;
 import com.kok.kokcore.vote.port.out.LoadVotePort;
 import com.kok.kokcore.vote.port.out.SaveVotePort;
@@ -21,6 +23,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     private final LoadVotePort loadVotePort;
     private final DeleteVotePort deleteVotePort;
     private final LoadRoomPort loadRoomPort;
+    private final RetrieveStationsPort retrieveStationsPort;
 
     @Override
     public void saveVotes(List<Vote> votes) {
@@ -51,7 +54,12 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         Room room = loadRoomPort.findRoomById(roomId)
             .orElseThrow(() -> new IllegalArgumentException("Cannot find room with id: " + roomId));
         validateRoomStatus(room);
-        return null;
+        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(roomId,
+            VoteStatus.AGREE);
+        Station station = retrieveStationsPort.retrieveStation(stationId)
+            .orElseThrow(
+                () -> new IllegalArgumentException("Cannot find station with id " + stationId));
+        return station;
     }
 
     private static void validateRoomStatus(Room room) {

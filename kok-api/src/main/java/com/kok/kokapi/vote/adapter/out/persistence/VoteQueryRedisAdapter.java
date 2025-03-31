@@ -2,6 +2,7 @@ package com.kok.kokapi.vote.adapter.out.persistence;
 
 import com.kok.kokapi.common.util.RedisExecutor;
 import com.kok.kokcore.vote.domain.Vote;
+import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import com.kok.kokcore.vote.port.out.LoadVotePort;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Repository;
 public class VoteQueryRedisAdapter implements LoadVotePort {
 
     private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
+    private static final String CANDIDATE_VOTE_KEY_FORMAT = "vote:%s:candidate:%d:%s";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -47,6 +49,11 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
         }, List.of());
     }
 
+    @Override
+    public long getFirstStationIdByRoomIdAndVoteStatus(String roomId, VoteStatus voteStatus) {
+        return 0;
+    }
+
     private Long getStationId(Entry<Object, Object> voteInfo) {
         try {
             return Long.valueOf(voteInfo.getKey().toString());
@@ -58,5 +65,9 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
 
     private String getMemberVoteKey(String roomId, String memberId) {
         return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
+    }
+
+    private String getCandidateVoteKey(String roomId, long stationId, VoteStatus status) {
+        return String.format(CANDIDATE_VOTE_KEY_FORMAT, roomId, stationId, status.getName());
     }
 }
