@@ -8,9 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
@@ -20,6 +23,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
 
     private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:%s";
     private static final String VOTE_STATUS_VOTE_KEY_FORMAT = "%s:%s:%d";
+    private static final int MAX_COUNT = 20;
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -47,6 +51,39 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
             }
             return votes;
         }, List.of());
+    }
+
+    @Override
+    public int countMembersByRoomId(String roomId) {
+        String pattern = getMemberVoteKey(roomId, "*");
+        return RedisExecutor.runOrElseGet("countMembersByRoomId", () -> {
+            int count = 0;
+            ScanOptions options = ScanOptions.scanOptions()
+                .match(pattern)
+                .count(MAX_COUNT)
+                .build();
+
+            try (Cursor<String> cursor = redisTemplate.scan(options)) {
+                while (cursor.hasNext()) {
+                    count++;
+                    cursor.next();
+                }
+            }
+
+            return count;
+        }, 0);
+    }
+
+    @Override
+    public List<String> findMemberIdsByRoomIdAndStationIdAndStatus(
+        String roomId, long stationId, VoteStatus voteStatus) {
+        String key = getVoteStatusVoteKey(voteStatus, roomId, stationId);
+        Set<Object> memberIds = RedisExecutor.runOrElseGet(
+            "findMembersByRoomIdAndStationIdAndStatus",
+            () -> redisTemplate.opsForSet().members(key),
+            Set.of()
+        );
+        return memberIds.stream().map(memberId -> (String) memberId).toList();
     }
 
     @Override

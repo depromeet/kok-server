@@ -55,12 +55,16 @@ public class Room implements Serializable {
     }
 
     public boolean shouldEndLocationInput(long locationInputCount, LocalDateTime current) {
-        return isLocationInput() &&
-            (isAllLocationInput(locationInputCount) || current.isAfter(locationInputLimitDateTime));
+        return this.status.isLocationInput() && (isAllLocationInput(locationInputCount)
+            || current.isAfter(locationInputLimitDateTime));
     }
 
-    private boolean isLocationInput() {
-        return this.status.isLocationInput();
+    public boolean isNotOnVote() {
+        return this.status.isLocationInput() || this.status.isVoteResult();
+    }
+
+    public boolean isVoteClosed() {
+        return this.status.isVoteResult();
     }
 
     private boolean isAllLocationInput(long participantCount) {
@@ -83,7 +87,7 @@ public class Room implements Serializable {
         this.status = RoomStatus.VOTE_RESULT;
     }
 
-    public boolean isVoteClosed() {
-        return this.status.isVoteResult();
+    public int getNotVotedCount(int votedCount) {
+        return capacity - votedCount;
     }
 }

@@ -10,5 +10,10 @@ public interface LoadVotePort {
 
     List<Vote> findAllByRoomIdAndMemberId(String roomId, String memberId);
 
+    int countMembersByRoomId(String roomId);
+
+    List<String> findMemberIdsByRoomIdAndStationIdAndStatus(String roomId, long stationId,
+        VoteStatus voteStatus);
+
     long getFirstStationIdByRoomIdAndVoteStatus(String roomId, VoteStatus voteStatus);
 }
