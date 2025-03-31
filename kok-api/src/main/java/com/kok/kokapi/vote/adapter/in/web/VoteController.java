@@ -11,6 +11,7 @@ import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultResponse;
 import com.kok.kokapi.vote.application.service.VoteFacadeService;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
+import com.kok.kokcore.room.usecase.UpdateRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +32,7 @@ public class VoteController {
     private final StationFacadeService stationFacadeService;
     private final GetRoomUseCase getRoomUseCase;
     private final SaveVoteUseCase saveVoteUseCase;
+    private final UpdateRoomUseCase updateRoomUseCase;
 
     @Operation(summary = "투표 후보지 목록 조회", description = "방 ID과 사용자 ID를 기반으로 투표 후보지 상세 정보를 조회합니다.")
     @GetMapping("/votes/{roomId}/{memberId}/candidates")
@@ -68,6 +70,13 @@ public class VoteController {
         Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
         VoteDeadlineResponse response = VoteDeadlineResponse.from(room);
         return ResponseEntity.ok(ApiResponseDto.success(response));
+    }
+
+    @Operation(summary = "투표 종료", description = "방 ID에 대하여 투표 상태를 종료(VOTE_RESULT)로 변경합니다.")
+    @PostMapping("/votes/{roomId}/close")
+    public ResponseEntity<ApiResponseDto<Void>> closeVote(@PathVariable String roomId) {
+        updateRoomUseCase.closeVote(roomId);
+        return ResponseEntity.ok(ApiResponseDto.success(null));
     }
 
     @Operation(summary = "투표 결과 조회", description = "방 ID와 사용자 ID에 대해 사용자 기준으로 후보지별 투표 결과를 조회합니다.")
