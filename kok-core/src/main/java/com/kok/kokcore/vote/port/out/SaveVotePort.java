@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface SaveVotePort {
 
-    void saveByCandidate(Vote vote);
+    void saveByVoteStatus(Vote vote);
 
     void saveAllByMember(List<Vote> votes);
 }

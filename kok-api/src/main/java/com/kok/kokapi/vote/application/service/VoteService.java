@@ -32,7 +32,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         initiate(roomId, memberId);
         saveVotePort.saveAllByMember(votes);
         for (Vote vote : votes) {
-            saveVotePort.saveByCandidate(vote);
+            saveVotePort.saveByVoteStatus(vote);
         }
     }
 
@@ -54,8 +54,8 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         Room room = loadRoomPort.findRoomById(roomId)
             .orElseThrow(() -> new IllegalArgumentException("Cannot find room with id: " + roomId));
         validateRoomStatus(room);
-        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(roomId,
-            VoteStatus.AGREE);
+        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(
+            roomId, VoteStatus.AGREE);
         Station station = retrieveStationsPort.retrieveStation(stationId)
             .orElseThrow(
                 () -> new IllegalArgumentException("Cannot find station with id " + stationId));

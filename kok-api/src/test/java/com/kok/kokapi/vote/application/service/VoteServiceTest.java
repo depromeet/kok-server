@@ -18,8 +18,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 class VoteServiceTest extends ServiceTest {
 
-    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
-    private static final String CANDIDATE_VOTE_KEY_FORMAT = "vote:%s:candidate:%d:%s";
+    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:%s";
+    private static final String CANDIDATE_VOTE_KEY_FORMAT = "%s:%s:%d";
 
     @Autowired
     private VoteService voteService;
@@ -39,8 +39,8 @@ class VoteServiceTest extends ServiceTest {
             new Vote(new Candidate(roomId, 2), memberId, VoteStatus.DISAGREE)
         );
         String memberKey = getMemberVoteKey(roomId, memberId);
-        String agreeCandidateKey = getCandidateVoteKey(roomId, 1, VoteStatus.AGREE);
-        String disagreeCandidateKey = getCandidateVoteKey(roomId, 2, VoteStatus.DISAGREE);
+        String agreeCandidateKey = getVoteStatusVoteKey(VoteStatus.AGREE, roomId, 1);
+        String disagreeCandidateKey = getVoteStatusVoteKey(VoteStatus.DISAGREE, roomId, 2);
 
         // when
         voteService.saveVotes(votes);
@@ -72,7 +72,7 @@ class VoteServiceTest extends ServiceTest {
         );
         saveVotePort.saveAllByMember(votes);
         for (Vote vote : votes) {
-            saveVotePort.saveByCandidate(vote);
+            saveVotePort.saveByVoteStatus(vote);
         }
         List<Vote> newVotes = List.of(
             new Vote(candidate, memberId, VoteStatus.DISAGREE),
@@ -86,11 +86,11 @@ class VoteServiceTest extends ServiceTest {
         Long storedVoteCount = redisTemplate.opsForHash()
             .size(getMemberVoteKey(roomId, memberId));
         Long agreeCountForStation1 = redisTemplate.opsForSet()
-            .size(getCandidateVoteKey(roomId, 1, VoteStatus.AGREE));
+            .size(getVoteStatusVoteKey(VoteStatus.AGREE, roomId, 1));
         Long disagreeCountForStation1 = redisTemplate.opsForSet()
-            .size(getCandidateVoteKey(roomId, 1, VoteStatus.DISAGREE));
+            .size(getVoteStatusVoteKey(VoteStatus.DISAGREE, roomId, 1));
         Long disagreeCountForStation2 = redisTemplate.opsForSet()
-            .size(getCandidateVoteKey(roomId, 2, VoteStatus.DISAGREE));
+            .size(getVoteStatusVoteKey(VoteStatus.DISAGREE, roomId, 2));
         assertAll(
             () -> assertThat(storedVoteCount).isEqualTo(2),
             () -> assertThat(agreeCountForStation1).isZero(),
@@ -109,7 +109,7 @@ class VoteServiceTest extends ServiceTest {
         List<Vote> votes = List.of(new Vote(candidate, memberId, VoteStatus.AGREE));
         saveVotePort.saveAllByMember(votes);
         for (Vote vote : votes) {
-            saveVotePort.saveByCandidate(vote);
+            saveVotePort.saveByVoteStatus(vote);
         }
 
         // when
@@ -137,8 +137,8 @@ class VoteServiceTest extends ServiceTest {
         return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
     }
 
-    private String getCandidateVoteKey(String roomId, long stationId, VoteStatus status) {
-        return String.format(CANDIDATE_VOTE_KEY_FORMAT, roomId, stationId, status.getName());
+    private String getVoteStatusVoteKey(VoteStatus status, String roomId, long stationId) {
+        return String.format(CANDIDATE_VOTE_KEY_FORMAT, status.getName(), roomId, stationId);
     }
 }
 

@@ -14,7 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 class VoteQueryRedisAdapterTest extends RepositoryTest {
 
-    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
+    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:%s";
 
     @Autowired
     private VoteQueryRedisAdapter voteQueryRedisAdapter;

@@ -18,15 +18,15 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
 
-    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
-    private static final String CANDIDATE_VOTE_KEY_FORMAT = "vote:%s:candidate:%d:%s";
+    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:%s";
+    private static final String VOTE_STATUS_VOTE_KEY_FORMAT = "%s:%s:%d";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public void saveByCandidate(Vote vote) {
-        String key = getCandidateVoteKey(vote);
-        RedisExecutor.runOrThrow("saveByCandidate", () ->
+    public void saveByVoteStatus(Vote vote) {
+        String key = getVoteStatusVoteKey(vote);
+        RedisExecutor.runOrThrow("saveByVoteStatus", () ->
             redisTemplate.opsForSet().add(key, vote.getMemberId())
         );
     }
@@ -55,7 +55,7 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
 
     @Override
     public void deleteByCandidate(Vote vote) {
-        String key = getCandidateVoteKey(vote);
+        String key = getVoteStatusVoteKey(vote);
         RedisExecutor.runOrThrow("deleteByCandidate", () -> {
             Long result = redisTemplate.opsForSet().remove(key, vote.getMemberId());
             if (isNotRemoved(result)) {
@@ -91,8 +91,8 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
         return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
     }
 
-    private String getCandidateVoteKey(Vote vote) {
-        return String.format(CANDIDATE_VOTE_KEY_FORMAT, vote.getRoomId(), vote.getStationId(),
-            vote.getVoteStatus().getName());
+    private String getVoteStatusVoteKey(Vote vote) {
+        return String.format(VOTE_STATUS_VOTE_KEY_FORMAT,
+            vote.getVoteStatus().getName(), vote.getRoomId(), vote.getStationId());
     }
 }

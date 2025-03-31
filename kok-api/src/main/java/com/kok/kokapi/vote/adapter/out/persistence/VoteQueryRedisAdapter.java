@@ -18,8 +18,8 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class VoteQueryRedisAdapter implements LoadVotePort {
 
-    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
-    private static final String CANDIDATE_VOTE_KEY_FORMAT = "vote:%s:candidate:%d:%s";
+    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:%s";
+    private static final String VOTE_STATUS_VOTE_KEY_FORMAT = "%s:%s:%d";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -67,7 +67,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
         return String.format(MEMBER_VOTE_KEY_FORMAT, roomId, memberId);
     }
 
-    private String getCandidateVoteKey(String roomId, long stationId, VoteStatus status) {
-        return String.format(CANDIDATE_VOTE_KEY_FORMAT, roomId, stationId, status.getName());
+    private String getVoteStatusVoteKey(VoteStatus status, String roomId, long stationId) {
+        return String.format(VOTE_STATUS_VOTE_KEY_FORMAT, status.getName(), roomId, stationId);
     }
 }

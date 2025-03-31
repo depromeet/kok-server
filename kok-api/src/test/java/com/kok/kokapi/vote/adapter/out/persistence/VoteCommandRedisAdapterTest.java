@@ -17,8 +17,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 class VoteCommandRedisAdapterTest extends RepositoryTest {
 
-    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:member:%s";
-    private static final String CANDIDATE_VOTE_KEY_FORMAT = "vote:%s:candidate:%d:%s";
+    private static final String MEMBER_VOTE_KEY_FORMAT = "vote:%s:%s";
+    private static final String VOTE_STATUS_VOTE_KEY_FORMAT = "%s:%s:%d";
 
     @Autowired
     private VoteCommandRedisAdapter voteCommandRedisAdapter;
@@ -33,11 +33,11 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         String memberId = "memberId";
         Candidate candidate = new Candidate("roomId", 1);
         Vote vote = new Vote(candidate, memberId, VoteStatus.AGREE);
-        String key = getCandidateVoteKey(vote);
+        String key = getVoteStatusVoteKey(vote);
         redisTemplate.opsForSet().add(key, existingMemberId);
 
         // when
-        voteCommandRedisAdapter.saveByCandidate(vote);
+        voteCommandRedisAdapter.saveByVoteStatus(vote);
 
         // then
         Set<Object> memberIds = redisTemplate.opsForSet().members(key);
@@ -82,7 +82,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         String memberId2 = "memberId2";
         Candidate candidate = new Candidate("roomId", 1);
         Vote vote = new Vote(candidate, memberId, VoteStatus.AGREE);
-        String key = getCandidateVoteKey(vote);
+        String key = getVoteStatusVoteKey(vote);
         redisTemplate.opsForSet().add(key, memberId, memberId2);
 
         // when
@@ -127,9 +127,9 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         );
     }
 
-    private String getCandidateVoteKey(Vote vote) {
-        return String.format(CANDIDATE_VOTE_KEY_FORMAT, vote.getRoomId(), vote.getStationId(),
-            vote.getVoteStatus().getName());
+    private String getVoteStatusVoteKey(Vote vote) {
+        return String.format(VOTE_STATUS_VOTE_KEY_FORMAT,
+            vote.getVoteStatus().getName(), vote.getRoomId(), vote.getStationId());
     }
 
     private String getMemberVoteKey(String roomId, String memberId) {
