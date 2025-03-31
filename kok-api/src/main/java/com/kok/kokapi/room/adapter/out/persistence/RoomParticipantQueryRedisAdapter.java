@@ -6,6 +6,7 @@ import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.port.out.LoadRoomParticipantPort;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -30,7 +31,7 @@ public class RoomParticipantQueryRedisAdapter implements LoadRoomParticipantPort
 
     @Override
     public List<Member> findMembersByRoomId(String roomId) {
-        String key = PARTICIPANT_KEY_PREFIX + roomId;
+        String key = buildKey(roomId);
         List<String> memberJson = redisTemplate.opsForList().range(key, 0, -1);
         List<Member> members = new ArrayList<>();
         if (memberJson != null) {
@@ -43,6 +44,13 @@ public class RoomParticipantQueryRedisAdapter implements LoadRoomParticipantPort
             }
         }
         return members;
+    }
+
+    @Override
+    public Optional<Member> findByRoomIdAndMemberId(String roomId, String memberId) {
+        return findMembersByRoomId(roomId).stream()
+            .filter(member -> member.getMemberId().equals(memberId))
+            .findFirst();
     }
 
     private String buildKey(String roomId) {
