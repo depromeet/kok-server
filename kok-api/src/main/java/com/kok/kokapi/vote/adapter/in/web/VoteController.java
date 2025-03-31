@@ -7,11 +7,13 @@ import com.kok.kokapi.vote.adapter.in.dto.request.VoteRequest;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.VoteDeadlineResponse;
+import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultResponse;
 import com.kok.kokapi.vote.application.service.VoteFacadeService;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.room.usecase.UpdateRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +31,7 @@ public class VoteController {
     private final VoteFacadeService voteFacadeService;
     private final StationFacadeService stationFacadeService;
     private final GetRoomUseCase getRoomUseCase;
+    private final SaveVoteUseCase saveVoteUseCase;
     private final UpdateRoomUseCase updateRoomUseCase;
 
     @Operation(summary = "투표 후보지 목록 조회", description = "방 ID과 사용자 ID를 기반으로 투표 후보지 상세 정보를 조회합니다.")
@@ -48,7 +51,7 @@ public class VoteController {
         @PathVariable String memberId,
         @RequestBody VoteRequest voteRequest
     ) {
-        voteFacadeService.createVote(roomId, memberId, voteRequest);
+        saveVoteUseCase.saveVotes(roomId, memberId, voteRequest.agreedStationIds());
         return ResponseEntity.ok(ApiResponseDto.success(null));
     }
 
@@ -74,5 +77,13 @@ public class VoteController {
     public ResponseEntity<ApiResponseDto<Void>> closeVote(@PathVariable String roomId) {
         updateRoomUseCase.closeVote(roomId);
         return ResponseEntity.ok(ApiResponseDto.success(null));
+    }
+
+    @Operation(summary = "투표 결과 조회", description = "방 ID와 사용자 ID에 대해 사용자 기준으로 후보지별 투표 결과를 조회합니다.")
+    @GetMapping("/votes/{roomId}/{memberId}")
+    public ResponseEntity<ApiResponseDto<VoteResultResponse>> getVoteResult(
+        @PathVariable String roomId, @PathVariable String memberId) {
+        VoteResultResponse response = voteFacadeService.getVoteResult(roomId, memberId);
+        return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 }
