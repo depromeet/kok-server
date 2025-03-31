@@ -19,6 +19,7 @@ import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
+import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ public class VoteFacadeService {
     private final GetRoomUseCase getRoomUseCase;
     private final TmapPublicTransportationService tmapPublicTransportationService;
     private final ObjectMapper objectMapper;
+    private final SaveVoteUseCase saveVoteUseCase;
 
     public List<CandidateResponse> getCandidates(
         String roomId, String memberId, List<Station> stations) {
@@ -91,5 +93,11 @@ public class VoteFacadeService {
             responses.add(response);
         }
         return new VoteResultResponse(room.getNotVotedCount(votedCount), responses);
+    }
+
+    public void saveVotes(
+        String roomId, String memberId, List<Long> agreedStationIds, List<Station> stations) {
+        getCandidateUseCase.saveAndGetCandidates(roomId, stations);
+        saveVoteUseCase.saveVotes(roomId, memberId, agreedStationIds);
     }
 }
