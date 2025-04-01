@@ -8,6 +8,8 @@ import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.ResultResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultResponse;
+import com.kok.kokcore.location.domain.Location;
+import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
@@ -38,6 +40,7 @@ public class VoteFacadeService {
     private final TmapPublicTransportationService tmapPublicTransportationService;
     private final ObjectMapper objectMapper;
     private final SaveVoteUseCase saveVoteUseCase;
+    private final ReadLocationUseCase readLocationUseCase;
 
     public List<CandidateResponse> getCandidates(
         String roomId, String memberId,
@@ -91,7 +94,9 @@ public class VoteFacadeService {
         List<MemberVoteStatusResponse> responses = new ArrayList<>();
         for (Member member : members) {
             boolean isVoted = getVoteUseCase.isVotedByMember(roomId, member.getMemberId());
-            MemberVoteStatusResponse response = MemberVoteStatusResponse.of(member, isVoted);
+            Location location = readLocationUseCase.readLocation(roomId, member.getMemberId());
+            MemberVoteStatusResponse response = MemberVoteStatusResponse.of(
+                member, location, isVoted);
             responses.add(response);
         }
         return responses;
