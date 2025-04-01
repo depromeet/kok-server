@@ -16,9 +16,9 @@ import com.kok.kokcore.room.usecase.UpdateRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
-import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
+import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
+import com.kok.kokcore.station.usecase.UserRecommendUseCase;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
-import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,17 +38,18 @@ public class VoteController {
     private final GetRoomUseCase getRoomUseCase;
     private final GetVoteUseCase getVoteUseCase;
     private final RetrieveRouteUseCase retrieveRouteUseCase;
-    private final SaveVoteUseCase saveVoteUseCase;
     private final UpdateRoomUseCase updateRoomUseCase;
-    private final GetCandidateUseCase getCandidateUseCase;
+    private final SystemRecommendUseCase systemRecommendedUseCase;
+    private final UserRecommendUseCase userRecommendUseCase;
 
     @Operation(summary = "투표 후보지 목록 조회", description = "방 ID과 사용자 ID를 기반으로 투표 후보지 상세 정보를 조회합니다.")
     @GetMapping("/votes/{roomId}/{memberId}/candidates")
     public ResponseEntity<ApiResponseDto<List<CandidateResponse>>> getCandidates(
         @PathVariable String roomId, @PathVariable String memberId) {
-        List<Station> stations = stationFacadeService.getCandidateStation(roomId);
+        List<Station> recommendedStations = systemRecommendedUseCase.systemRecommendStation(roomId);
+        List<Station> customStations = userRecommendUseCase.getUserRecommendStation(roomId);
         List<CandidateResponse> responses = voteFacadeService.getCandidates(
-            roomId, memberId, stations);
+            roomId, memberId, recommendedStations, customStations);
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 

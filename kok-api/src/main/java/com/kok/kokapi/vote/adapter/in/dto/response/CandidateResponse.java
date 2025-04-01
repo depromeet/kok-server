@@ -12,10 +12,11 @@ public record CandidateResponse(
     List<String> routes,
     Integer totalTime,
     Integer transferCount,
+    boolean isKokRecommended,
     List<CommentResponse> comments
 ) {
 
-    public static CandidateResponse of(
+    public static CandidateResponse recommended(
         Station station,
         List<Route> routes,
         TmapPublicTransportationParsedResponse transportationParsedResponse,
@@ -29,6 +30,26 @@ public record CandidateResponse(
                 transportationParsedResponse.totalTime() : null,
             Objects.nonNull(transportationParsedResponse) ?
                 transportationParsedResponse.transferCount() : null,
+            true,
+            comments
+        );
+    }
+
+    public static CandidateResponse custom(
+        Station station,
+        List<Route> routes,
+        TmapPublicTransportationParsedResponse transportationParsedResponse,
+        List<CommentResponse> comments //comment 도메인 구현 시 List<Comment>로 교체
+    ) {
+        return new CandidateResponse(
+            station.getId(),
+            station.getName(),
+            getRoutes(routes),
+            Objects.nonNull(transportationParsedResponse) ?
+                transportationParsedResponse.totalTime() : null,
+            Objects.nonNull(transportationParsedResponse) ?
+                transportationParsedResponse.transferCount() : null,
+            false,
             comments
         );
     }

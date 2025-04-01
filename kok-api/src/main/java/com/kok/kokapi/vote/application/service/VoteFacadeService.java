@@ -15,7 +15,6 @@ import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.usecase.GetStationUseCase;
 import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
-import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
@@ -23,6 +22,7 @@ import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -40,16 +40,32 @@ public class VoteFacadeService {
     private final SaveVoteUseCase saveVoteUseCase;
 
     public List<CandidateResponse> getCandidates(
-        String roomId, String memberId, List<Station> stations) {
-        List<Candidate> candidates = getCandidateUseCase.saveAndGetCandidates(roomId, stations);
+        String roomId, String memberId,
+        List<Station> recommendedStations,
+        List<Station> customStations) {
+        List<Station> allStations = Stream.concat(
+            recommendedStations.stream(), customStations.stream()
+        ).toList();
+        getCandidateUseCase.saveAndGetCandidates(roomId, allStations);
+
         List<CandidateResponse> responses = new ArrayList<>();
-        for (Candidate candidate : candidates) {
-            Station station = getStationUseCase.getStation(candidate.getStationId());
+        responses.addAll(createCandidateResponses(recommendedStations, roomId, memberId, true));
+        responses.addAll(createCandidateResponses(customStations, roomId, memberId, false));
+
+        return responses;
+    }
+
+
+    private List<CandidateResponse> createCandidateResponses(
+        List<Station> stations, String roomId, String memberId, boolean isRecommended) {
+        List<CandidateResponse> responses = new ArrayList<>();
+        for (Station station : stations) {
             List<Route> routes = retrieveRouteUseCase.retrieveRoutes(station);
-            TmapPublicTransportationParsedResponse transportationParsedResponse = getTransportationParsedResponse(
+            TmapPublicTransportationParsedResponse transportation = getTransportationParsedResponse(
                 roomId, memberId, station);
-            CandidateResponse response = CandidateResponse.of(
-                station, routes, transportationParsedResponse, List.of());
+            CandidateResponse response = isRecommended
+                ? CandidateResponse.recommended(station, routes, transportation, List.of())
+                : CandidateResponse.custom(station, routes, transportation, List.of());
             responses.add(response);
         }
         return responses;
