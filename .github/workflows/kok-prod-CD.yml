@@ -81,8 +81,8 @@ jobs:
             docker compose -f $COMPOSE_FILE pull
             docker compose -f $COMPOSE_FILE up -d
 
-            echo "🩺 Health Check (30초 대기)"
-            sleep 30
+            echo "🩺 Health Check (60초 대기)"
+            sleep 60
             HEALTH=$(curl -s http://localhost:8080/v1/api/health)
             
             CODE=$(echo "$HEALTH" | jq -r '.code')
