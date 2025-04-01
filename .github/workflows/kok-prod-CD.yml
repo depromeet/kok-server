@@ -99,7 +99,7 @@ jobs:
             sed -i "s|proxy_pass http://$OLD_ENV:8080;|proxy_pass http://$NEW_ENV:8080;|" nginx.conf
 
             echo "🔄 Nginx 설정 reload"
-            docker exec kok-nginx nginx -s reload
+            docker restart kok-nginx
 
             echo "🧹 이전 환경($OLD_ENV) 정리"
             docker compose -f docker-compose-${OLD_ENV#kok-}.yml stop $OLD_ENV
