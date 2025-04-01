@@ -13,7 +13,6 @@ services:
       - "8081:8080"
     networks:
       - kok-network
-
 networks:
   kok-network:
-    driver: bridge
+    external: true

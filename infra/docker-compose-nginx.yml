@@ -16,4 +16,4 @@ services:
 
 networks:
   kok-network:
-    driver: bridge
+    external: true
