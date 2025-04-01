@@ -83,7 +83,7 @@ jobs:
 
             echo "🩺 Health Check (30초 대기)"
             sleep 30
-            HEALTH=$(curl -s http://localhost:$NEW_PORT/v1/api/health)
+            HEALTH=$(curl -s http://localhost:8080/v1/api/health)
             
             CODE=$(echo "$HEALTH" | jq -r '.code')
             DATA=$(echo "$HEALTH" | jq -r '.data')
