@@ -28,6 +28,7 @@ jobs:
           scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-green.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
           scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-env.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
           scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/nginx/nginx.conf ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}/nginx.conf
+          scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-nginx.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
 
       - name: Deploy to NCP (Blue-Green Auto + DB/Redis Check)
         uses: appleboy/ssh-action@v1.0.3
@@ -41,7 +42,16 @@ jobs:
             # .env에 최신 태그 기록
             sed -i '/^KOK_PROD_TAG=/d' .env || true
             echo "KOK_PROD_TAG=${{ env.LATEST_TAG }}" >> .env
-
+            
+            echo "🔍 nginx 컨테이너 상태 확인..."
+            if ! docker compose -f docker-compose-nginx.yml ps | grep -q "Up"; then
+              echo "🚀 nginx 시작"
+              docker compose -f docker-compose-nginx.yml up -d
+            else
+              echo "✅ nginx 이미 실행 중"
+            fi
+            
+            
             echo "🔍 ENV 컨테이너 상태 확인..."
             if ! docker compose -f docker-compose-env.yml ps | grep -q "Up"; then
               echo "🚀 ENV 시작"
