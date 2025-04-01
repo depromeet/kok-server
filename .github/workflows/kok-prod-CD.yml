@@ -60,7 +60,7 @@ jobs:
             fi
 
             # 현재 사용 중인 Blue/Green 확인
-            CURRENT_ENV=$(grep -o 'server kok-[a-z]\+' nginx.conf | awk '{print $2}')
+            CURRENT_ENV=$(grep -o 'proxy_pass http://kok-[a-z]\+' nginx.conf | awk -F/ '{print $3}')
             echo "현재 사용 중인 환경: $CURRENT_ENV"
 
             if [[ "$CURRENT_ENV" == "kok-blue" ]]; then
@@ -96,7 +96,7 @@ jobs:
             fi
             
             echo "⚙️ nginx.conf 트래픽을 $NEW_ENV로 변경"
-            sed -i "s/server $OLD_ENV:8080/server $NEW_ENV:8080/" nginx.conf
+            sed -i "s|proxy_pass http://$OLD_ENV:8080;|proxy_pass http://$NEW_ENV:8080;|" nginx.conf
 
             echo "🔄 Nginx 설정 reload"
             docker exec kok-nginx nginx -s reload
