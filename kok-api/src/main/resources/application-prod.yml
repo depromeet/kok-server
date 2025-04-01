@@ -42,7 +42,7 @@ springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
   swagger-ui:
-    enabled: false
+    #    enabled: false
     path: /swagger
 # open-api: http://data.seoul.go.kr/dataList/OA-21232/S/1/datasetView.do
 station:
