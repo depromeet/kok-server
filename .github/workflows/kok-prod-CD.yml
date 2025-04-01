@@ -27,7 +27,6 @@ jobs:
           scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-blue.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
           scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-green.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
           scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-env.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
-          scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/nginx/nginx.conf ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}/nginx.conf
           scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-nginx.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
 
       - name: Deploy to NCP (Blue-Green Auto + DB/Redis Check)
