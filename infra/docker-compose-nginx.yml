@@ -6,7 +6,7 @@ services:
     image: nginx:latest
     restart: always
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     env_file:
       - .env
     ports:
