@@ -20,13 +20,17 @@ spring:
     baseline-on-migrate: true
   data:
     redis:
-      cluster:
-        nodes:
-          - ${REDIS_HOST1}:${REDIS_PORT}
-          - ${REDIS_HOST2}:${REDIS_PORT}
-          - ${REDIS_HOST3}:${REDIS_PORT}
-        max-redirects: 3
+      host: ${REDIS_HOST} # redis도 서버 내부에서 처리.
+      port: ${REDIS_PORT}
       timeout: 5000
+#    redis:
+#      cluster:
+#        nodes:
+#          - ${REDIS_HOST1}:${REDIS_PORT}
+#          - ${REDIS_HOST2}:${REDIS_PORT}
+#          - ${REDIS_HOST3}:${REDIS_PORT}
+#        max-redirects: 3
+#      timeout: 5000
 #      sentinel:
 #        master: ${REDIS_SENTINEL_MASTER}
 #        nodes:
@@ -38,7 +42,7 @@ springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
   swagger-ui:
-    enabled: false
+    enabled: true
     path: /swagger
 # open-api: http://data.seoul.go.kr/dataList/OA-21232/S/1/datasetView.do
 station:

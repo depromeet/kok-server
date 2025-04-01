@@ -3,7 +3,7 @@ version: '3.8'
 services:
   kok-green:
     container_name: kok-green
-    image: ${DOCKERHUB_USERNAME}/kok-prod:latest
+    image: ${DOCKERHUB_USERNAME}/kok-prod:${KOK_PROD_TAG}
     restart: always
     env_file:
       - .env
@@ -16,4 +16,4 @@ services:
 
 networks:
   kok-network:
-    driver: bridge
+    external: true
