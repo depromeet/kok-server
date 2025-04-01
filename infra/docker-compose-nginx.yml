@@ -10,7 +10,7 @@ services:
     env_file:
       - .env
     ports:
-      - "80:80"
+      - "8080:80"
     networks:
       - kok-network
 
