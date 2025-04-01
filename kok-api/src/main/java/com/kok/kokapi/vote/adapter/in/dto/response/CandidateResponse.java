@@ -4,13 +4,14 @@ import com.kok.kokapi.public_transportation.adapter.in.dto.response.TmapPublicTr
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.List;
+import java.util.Objects;
 
 public record CandidateResponse(
     long stationId,
     String stationName,
     List<String> routes,
-    int totalTime,
-    int transferCount,
+    Integer totalTime,
+    Integer transferCount,
     List<CommentResponse> comments
 ) {
 
@@ -24,8 +25,10 @@ public record CandidateResponse(
             station.getId(),
             station.getName(),
             getRoutes(routes),
-            transportationParsedResponse.totalTime(),
-            transportationParsedResponse.transferCount(),
+            Objects.nonNull(transportationParsedResponse) ?
+                transportationParsedResponse.totalTime() : null,
+            Objects.nonNull(transportationParsedResponse) ?
+                transportationParsedResponse.transferCount() : null,
             comments
         );
     }
