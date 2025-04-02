@@ -69,3 +69,6 @@ tmap-complex:
   key: ${TMAP_KEY}
   url: "https://apis.openapi.sk.com/transit/routes"
   keyname: "appKey"
+
+swagger:
+  appname: "https://prod-api.kokokok.com"
