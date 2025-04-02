@@ -8,12 +8,17 @@ import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.VoteDeadlineResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultResponse;
+import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultStationResponse;
 import com.kok.kokapi.vote.application.service.VoteFacadeService;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.room.usecase.UpdateRoomUseCase;
+import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
-import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
+import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
+import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
+import com.kok.kokcore.station.usecase.UserRecommendUseCase;
+import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,16 +36,20 @@ public class VoteController {
     private final VoteFacadeService voteFacadeService;
     private final StationFacadeService stationFacadeService;
     private final GetRoomUseCase getRoomUseCase;
-    private final SaveVoteUseCase saveVoteUseCase;
+    private final GetVoteUseCase getVoteUseCase;
+    private final RetrieveRouteUseCase retrieveRouteUseCase;
     private final UpdateRoomUseCase updateRoomUseCase;
+    private final SystemRecommendUseCase systemRecommendedUseCase;
+    private final UserRecommendUseCase userRecommendUseCase;
 
     @Operation(summary = "투표 후보지 목록 조회", description = "방 ID과 사용자 ID를 기반으로 투표 후보지 상세 정보를 조회합니다.")
     @GetMapping("/votes/{roomId}/{memberId}/candidates")
     public ResponseEntity<ApiResponseDto<List<CandidateResponse>>> getCandidates(
         @PathVariable String roomId, @PathVariable String memberId) {
-        List<Station> stations = stationFacadeService.getCandidateStation(roomId);
-        List<CandidateResponse> responses = voteFacadeService.getCandidates(roomId, memberId,
-            stations);
+        List<Station> recommendedStations = systemRecommendedUseCase.systemRecommendStation(roomId);
+        List<Station> customStations = userRecommendUseCase.getUserRecommendStation(roomId);
+        List<CandidateResponse> responses = voteFacadeService.getCandidates(
+            roomId, memberId, recommendedStations, customStations);
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 
@@ -51,7 +60,8 @@ public class VoteController {
         @PathVariable String memberId,
         @RequestBody VoteRequest voteRequest
     ) {
-        saveVoteUseCase.saveVotes(roomId, memberId, voteRequest.agreedStationIds());
+        List<Station> stations = stationFacadeService.getCandidateStation(roomId);
+        voteFacadeService.saveVotes(roomId, memberId, voteRequest.agreedStationIds(), stations);
         return ResponseEntity.ok(ApiResponseDto.success(null));
     }
 
@@ -63,7 +73,7 @@ public class VoteController {
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 
-    @Operation(summary = "투표 마감 시간 조회", description = "방 ID에 대한 투표 마감 시간을 조회합니다.")
+    @Operation(summary = "투표 마감 시간 조회", description = "방 ID에 대한 투표 마감 시간(UTC)을 조회합니다.")
     @GetMapping("/votes/{roomId}/deadline")
     public ResponseEntity<ApiResponseDto<VoteDeadlineResponse>> getVoteDeadline(
         @PathVariable String roomId) {
@@ -84,6 +94,16 @@ public class VoteController {
     public ResponseEntity<ApiResponseDto<VoteResultResponse>> getVoteResult(
         @PathVariable String roomId, @PathVariable String memberId) {
         VoteResultResponse response = voteFacadeService.getVoteResult(roomId, memberId);
+        return ResponseEntity.ok(ApiResponseDto.success(response));
+    }
+
+    @Operation(summary = "투표 최종 결과 조회", description = "방 ID에 대한 최종 투표 결과를 조회합니다.")
+    @GetMapping("/votes/{roomId}/results")
+    public ResponseEntity<ApiResponseDto<VoteResultStationResponse>> getFinalResult(
+        @PathVariable String roomId) {
+        Station station = getVoteUseCase.getVoteFinalResult(roomId);
+        List<Route> routes = retrieveRouteUseCase.retrieveRoutes(station);
+        VoteResultStationResponse response = VoteResultStationResponse.of(station, routes);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 }

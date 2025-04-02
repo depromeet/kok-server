@@ -1,4 +1,6 @@
 spring:
+  jackson:
+    time-zone: UTC
   profiles:
     active: test
   flyway:

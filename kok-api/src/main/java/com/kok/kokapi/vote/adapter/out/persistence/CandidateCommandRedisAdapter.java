@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class CandidateCommandRedisAdapter implements SaveCandidatePort {
 
-    private static final String CANDIDATE_KEY_FORMAT = "vote:%s:candidates";
+    private static final String CANDIDATE_KEY_FORMAT = "candidate:%s";
 
     private final RedisTemplate<String, Object> redisTemplate;
 

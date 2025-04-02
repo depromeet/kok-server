@@ -13,7 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 class CandidateCommandRedisAdapterTest extends RepositoryTest {
 
-    private static final String CANDIDATE_KEY_FORMAT = "vote:%s:candidates";
+    private static final String CANDIDATE_KEY_FORMAT = "candidate:%s";
 
     @Autowired
     private CandidateCommandRedisAdapter candidateCommandRedisAdapter;

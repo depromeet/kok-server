@@ -8,6 +8,8 @@ import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.ResultResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultResponse;
+import com.kok.kokcore.location.domain.Location;
+import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
@@ -15,13 +17,14 @@ import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.usecase.GetStationUseCase;
 import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
-import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
+import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,18 +39,36 @@ public class VoteFacadeService {
     private final GetRoomUseCase getRoomUseCase;
     private final TmapPublicTransportationService tmapPublicTransportationService;
     private final ObjectMapper objectMapper;
+    private final SaveVoteUseCase saveVoteUseCase;
+    private final ReadLocationUseCase readLocationUseCase;
 
-    public List<CandidateResponse> getCandidates(String roomId, String memberId,
-        List<Station> stations) {
-        List<Candidate> candidates = getCandidateUseCase.saveAndGetCandidates(roomId, stations);
+    public List<CandidateResponse> getCandidates(
+        String roomId, String memberId,
+        List<Station> recommendedStations,
+        List<Station> customStations) {
+        List<Station> allStations = Stream.concat(
+            recommendedStations.stream(), customStations.stream()
+        ).toList();
+        getCandidateUseCase.saveAndGetCandidates(roomId, allStations);
+
         List<CandidateResponse> responses = new ArrayList<>();
-        for (Candidate candidate : candidates) {
-            Station station = getStationUseCase.getStation(candidate.getStationId());
+        responses.addAll(createCandidateResponses(recommendedStations, roomId, memberId, true));
+        responses.addAll(createCandidateResponses(customStations, roomId, memberId, false));
+
+        return responses;
+    }
+
+
+    private List<CandidateResponse> createCandidateResponses(
+        List<Station> stations, String roomId, String memberId, boolean isRecommended) {
+        List<CandidateResponse> responses = new ArrayList<>();
+        for (Station station : stations) {
             List<Route> routes = retrieveRouteUseCase.retrieveRoutes(station);
-            TmapPublicTransportationParsedResponse transportationParsedResponse = getTransportationParsedResponse(
+            TmapPublicTransportationParsedResponse transportation = getTransportationParsedResponse(
                 roomId, memberId, station);
-            CandidateResponse response = CandidateResponse.of(
-                station, routes, transportationParsedResponse, List.of());
+            CandidateResponse response = isRecommended
+                ? CandidateResponse.recommended(station, routes, transportation, List.of())
+                : CandidateResponse.custom(station, routes, transportation, List.of());
             responses.add(response);
         }
         return responses;
@@ -73,7 +94,9 @@ public class VoteFacadeService {
         List<MemberVoteStatusResponse> responses = new ArrayList<>();
         for (Member member : members) {
             boolean isVoted = getVoteUseCase.isVotedByMember(roomId, member.getMemberId());
-            MemberVoteStatusResponse response = MemberVoteStatusResponse.of(member, isVoted);
+            Location location = readLocationUseCase.readLocation(roomId, member.getMemberId());
+            MemberVoteStatusResponse response = MemberVoteStatusResponse.of(
+                member, location, isVoted);
             responses.add(response);
         }
         return responses;
@@ -91,5 +114,11 @@ public class VoteFacadeService {
             responses.add(response);
         }
         return new VoteResultResponse(room.getNotVotedCount(votedCount), responses);
+    }
+
+    public void saveVotes(
+        String roomId, String memberId, List<Long> agreedStationIds, List<Station> stations) {
+        getCandidateUseCase.saveAndGetCandidates(roomId, stations);
+        saveVoteUseCase.saveVotes(roomId, memberId, agreedStationIds);
     }
 }
