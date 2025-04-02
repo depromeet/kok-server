@@ -4,6 +4,7 @@ import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public record StationRouteDtos(
@@ -33,10 +34,10 @@ public record StationRouteDtos(
     public List<Route> toRoutesByStations(List<Station> stations) {
         List<Route> routes = new ArrayList<>();
         for (Station station : stations) {
-            List<Route> routesOfStation = stationRouteDtos.stream()
+            Set<Route> routesOfStation = stationRouteDtos.stream()
                 .filter(stationRouteDto -> stationRouteDto.hasName(station))
                 .map(stationRouteDto -> stationRouteDto.toRouteByStation(station))
-                .toList();
+                .collect(Collectors.toSet());
             routes.addAll(routesOfStation);
         }
         return routes;

@@ -20,6 +20,6 @@ public record StationRouteDto(
     }
 
     public Route toRouteByStation(Station station) {
-        return new Route(stationId, route, station);
+        return new Route(route, station);
     }
 }

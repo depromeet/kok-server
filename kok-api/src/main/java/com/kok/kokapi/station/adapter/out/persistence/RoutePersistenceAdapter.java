@@ -22,12 +22,11 @@ public class RoutePersistenceAdapter implements SaveRoutePort, RetrieveRoutePort
     private final RouteRepository routeRepository;
 
     private static final String INSERT_ROUTE_SQL = """
-            INSERT INTO route (code, name, station_id)
-            VALUES (:code, :name, :station_id)
+            INSERT INTO route (name, station_id)
+            VALUES (:name, :station_id)
         """;
     private static final Function<Route, MapSqlParameterSource> mapToParams = route ->
         new MapSqlParameterSource()
-            .addValue("code", route.getCode())
             .addValue("name", route.getName())
             .addValue("station_id", route.getStation().getId());
 
