@@ -26,12 +26,4 @@ public class CandidateService implements GetCandidateUseCase {
         }
         return loadCandidatePort.findByRoomId(roomId);
     }
-
-    @Override
-    public List<Candidate> getCandidates(String roomId) {
-        if (!loadCandidatePort.isExistsByRoomId(roomId)) {
-            throw new IllegalArgumentException("Cannot find candidates for roomId: " + roomId);
-        }
-        return loadCandidatePort.findByRoomId(roomId);
-    }
 }
