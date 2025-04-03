@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class UserRecommendStationCommandRedisAdapter implements SaveUserRecommendStationsPort {
 
-    private static final String USER_RECOMMEND_STATION_PREFIX = "userRecommendStation:";
+    private static final String USER_RECOMMEND_STATION_PREFIX = "userRecommendStations:";
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
