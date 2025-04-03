@@ -41,8 +41,8 @@ class RoomIntegrationTest extends IntegrationTest {
                 () -> joinRoomResponse.set(joinRoom(createRoomResponse.get().id(),
                     new JoinRoomParticipantRequest("profile", "follower")))),
 
-            getRoomDetail("약속방 정보를 조회해보면 미참여자는 0명이다.",
-                createRoomResponse, 0, RoomStatus.LOCATION_INPUT.name()),
+            getRoomDetail("약속방 정보를 조회해보면 미참여자는 1명이다.",
+                createRoomResponse, 1, RoomStatus.LOCATION_INPUT.name()),
 
             getRoomMembers("약속방 프로필 목록을 조회하면 isFull은 true이고, 2명의 프로필이 있다",
                 createRoomResponse, 2, true),
