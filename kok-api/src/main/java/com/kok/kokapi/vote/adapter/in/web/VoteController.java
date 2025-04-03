@@ -16,8 +16,6 @@ import com.kok.kokcore.room.usecase.UpdateRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
-import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
-import com.kok.kokcore.station.usecase.UserRecommendUseCase;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import java.time.LocalDateTime;
@@ -39,17 +37,12 @@ public class VoteController {
     private final GetVoteUseCase getVoteUseCase;
     private final RetrieveRouteUseCase retrieveRouteUseCase;
     private final UpdateRoomUseCase updateRoomUseCase;
-    private final SystemRecommendUseCase systemRecommendedUseCase;
-    private final UserRecommendUseCase userRecommendUseCase;
 
     @Operation(summary = "투표 후보지 목록 조회", description = "방 ID과 사용자 ID를 기반으로 투표 후보지 상세 정보를 조회합니다.")
     @GetMapping("/votes/{roomId}/{memberId}/candidates")
     public ResponseEntity<ApiResponseDto<List<CandidateResponse>>> getCandidates(
         @PathVariable String roomId, @PathVariable String memberId) {
-        List<Station> recommendedStations = systemRecommendedUseCase.systemRecommendStation(roomId);
-        List<Station> customStations = userRecommendUseCase.getUserRecommendStation(roomId);
-        List<CandidateResponse> responses = voteFacadeService.getCandidates(
-            roomId, memberId, recommendedStations, customStations);
+        List<CandidateResponse> responses = voteFacadeService.getCandidates(roomId, memberId);
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 
@@ -78,7 +71,8 @@ public class VoteController {
     public ResponseEntity<ApiResponseDto<VoteDeadlineResponse>> getVoteDeadline(
         @PathVariable String roomId) {
         Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
-        VoteDeadlineResponse response = VoteDeadlineResponse.from(room);
+        int candidateCount = voteFacadeService.countCandidates(roomId);
+        VoteDeadlineResponse response = VoteDeadlineResponse.of(room, candidateCount);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 

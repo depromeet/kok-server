@@ -17,6 +17,8 @@ import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.usecase.GetStationUseCase;
 import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
+import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
+import com.kok.kokcore.station.usecase.UserRecommendUseCase;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
@@ -41,11 +43,12 @@ public class VoteFacadeService {
     private final ObjectMapper objectMapper;
     private final SaveVoteUseCase saveVoteUseCase;
     private final ReadLocationUseCase readLocationUseCase;
+    private final SystemRecommendUseCase systemRecommendUseCase;
+    private final UserRecommendUseCase userRecommendUseCase;
 
-    public List<CandidateResponse> getCandidates(
-        String roomId, String memberId,
-        List<Station> recommendedStations,
-        List<Station> customStations) {
+    public List<CandidateResponse> getCandidates(String roomId, String memberId) {
+        List<Station> recommendedStations = systemRecommendUseCase.systemRecommendStation(roomId);
+        List<Station> customStations = userRecommendUseCase.getUserRecommendStation(roomId);
         List<Station> allStations = Stream.concat(
             recommendedStations.stream(), customStations.stream()
         ).toList();
@@ -120,5 +123,14 @@ public class VoteFacadeService {
         String roomId, String memberId, List<Long> agreedStationIds, List<Station> stations) {
         getCandidateUseCase.saveAndGetCandidates(roomId, stations);
         saveVoteUseCase.saveVotes(roomId, memberId, agreedStationIds);
+    }
+
+    public int countCandidates(String roomId) {
+        List<Station> recommendedStations = systemRecommendUseCase.systemRecommendStation(roomId);
+        List<Station> customStations = userRecommendUseCase.getUserRecommendStation(roomId);
+        List<Station> stations = Stream.concat(
+            recommendedStations.stream(), customStations.stream()
+        ).toList();
+        return getCandidateUseCase.saveAndGetCandidates(roomId, stations).size();
     }
 }
