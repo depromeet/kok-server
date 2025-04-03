@@ -65,8 +65,7 @@ public class RoomQueryService implements GetRoomUseCase {
     }
 
     @Override
-    public int getParticipantsCount(String roomId) {
-        Long participantCount = loadRoomParticipantPort.countParticipantsById(roomId);
-        return participantCount.intValue();
+    public long getParticipantsCount(String roomId) {
+        return readLocationPort.countParticipantsById(roomId);
     }
 }

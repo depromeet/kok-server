@@ -43,7 +43,7 @@ public class RoomController {
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> getRoomDetail(
         @PathVariable String roomId) {
         Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
-        int participantsCount = getRoomUseCase.getParticipantsCount(roomId);
+        long participantsCount = getRoomUseCase.getParticipantsCount(roomId);
         RoomDetailResponse response = RoomDetailResponse.of(room, participantsCount);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }

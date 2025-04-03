@@ -45,6 +45,11 @@ public class LocationPersistenceAdapter implements ReadCentroidPort, SaveLocatio
     }
 
     @Override
+    public long countParticipantsById(String roomId) {
+        return locationRepository.countByRoomId(roomId);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Point findCentroidByRoomId(String roomId) {
         String centroidWKT = locationRepository.findCentroidByRoomId(roomId); // WKT 형식으로 받음

@@ -13,4 +13,6 @@ public interface ReadLocationPort {
     List<Location> findInsideConvexHull(String roomId);
 
     List<Location> findConvexHull(String roomId);
+
+    long countParticipantsById(String roomId);
 }

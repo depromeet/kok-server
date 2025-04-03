@@ -5,11 +5,11 @@ import com.kok.kokcore.room.domain.Room;
 public record RoomDetailResponse(
     String id,
     String roomName,
-    int nonParticipantCount,
+    long nonParticipantCount,
     String roomStatus
 ) {
 
-    public static RoomDetailResponse of(Room room, int participantCount) {
+    public static RoomDetailResponse of(Room room, long participantCount) {
         return new RoomDetailResponse(
             room.getId(),
             room.getRoomName(),
