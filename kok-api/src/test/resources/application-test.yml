@@ -34,3 +34,5 @@ google:
   places:
     api:
       key: mock
+swagger:
+  appname: mock
