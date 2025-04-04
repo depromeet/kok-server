@@ -26,6 +26,8 @@ import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -49,9 +51,9 @@ public class VoteFacadeService {
     public List<CandidateResponse> getCandidates(String roomId, String memberId) {
         List<Station> recommendedStations = systemRecommendUseCase.systemRecommendStation(roomId);
         List<Station> customStations = userRecommendUseCase.getUserRecommendStation(roomId);
-        List<Station> allStations = Stream.concat(
+        Set<Station> allStations = Stream.concat(
             recommendedStations.stream(), customStations.stream()
-        ).toList();
+        ).collect(Collectors.toSet());
         getCandidateUseCase.saveAndGetCandidates(roomId, allStations);
 
         List<CandidateResponse> responses = new ArrayList<>();
@@ -120,7 +122,7 @@ public class VoteFacadeService {
     }
 
     public void saveVotes(
-        String roomId, String memberId, List<Long> agreedStationIds, List<Station> stations) {
+        String roomId, String memberId, List<Long> agreedStationIds, Set<Station> stations) {
         getCandidateUseCase.saveAndGetCandidates(roomId, stations);
         saveVoteUseCase.saveVotes(roomId, memberId, agreedStationIds);
     }
@@ -128,9 +130,9 @@ public class VoteFacadeService {
     public int countCandidates(String roomId) {
         List<Station> recommendedStations = systemRecommendUseCase.systemRecommendStation(roomId);
         List<Station> customStations = userRecommendUseCase.getUserRecommendStation(roomId);
-        List<Station> stations = Stream.concat(
+        Set<Station> stations = Stream.concat(
             recommendedStations.stream(), customStations.stream()
-        ).toList();
+        ).collect(Collectors.toSet());
         return getCandidateUseCase.saveAndGetCandidates(roomId, stations).size();
     }
 }

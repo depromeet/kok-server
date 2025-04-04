@@ -6,6 +6,7 @@ import com.kok.kokcore.vote.port.out.LoadCandidatePort;
 import com.kok.kokcore.vote.port.out.SaveCandidatePort;
 import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ public class CandidateService implements GetCandidateUseCase {
     private final LoadCandidatePort loadCandidatePort;
 
     @Override
-    public List<Candidate> saveAndGetCandidates(String roomId, List<Station> stations) {
+    public List<Candidate> saveAndGetCandidates(String roomId, Set<Station> stations) {
         if (!loadCandidatePort.isExistsByRoomId(roomId)) {
             List<Candidate> candidates = stations.stream()
                 .map(station -> new Candidate(roomId, station.getId()))
