@@ -8,10 +8,12 @@ import com.kok.kokcore.room.port.out.UpdateRoomPort;
 import java.time.Duration;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Slf4j
 @RequiredArgsConstructor
 public class RoomSaveRedisAdapter implements SaveRoomPort, UpdateRoomPort {
 
@@ -52,6 +54,7 @@ public class RoomSaveRedisAdapter implements SaveRoomPort, UpdateRoomPort {
     private Duration getTTL(String key) {
         Long expireSeconds = redisTemplate.getExpire(key);
         if (Objects.isNull(expireSeconds) || expireSeconds <= 0) {
+            log.warn("Cannot find key: {}, initiate expire TTL", key);
             return ROOM_TTL;
         }
         return Duration.ofSeconds(expireSeconds);

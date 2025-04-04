@@ -105,6 +105,7 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
     private Duration getTTL(String key) {
         Long expireSeconds = redisTemplate.getExpire(key);
         if (Objects.isNull(expireSeconds) || expireSeconds <= 0) {
+            log.warn("Cannot find key: {}, initiate expire TTL", key);
             return VOTE_TTL;
         }
         return Duration.ofSeconds(expireSeconds);
