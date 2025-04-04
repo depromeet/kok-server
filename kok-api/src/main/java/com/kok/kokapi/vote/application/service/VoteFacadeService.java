@@ -51,32 +51,35 @@ public class VoteFacadeService {
     public List<CandidateResponse> getCandidates(String roomId, String memberId) {
         List<Station> recommendedStations = systemRecommendUseCase.systemRecommendStation(roomId);
         List<Station> customStations = userRecommendUseCase.getUserRecommendStation(roomId);
-        Set<Station> allStations = Stream.concat(
+        Set<Station> stations = Stream.concat(
             recommendedStations.stream(), customStations.stream()
         ).collect(Collectors.toSet());
-        getCandidateUseCase.saveAndGetCandidates(roomId, allStations);
+        getCandidateUseCase.saveAndGetCandidates(roomId, stations);
 
         List<CandidateResponse> responses = new ArrayList<>();
-        responses.addAll(createCandidateResponses(recommendedStations, roomId, memberId, true));
-        responses.addAll(createCandidateResponses(customStations, roomId, memberId, false));
+        for (Station station : stations) {
+            if (recommendedStations.contains(station)) {
+                responses.add(createCandidateResponse(station, roomId, memberId, true));
+                continue;
+            }
+            if (customStations.contains(station)) {
+                responses.add(createCandidateResponse(station, roomId, memberId, false));
+            }
+        }
 
         return responses;
     }
 
 
-    private List<CandidateResponse> createCandidateResponses(
-        List<Station> stations, String roomId, String memberId, boolean isRecommended) {
-        List<CandidateResponse> responses = new ArrayList<>();
-        for (Station station : stations) {
-            List<Route> routes = retrieveRouteUseCase.retrieveRoutes(station);
-            TmapPublicTransportationParsedResponse transportation = getTransportationParsedResponse(
-                roomId, memberId, station);
-            CandidateResponse response = isRecommended
-                ? CandidateResponse.recommended(station, routes, transportation, List.of())
-                : CandidateResponse.custom(station, routes, transportation, List.of());
-            responses.add(response);
-        }
-        return responses;
+    private CandidateResponse createCandidateResponse(
+        Station station, String roomId, String memberId, boolean isRecommended) {
+        List<Route> routes = retrieveRouteUseCase.retrieveRoutes(station);
+        TmapPublicTransportationParsedResponse transportation = getTransportationParsedResponse(
+            roomId, memberId, station);
+        CandidateResponse response = isRecommended
+            ? CandidateResponse.recommended(station, routes, transportation, List.of())
+            : CandidateResponse.custom(station, routes, transportation, List.of());
+        return response;
     }
 
     private TmapPublicTransportationParsedResponse getTransportationParsedResponse(
