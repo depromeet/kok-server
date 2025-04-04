@@ -1,16 +1,22 @@
 package com.kok.kokapi.vote.adapter.in.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kok.kokcore.room.domain.Room;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 public record VoteDeadlineResponse(
     int candidateCount,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
     LocalDateTime endAt
 ) {
 
     public static VoteDeadlineResponse of(Room room, int candidateCount) {
-        return new VoteDeadlineResponse(candidateCount, room.getVoteLimitDateTime());
+        return new VoteDeadlineResponse(
+            candidateCount,
+            room.getVoteLimitDateTime()
+                .atZone(ZoneOffset.UTC)
+                .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                .toLocalDateTime()
+        );
     }
 }
