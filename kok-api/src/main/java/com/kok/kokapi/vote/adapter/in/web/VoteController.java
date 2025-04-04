@@ -20,6 +20,7 @@ import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,7 +54,7 @@ public class VoteController {
         @PathVariable String memberId,
         @RequestBody VoteRequest voteRequest
     ) {
-        List<Station> stations = stationFacadeService.getCandidateStation(roomId);
+        Set<Station> stations = stationFacadeService.getCandidateStation(roomId);
         voteFacadeService.saveVotes(roomId, memberId, voteRequest.agreedStationIds(), stations);
         return ResponseEntity.ok(ApiResponseDto.success(null));
     }
