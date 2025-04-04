@@ -7,6 +7,7 @@ import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.port.out.SaveRoomPort;
 import com.kok.kokcore.room.port.out.UpdateRoomPort;
 import java.time.Duration;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -35,7 +36,8 @@ public class RoomSaveRedisAdapter implements SaveRoomPort, UpdateRoomPort {
             throw new RuntimeException("failed to serialize room object", e);
         } catch (Exception e) {
             log.error("[Room] Save to Redis failed. roomId={}, key={}", room.getId(), key, e);
-            throw new RuntimeException("failed to save room to Redis: " + e.getClass().getSimpleName(), e);
+            throw new RuntimeException(
+                "failed to save room to Redis: " + e.getClass().getSimpleName(), e);
         }
         return room;
     }
@@ -45,19 +47,28 @@ public class RoomSaveRedisAdapter implements SaveRoomPort, UpdateRoomPort {
         String key = buildKey(room.getId());
         try {
             String roomJson = objectMapper.writeValueAsString(room);
-            Duration currentTtl = Duration.ofSeconds(redisTemplate.getExpire(key));
-
+            Duration currentTtl = getTTL(key);
             redisTemplate.opsForValue().set(key, roomJson, currentTtl);
         } catch (JsonProcessingException e) {
             log.error("[Room] Failed to serialize room. roomId={}", room.getId(), e);
             throw new RuntimeException("failed to serialize room object", e);
         } catch (RuntimeException e) {
             log.error("[Room] update to Redis failed. roomId={}, key={}", room.getId(), key, e);
-            throw new RuntimeException("failed to update room in Redis: " + e.getClass().getSimpleName(), e);
+            throw new RuntimeException(
+                "failed to update room in Redis: " + e.getClass().getSimpleName(), e);
         }
     }
 
     private String buildKey(String roomId) {
         return ROOM_KEY_PREFIX + ":" + roomId;
+    }
+
+    private Duration getTTL(String key) {
+        Long expireSeconds = redisTemplate.getExpire(key);
+        if (Objects.isNull(expireSeconds) || expireSeconds <= 0) {
+            log.warn("Cannot find key: {}, initiate expire TTL", key);
+            return ROOM_TTL;
+        }
+        return Duration.ofSeconds(expireSeconds);
     }
 }
