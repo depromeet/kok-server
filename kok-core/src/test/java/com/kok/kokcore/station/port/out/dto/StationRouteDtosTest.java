@@ -85,12 +85,12 @@ class StationRouteDtosTest {
         List<Route> routes = stationRouteDtos.toRoutesByStations(List.of(station1, station2));
 
         // then
-        List<Long> codes = routes.stream().map(Route::getCode).toList();
+        List<String> names = routes.stream().map(Route::getName).toList();
         List<Station> stations = routes.stream().map(Route::getStation).distinct().toList();
 
         assertAll(
             () -> assertThat(routes).hasSize(3),
-            () -> assertThat(codes).containsExactlyInAnyOrder(1L, 2L, 3L),
+            () -> assertThat(names).containsExactlyInAnyOrder("1호선", "2호선", "신분당선"),
             () -> assertThat(stations).containsExactlyInAnyOrder(station1, station2)
         );
     }

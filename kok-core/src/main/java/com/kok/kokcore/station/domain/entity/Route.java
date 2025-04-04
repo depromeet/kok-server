@@ -36,12 +36,14 @@ public class Route {
         Map.entry("경인선", "1호선"),
         Map.entry("경원선", "1호선"),
         Map.entry("장항선", "1호선"),
+        Map.entry("과천선", "4호선"),
+        Map.entry("7호선(인천)", "7호선"),
+        Map.entry("9호선(연장)", "9호선"),
         Map.entry("신분당선(연장)", "신분당선"),
         Map.entry("신분당선(연장2)", "신분당선"),
-        Map.entry("9호선(연장)", "9호선"),
-        Map.entry("7호선(인천)", "7호선"),
         Map.entry("수인선", "수인분당선"),
         Map.entry("분당선", "수인분당선"),
+        Map.entry("안산선", "수인분당선"),
         Map.entry("수도권 광역급행철도", "GTX"),
         Map.entry("공항철도1호선", "공항철도")
     );

@@ -32,8 +32,10 @@ public class Room implements Serializable {
         this.capacity = capacity;
         this.member = member;
         this.createdDateTime = LocalDateTime.now().withNano(0);
-        this.locationInputLimitDateTime = createdDateTime.plusHours(LOCATION_INPUT_TIME_LIMIT);
-        this.voteLimitDateTime = locationInputLimitDateTime.plusHours(VOTE_TIME_LIMIT);
+        this.locationInputLimitDateTime = createdDateTime.plusHours(LOCATION_INPUT_TIME_LIMIT)
+            .withNano(0);
+        this.voteLimitDateTime = locationInputLimitDateTime.plusHours(VOTE_TIME_LIMIT)
+            .withNano(0);
         this.status = RoomStatus.LOCATION_INPUT;
     }
 
