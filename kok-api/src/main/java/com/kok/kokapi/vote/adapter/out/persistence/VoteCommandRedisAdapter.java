@@ -4,6 +4,7 @@ import com.kok.kokapi.common.util.RedisExecutor;
 import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.port.out.DeleteVotePort;
 import com.kok.kokcore.vote.port.out.SaveVotePort;
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
+
+    private static final Duration VOTE_TTL = Duration.ofDays(3);
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -30,31 +33,35 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
                 String status = vote.getVoteStatus().getName();
                 redisTemplate.opsForHash().put(memberHashKey, field, status);
             }
+            redisTemplate.expire(memberHashKey, getTTL(memberHashKey));
         });
     }
 
     @Override
     public void saveVotedMemberSet(String roomId, String memberId) {
         String votedMemberSetKey = VoteKey.voteKey(roomId);
-        RedisExecutor.runOrThrow("saveVotedMemberSet", () ->
-            redisTemplate.opsForSet().add(votedMemberSetKey, memberId)
-        );
+        RedisExecutor.runOrThrow("saveVotedMemberSet", () -> {
+            redisTemplate.opsForSet().add(votedMemberSetKey, memberId);
+            redisTemplate.expire(votedMemberSetKey, getTTL(votedMemberSetKey));
+        });
     }
 
     @Override
     public void saveVoteStatusSet(Vote vote) {
         String key = VoteKey.voteStatusMemberSetKey(vote);
-        RedisExecutor.runOrThrow("saveVoteStatusSet", () ->
-            redisTemplate.opsForSet().add(key, vote.getMemberId())
-        );
+        RedisExecutor.runOrThrow("saveVoteStatusSet", () -> {
+            redisTemplate.opsForSet().add(key, vote.getMemberId());
+            redisTemplate.expire(key, getTTL(key));
+        });
     }
 
     @Override
     public void incrementVoteStatusCountZSet(Vote vote) {
         String key = VoteKey.voteStatusCountZSetKey(vote);
-        RedisExecutor.runOrThrow("incrementVoteStatusCountZSet", () ->
-            redisTemplate.opsForZSet().incrementScore(key, vote.getStationId(), 1)
-        );
+        RedisExecutor.runOrThrow("incrementVoteStatusCountZSet", () -> {
+            redisTemplate.opsForZSet().incrementScore(key, vote.getStationId(), 1);
+            redisTemplate.expire(key, getTTL(key));
+        });
     }
 
     private void validate(List<Vote> votes) {
@@ -93,5 +100,13 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
         RedisExecutor.runOrThrow("removeMemberFromVotedSet", () ->
             redisTemplate.opsForSet().remove(key, memberId)
         );
+    }
+
+    private Duration getTTL(String key) {
+        Long expireSeconds = redisTemplate.getExpire(key);
+        if (Objects.isNull(expireSeconds) || expireSeconds <= 0) {
+            return VOTE_TTL;
+        }
+        return Duration.ofSeconds(expireSeconds);
     }
 }
