@@ -6,6 +6,7 @@ import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.port.out.SaveRoomPort;
 import com.kok.kokcore.room.port.out.UpdateRoomPort;
 import java.time.Duration;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -37,8 +38,7 @@ public class RoomSaveRedisAdapter implements SaveRoomPort, UpdateRoomPort {
         String key = buildKey(room.getId());
         try {
             String roomJson = objectMapper.writeValueAsString(room);
-            Duration currentTtl = Duration.ofSeconds(redisTemplate.getExpire(key));
-
+            Duration currentTtl = getTTL(key);
             redisTemplate.opsForValue().set(key, roomJson, currentTtl);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("failed to update room in Redis", e);
@@ -47,5 +47,13 @@ public class RoomSaveRedisAdapter implements SaveRoomPort, UpdateRoomPort {
 
     private String buildKey(String roomId) {
         return ROOM_KEY_PREFIX + ":" + roomId;
+    }
+
+    private Duration getTTL(String key) {
+        Long expireSeconds = redisTemplate.getExpire(key);
+        if (Objects.isNull(expireSeconds) || expireSeconds <= 0) {
+            return ROOM_TTL;
+        }
+        return Duration.ofSeconds(expireSeconds);
     }
 }
