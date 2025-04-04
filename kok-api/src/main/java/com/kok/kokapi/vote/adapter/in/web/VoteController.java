@@ -66,7 +66,7 @@ public class VoteController {
         return ResponseEntity.ok(ApiResponseDto.success(responses));
     }
 
-    @Operation(summary = "투표 마감 시간 조회", description = "방 ID에 대한 투표 마감 시간(UTC)을 조회합니다.")
+    @Operation(summary = "투표 마감 시간 조회", description = "방 ID에 대한 투표 마감 시간을 조회합니다.")
     @GetMapping("/votes/{roomId}/deadline")
     public ResponseEntity<ApiResponseDto<VoteDeadlineResponse>> getVoteDeadline(
         @PathVariable String roomId) {
