@@ -24,7 +24,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         // given
         String roomId = "room";
         String memberId = "member";
-        String key = VoteKey.memberKey(roomId, memberId);
+        String key = VoteKey.votedStationsByMemberKey(roomId, memberId);
         redisTemplate.opsForSet().add(key, 1);
 
         // when
@@ -46,7 +46,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         // given
         String roomId = "room2";
         String memberId = "memberB";
-        String key = VoteKey.memberKey(roomId, memberId);
+        String key = VoteKey.votedStationsByMemberKey(roomId, memberId);
         Vote vote = new Vote(roomId, 1L, memberId);
         Vote vote2 = new Vote(roomId, 2L, memberId);
         redisTemplate.opsForSet().add(key, 1, 2);
@@ -64,7 +64,8 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
     void countMembersByRoomId() {
         // given
         String roomId = "room3";
-        redisTemplate.opsForSet().add(VoteKey.voteKey(roomId), "member1", "member2", "member3");
+        redisTemplate.opsForSet()
+            .add(VoteKey.voteCompletedMembersKey(roomId), "member1", "member2", "member3");
 
         // when
         int count = voteQueryRedisAdapter.countMembersByRoomId(roomId);
@@ -95,7 +96,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
     void getFirstStationIdByRoomIdAndVoteStatus() {
         // given
         String roomId = "room5";
-        String key = VoteKey.votedCountOfStationIdKey(roomId);
+        String key = VoteKey.votedCountOfStationKey(roomId);
         redisTemplate.opsForZSet().add(key, "10", 5.0);
         redisTemplate.opsForZSet().add(key, "11", 8.0);
 
@@ -111,7 +112,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
     void getFirstStationIdWhenNoVotes() {
         // given
         String roomId = "room6";
-        String key = VoteKey.votedCountOfStationIdKey(roomId);
+        String key = VoteKey.votedCountOfStationKey(roomId);
         redisTemplate.delete(key);
 
         // when

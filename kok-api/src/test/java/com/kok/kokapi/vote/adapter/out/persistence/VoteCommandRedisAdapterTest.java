@@ -33,29 +33,30 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         voteCommandRedisAdapter.saveVotedStationsByRoomIdAndMemberId(stationIds, roomId, memberId);
 
         // then
-        String key = VoteKey.memberKey(roomId, memberId);
+        String key = VoteKey.votedStationsByMemberKey(roomId, memberId);
         Set<Object> result = redisTemplate.opsForSet().members(key);
         assertThat(result).containsExactlyInAnyOrder(1, 2);
     }
 
     @Test
     @DisplayName("투표 완료자 Set에 멤버를 저장한다.")
-    void saveVotedMemberSet() {
+    void saveVotedMemberByRoomId() {
         // given
         String roomId = "roomId";
         String memberId = "memberId";
 
         // when
-        voteCommandRedisAdapter.saveVotedMemberSet(roomId, memberId);
+        voteCommandRedisAdapter.saveVotedMemberByRoomId(roomId, memberId);
 
         // then
-        Set<Object> result = redisTemplate.opsForSet().members(VoteKey.voteKey(roomId));
+        Set<Object> result = redisTemplate.opsForSet()
+            .members(VoteKey.voteCompletedMembersKey(roomId));
         assertThat(result).containsExactlyInAnyOrder(memberId);
     }
 
     @Test
     @DisplayName("특정 후보지에 투표한 멤버를 저장한다.")
-    void saveVotedMembersByRoomIdAndStationId() {
+    void saveVotedMemberByRoomIdByRoomIdAndStationId() {
         // given
         String roomId = "roomId";
         long stationId = 100;
@@ -63,7 +64,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         Vote vote = new Vote(new Candidate(roomId, stationId), memberId);
 
         // when
-        voteCommandRedisAdapter.saveVotedMembersByRoomIdAndStationId(memberId, roomId, stationId);
+        voteCommandRedisAdapter.saveVotedMemberByRoomIdAndStationId(memberId, roomId, stationId);
 
         // then
         Set<Object> result = redisTemplate.opsForSet()
@@ -84,7 +85,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
 
         // then
         Double score = redisTemplate.opsForZSet()
-            .score(VoteKey.votedCountOfStationIdKey(vote), vote.getStationId());
+            .score(VoteKey.votedCountOfStationKey(roomId), vote.getStationId());
 
         assertThat(score).isEqualTo(1.0);
     }

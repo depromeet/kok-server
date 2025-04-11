@@ -22,7 +22,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
 
     @Override
     public boolean isExistsByRoomIdAndMemberId(String roomId, String memberId) {
-        String key = VoteKey.memberKey(roomId, memberId);
+        String key = VoteKey.votedStationsByMemberKey(roomId, memberId);
         return RedisExecutor.runOrElseGet("isExistsByRoomIdAndMemberId", () ->
             !redisTemplate.opsForSet().members(key).isEmpty(), false
         );
@@ -30,7 +30,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
 
     @Override
     public List<Vote> findAllByRoomIdAndMemberId(String roomId, String memberId) {
-        String key = VoteKey.memberKey(roomId, memberId);
+        String key = VoteKey.votedStationsByMemberKey(roomId, memberId);
         return RedisExecutor.runOrElseGet("findAllByRoomIdAndMemberId", () -> {
             Set<Object> stationIds = redisTemplate.opsForSet().members(key);
             List<Vote> votes = new ArrayList<>();
@@ -44,7 +44,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
     @Override
     public int countMembersByRoomId(String roomId) {
         return RedisExecutor.runOrElseGet("countMembersByRoomId", () -> {
-            String key = VoteKey.voteKey(roomId);
+            String key = VoteKey.voteCompletedMembersKey(roomId);
             Long count = redisTemplate.opsForSet().size(key);
             return Objects.nonNull(count) ? count.intValue() : 0;
         }, 0);
@@ -62,7 +62,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
     @Override
     public long getFirstStationIdByRoomIdAndVoteStatus(String roomId) {
         return RedisExecutor.runOrElseGet("getFirstStationIdByRoomIdAndVoteStatus", () -> {
-            String key = VoteKey.votedCountOfStationIdKey(roomId);
+            String key = VoteKey.votedCountOfStationKey(roomId);
             Set<ZSetOperations.TypedTuple<Object>> sorted =
                 redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, 0);
 

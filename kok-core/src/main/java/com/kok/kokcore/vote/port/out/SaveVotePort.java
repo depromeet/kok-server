@@ -7,9 +7,9 @@ public interface SaveVotePort {
     void saveVotedStationsByRoomIdAndMemberId(List<Long> stationIds, String roomId,
         String memberId);
 
-    void saveVotedMembersByRoomIdAndStationId(String memberId, String roomId, long stationId);
+    void saveVotedMemberByRoomIdAndStationId(String memberId, String roomId, long stationId);
 
     void increaseVotedCountByRoomIdAndStationId(String roomId, long stationId);
 
-    void saveVotedMemberSet(String roomId, String memberId);
+    void saveVotedMemberByRoomId(String roomId, String memberId);
 }

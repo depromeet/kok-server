@@ -62,7 +62,7 @@ class VoteServiceTest extends ServiceTest {
         voteService.saveVotes(room.getId(), member.getMemberId(), List.of(1L));
 
         // then
-        String memberKey = VoteKey.memberKey(room.getId(), member.getMemberId());
+        String memberKey = VoteKey.votedStationsByMemberKey(room.getId(), member.getMemberId());
         String votedMembersKey = VoteKey.votedMembersOfStationKey(
             new Vote(candidate, member.getMemberId()));
 
@@ -85,7 +85,7 @@ class VoteServiceTest extends ServiceTest {
         voteService.saveVotes(room.getId(), member.getMemberId(), List.of(2L, 3L));
 
         // then
-        String memberKey = VoteKey.memberKey(room.getId(), member.getMemberId());
+        String memberKey = VoteKey.votedStationsByMemberKey(room.getId(), member.getMemberId());
         String votedMembersKey = VoteKey.votedMembersOfStationKey(
             new Vote(room.getId(), 1L, member.getMemberId()));
 

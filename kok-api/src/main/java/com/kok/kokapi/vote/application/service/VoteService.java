@@ -39,12 +39,12 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
         // 2. 각 후보에 대한 투표자 Set/ 투표 수 ZSet 갱신
         for (Long stationId : agreedStationIds) {
-            saveVotePort.saveVotedMembersByRoomIdAndStationId(memberId, roomId, stationId);
+            saveVotePort.saveVotedMemberByRoomIdAndStationId(memberId, roomId, stationId);
             saveVotePort.increaseVotedCountByRoomIdAndStationId(roomId, stationId);
         }
 
         // 3. 투표 완료 Set에 멤버 추가
-        saveVotePort.saveVotedMemberSet(roomId, memberId);
+        saveVotePort.saveVotedMemberByRoomId(roomId, memberId);
     }
 
     private void initiate(String roomId, String memberId) {
