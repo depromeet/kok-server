@@ -1,7 +1,6 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
 import com.kok.kokapi.common.util.RedisExecutor;
-import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.port.out.DeleteVotePort;
 import com.kok.kokcore.vote.port.out.SaveVotePort;
 import java.time.Duration;
@@ -62,23 +61,25 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
     }
 
     @Override
-    public void removeMemberFromVoteStatusSet(Vote vote) {
-        String key = VoteKey.votedMembersOfStationKey(vote);
+    public void deleteVotedMemberByRoomIdAndStationId(
+        String memberId, String roomId, long stationId
+    ) {
+        String key = VoteKey.votedMembersOfStationKey(roomId, stationId);
         RedisExecutor.runOrThrow("removeMemberFromVoteStatusSet", () ->
-            redisTemplate.opsForSet().remove(key, vote.getMemberId())
+            redisTemplate.opsForSet().remove(key, memberId)
         );
     }
 
     @Override
-    public void decrementVoteCountInZSet(Vote vote) {
-        String key = VoteKey.votedCountOfStationIdKey(vote);
+    public void decreaseVotedCountByRoomIdAndStationId(String roomId, long stationId) {
+        String key = VoteKey.votedCountOfStationKey(roomId);
         RedisExecutor.runOrThrow("decrementVoteCountInZSet", () ->
-            redisTemplate.opsForZSet().incrementScore(key, vote.getStationId(), -1)
+            redisTemplate.opsForZSet().incrementScore(key, stationId, -1)
         );
     }
 
     @Override
-    public void deleteVotesByRoomIdAndMemberId(String roomId, String memberId) {
+    public void deleteVotedStationsByRoomIdAndMemberId(String roomId, String memberId) {
         String key = VoteKey.memberKey(roomId, memberId);
         RedisExecutor.runOrThrow("deleteMemberVoteHash", () ->
             redisTemplate.delete(key)
@@ -86,7 +87,7 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
     }
 
     @Override
-    public void removeMemberFromVotedSet(String roomId, String memberId) {
+    public void deleteVotedMemberByRoomId(String roomId, String memberId) {
         String key = VoteKey.voteKey(roomId);
         RedisExecutor.runOrThrow("removeMemberFromVotedSet", () ->
             redisTemplate.opsForSet().remove(key, memberId)

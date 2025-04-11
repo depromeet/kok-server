@@ -91,14 +91,16 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
 
     @Test
     @DisplayName("ZSet에서 득표수를 1 감소시킨다.")
-    void decrementVoteCountInZSet() {
+    void decreaseVotedCountByRoomIdAndStationId() {
         // given
-        Vote vote = new Vote(new Candidate("roomId", 100), "memberId");
-        String key = VoteKey.votedCountOfStationIdKey(vote);
+        String roomId = "roomId";
+        long stationId = 100;
+        Vote vote = new Vote(new Candidate(roomId, stationId), "memberId");
+        String key = VoteKey.votedCountOfStationKey(roomId);
         redisTemplate.opsForZSet().add(key, vote.getStationId(), 2.0);
 
         // when
-        voteCommandRedisAdapter.decrementVoteCountInZSet(vote);
+        voteCommandRedisAdapter.decreaseVotedCountByRoomIdAndStationId(roomId, stationId);
 
         // then
         Double score = redisTemplate.opsForZSet().score(key, vote.getStationId());
@@ -107,14 +109,17 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
 
     @Test
     @DisplayName("후보지에 투표한 멤버 Set에서 멤버를 제거한다.")
-    void removeMemberFromVoteStatusSet() {
+    void deleteVotedMemberByRoomIdAndStationId() {
         // given
-        Vote vote = new Vote(new Candidate("roomId", 100), "memberId");
+        String roomId = "roomId";
+        String memberId = "memberId";
+        long stationId = 100;
+        Vote vote = new Vote(new Candidate(roomId, stationId), memberId);
         String key = VoteKey.votedMembersOfStationKey(vote);
-        redisTemplate.opsForSet().add(key, "memberId");
+        redisTemplate.opsForSet().add(key, memberId);
 
         // when
-        voteCommandRedisAdapter.removeMemberFromVoteStatusSet(vote);
+        voteCommandRedisAdapter.deleteVotedMemberByRoomIdAndStationId(memberId, roomId, stationId);
 
         // then
         Set<Object> result = redisTemplate.opsForSet().members(key);
@@ -122,16 +127,16 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
     }
 
     @Test
-    @DisplayName("멤버 투표 Hash를 삭제한다.")
-    void deleteVotesByRoomIdAndMemberId() {
+    @DisplayName("멤버가 투표한 후보지 Set을 삭제한다.")
+    void deleteVotedStationsByRoomIdAndMemberId() {
         // given
         String roomId = "roomId";
         String memberId = "memberId";
-        String key = VoteKey.memberKey(roomId, memberId);
+        String key = VoteKey.votedStationsByMemberKey(roomId, memberId);
         redisTemplate.opsForHash().put(key, "1", "AGREE");
 
         // when
-        voteCommandRedisAdapter.deleteVotesByRoomIdAndMemberId(roomId, memberId);
+        voteCommandRedisAdapter.deleteVotedStationsByRoomIdAndMemberId(roomId, memberId);
 
         // then
         assertAll(
@@ -142,15 +147,15 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
 
     @Test
     @DisplayName("투표 완료자 Set에서 멤버를 제거한다.")
-    void removeMemberFromVotedSet() {
+    void deleteVotedMemberByRoomId() {
         // given
         String roomId = "roomId";
         String memberId = "memberId";
-        String key = VoteKey.voteKey(roomId);
+        String key = VoteKey.voteCompletedMembersKey(roomId);
         redisTemplate.opsForSet().add(key, memberId);
 
         // when
-        voteCommandRedisAdapter.removeMemberFromVotedSet(roomId, memberId);
+        voteCommandRedisAdapter.deleteVotedMemberByRoomId(roomId, memberId);
 
         // then
         Set<Object> result = redisTemplate.opsForSet().members(key);

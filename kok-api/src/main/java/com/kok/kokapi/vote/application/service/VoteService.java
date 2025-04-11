@@ -50,13 +50,19 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     private void initiate(String roomId, String memberId) {
         if (loadVotePort.isExistsByRoomIdAndMemberId(roomId, memberId)) {
             List<Vote> votes = loadVotePort.findAllByRoomIdAndMemberId(roomId, memberId);
+            // 1. 각 후보에 대한 투표자 Set/ 투표 수 ZSet 갱신
             for (Vote vote : votes) {
-                deleteVotePort.removeMemberFromVoteStatusSet(vote);
-                deleteVotePort.decrementVoteCountInZSet(vote);
+                deleteVotePort.deleteVotedMemberByRoomIdAndStationId(
+                    vote.getMemberId(), vote.getRoomId(), vote.getStationId());
+                deleteVotePort.decreaseVotedCountByRoomIdAndStationId(
+                    vote.getRoomId(), vote.getStationId());
             }
 
-            deleteVotePort.deleteVotesByRoomIdAndMemberId(roomId, memberId);
-            deleteVotePort.removeMemberFromVotedSet(roomId, memberId);
+            // 2. 멤버가 투표한 stationId set 제거
+            deleteVotePort.deleteVotedStationsByRoomIdAndMemberId(roomId, memberId);
+
+            //3. 투표 완료 set에서 멤버 제거
+            deleteVotePort.deleteVotedMemberByRoomId(roomId, memberId);
         }
     }
 
