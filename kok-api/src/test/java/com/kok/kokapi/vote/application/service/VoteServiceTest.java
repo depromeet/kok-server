@@ -14,9 +14,7 @@ import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
-import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -65,22 +63,15 @@ class VoteServiceTest extends ServiceTest {
 
         // then
         String memberKey = VoteKey.memberKey(room.getId(), member.getMemberId());
-        String agreeKey = VoteKey.voteStatusMemberSetKey(
-            new Vote(candidate, member.getMemberId(), VoteStatus.AGREE));
-        String disagreeKey = VoteKey.voteStatusMemberSetKey(
-            new Vote(candidate2, member.getMemberId(), VoteStatus.DISAGREE));
+        String votedMembersKey = VoteKey.votedMembersOfStationKey(
+            new Vote(candidate, member.getMemberId()));
 
-        Map<Object, Object> storedVotes = redisTemplate.opsForHash().entries(memberKey);
-        Set<Object> agreeMemberIds = redisTemplate.opsForSet().members(agreeKey);
-        Set<Object> disagreeMemberIds = redisTemplate.opsForSet().members(disagreeKey);
+        Set<Object> storedVotes = redisTemplate.opsForSet().members(memberKey);
+        Set<Object> votedMemberIds = redisTemplate.opsForSet().members(votedMembersKey);
 
         assertAll(
-            () -> assertThat(storedVotes).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "1", VoteStatus.AGREE.getName(),
-                "2", VoteStatus.DISAGREE.getName()
-            )),
-            () -> assertThat(agreeMemberIds).containsExactlyInAnyOrder(member.getMemberId()),
-            () -> assertThat(disagreeMemberIds).containsExactlyInAnyOrder(member.getMemberId())
+            () -> assertThat(storedVotes).containsExactlyInAnyOrder(1),
+            () -> assertThat(votedMemberIds).containsExactlyInAnyOrder(member.getMemberId())
         );
     }
 
@@ -91,27 +82,19 @@ class VoteServiceTest extends ServiceTest {
         voteService.saveVotes(room.getId(), member.getMemberId(), List.of(1L));
 
         // when
-        voteService.saveVotes(room.getId(), member.getMemberId(), List.of());
+        voteService.saveVotes(room.getId(), member.getMemberId(), List.of(2L, 3L));
 
         // then
-        String hashKey = VoteKey.memberKey(room.getId(), member.getMemberId());
-        String agreeSetKey = VoteKey.voteStatusMemberSetKey(
-            new Vote(candidate, member.getMemberId(), VoteStatus.AGREE));
-        String disagreeSetKey1 = VoteKey.voteStatusMemberSetKey(
-            new Vote(candidate, member.getMemberId(), VoteStatus.DISAGREE));
-        String disagreeSetKey2 = VoteKey.voteStatusMemberSetKey(
-            new Vote(candidate2, member.getMemberId(), VoteStatus.DISAGREE));
+        String memberKey = VoteKey.memberKey(room.getId(), member.getMemberId());
+        String votedMembersKey = VoteKey.votedMembersOfStationKey(
+            new Vote(room.getId(), 1L, member.getMemberId()));
 
-        Long hashSize = redisTemplate.opsForHash().size(hashKey);
-        Long agreeSetSize = redisTemplate.opsForSet().size(agreeSetKey);
-        Long disagreeSetSize1 = redisTemplate.opsForSet().size(disagreeSetKey1);
-        Long disagreeSetSize2 = redisTemplate.opsForSet().size(disagreeSetKey2);
+        Long memberSize = redisTemplate.opsForSet().size(memberKey);
+        Long votedMembersSize = redisTemplate.opsForSet().size(votedMembersKey);
 
         assertAll(
-            () -> assertThat(hashSize).isEqualTo(2),
-            () -> assertThat(agreeSetSize).isZero(),
-            () -> assertThat(disagreeSetSize1).isEqualTo(1),
-            () -> assertThat(disagreeSetSize2).isEqualTo(1)
+            () -> assertThat(memberSize).isEqualTo(2),
+            () -> assertThat(votedMembersSize).isZero()
         );
     }
 
@@ -162,11 +145,8 @@ class VoteServiceTest extends ServiceTest {
         List<Vote> result = voteService.getVotesByMember(room.getId(), member.getMemberId());
 
         // then
-        assertThat(result).hasSize(2)
-            .containsExactlyInAnyOrder(
-                new Vote(room.getId(), 1L, member.getMemberId(), VoteStatus.AGREE.getName()),
-                new Vote(room.getId(), 2L, member.getMemberId(), VoteStatus.DISAGREE.getName())
-            );
+        assertThat(result).hasSize(1)
+            .containsExactlyInAnyOrder(new Vote(room.getId(), 1L, member.getMemberId()));
     }
 
     @DisplayName("특정 투표에 참여한 사용자의 정보를 반환한다.")
@@ -175,7 +155,7 @@ class VoteServiceTest extends ServiceTest {
         voteService.saveVotes(room.getId(), member.getMemberId(), List.of(1L));
         voteService.saveVotes(room.getId(), member2.getMemberId(), List.of(1L));
 
-        Vote vote = new Vote(candidate, member.getMemberId(), VoteStatus.AGREE);
+        Vote vote = new Vote(candidate, member.getMemberId());
 
         List<Member> result = voteService.getMembersByVote(vote);
 

@@ -6,9 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import com.kok.kokapi.common.template.RepositoryTest;
 import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
-import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,25 +22,20 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
     private RedisTemplate<String, Object> redisTemplate;
 
     @Test
-    @DisplayName("멤버별 투표 내용을 Hash로 저장한다.")
-    void saveVoteMemberHash() {
+    @DisplayName("멤버별로 투표한 곳을 Set으로 저장한다.")
+    void saveVotes() {
         // given
         String roomId = "roomId";
         String memberId = "memberId";
-        List<Vote> votes = List.of(
-            new Vote(new Candidate(roomId, 1), memberId, VoteStatus.AGREE),
-            new Vote(new Candidate(roomId, 2), memberId, VoteStatus.DISAGREE)
-        );
+        List<Long> stationIds = List.of(1L, 2L);
 
         // when
-        voteCommandRedisAdapter.saveVoteMemberHash(votes);
+        voteCommandRedisAdapter.saveVotedStationsByRoomIdAndMemberId(stationIds, roomId, memberId);
 
         // then
         String key = VoteKey.memberKey(roomId, memberId);
-        Map<Object, Object> result = redisTemplate.opsForHash().entries(key);
-        assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.of(
-            "1", VoteStatus.AGREE.getName(),
-            "2", VoteStatus.DISAGREE.getName()));
+        Set<Object> result = redisTemplate.opsForSet().members(key);
+        assertThat(result).containsExactlyInAnyOrder(1, 2);
     }
 
     @Test
@@ -61,32 +54,37 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
     }
 
     @Test
-    @DisplayName("찬/반 Set에 멤버를 저장한다.")
-    void saveVoteStatusSet() {
+    @DisplayName("특정 후보지에 투표한 멤버를 저장한다.")
+    void saveVotedMembersByRoomIdAndStationId() {
         // given
-        Vote vote = new Vote(new Candidate("roomId", 100), "memberId", VoteStatus.AGREE);
+        String roomId = "roomId";
+        long stationId = 100;
+        String memberId = "memberId";
+        Vote vote = new Vote(new Candidate(roomId, stationId), memberId);
 
         // when
-        voteCommandRedisAdapter.saveVoteStatusSet(vote);
+        voteCommandRedisAdapter.saveVotedMembersByRoomIdAndStationId(memberId, roomId, stationId);
 
         // then
         Set<Object> result = redisTemplate.opsForSet()
-            .members(VoteKey.voteStatusMemberSetKey(vote));
+            .members(VoteKey.votedMembersOfStationKey(vote));
         assertThat(result).containsExactlyInAnyOrder("memberId");
     }
 
     @Test
-    @DisplayName("ZSet에 찬/반 득표수를 1 증가시킨다.")
+    @DisplayName("특정 후보지의 득표수를 1 증가시킨다.")
     void incrementVoteStatusCountZSet() {
         // given
-        Vote vote = new Vote(new Candidate("roomId", 100), "memberId", VoteStatus.AGREE);
+        String roomId = "roomId";
+        long stationId = 100;
+        Vote vote = new Vote(new Candidate(roomId, stationId), "memberId");
 
         // when
-        voteCommandRedisAdapter.incrementVoteStatusCountZSet(vote);
+        voteCommandRedisAdapter.increaseVotedCountByRoomIdAndStationId(roomId, stationId);
 
         // then
         Double score = redisTemplate.opsForZSet()
-            .score(VoteKey.voteStatusCountZSetKey(vote), vote.getStationId());
+            .score(VoteKey.votedCountOfStationIdKey(vote), vote.getStationId());
 
         assertThat(score).isEqualTo(1.0);
     }
@@ -95,8 +93,8 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
     @DisplayName("ZSet에서 득표수를 1 감소시킨다.")
     void decrementVoteCountInZSet() {
         // given
-        Vote vote = new Vote(new Candidate("roomId", 100), "memberId", VoteStatus.AGREE);
-        String key = VoteKey.voteStatusCountZSetKey(vote);
+        Vote vote = new Vote(new Candidate("roomId", 100), "memberId");
+        String key = VoteKey.votedCountOfStationIdKey(vote);
         redisTemplate.opsForZSet().add(key, vote.getStationId(), 2.0);
 
         // when
@@ -108,11 +106,11 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
     }
 
     @Test
-    @DisplayName("찬/반 Set에서 멤버를 제거한다.")
+    @DisplayName("후보지에 투표한 멤버 Set에서 멤버를 제거한다.")
     void removeMemberFromVoteStatusSet() {
         // given
-        Vote vote = new Vote(new Candidate("roomId", 100), "memberId", VoteStatus.AGREE);
-        String key = VoteKey.voteStatusMemberSetKey(vote);
+        Vote vote = new Vote(new Candidate("roomId", 100), "memberId");
+        String key = VoteKey.votedMembersOfStationKey(vote);
         redisTemplate.opsForSet().add(key, "memberId");
 
         // when
@@ -125,7 +123,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
 
     @Test
     @DisplayName("멤버 투표 Hash를 삭제한다.")
-    void deleteMemberVoteHash() {
+    void deleteVotesByRoomIdAndMemberId() {
         // given
         String roomId = "roomId";
         String memberId = "memberId";
@@ -133,7 +131,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         redisTemplate.opsForHash().put(key, "1", "AGREE");
 
         // when
-        voteCommandRedisAdapter.deleteMemberVoteHash(roomId, memberId);
+        voteCommandRedisAdapter.deleteVotesByRoomIdAndMemberId(roomId, memberId);
 
         // then
         assertAll(

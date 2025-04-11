@@ -6,16 +6,12 @@ import com.kok.kokcore.room.port.out.LoadRoomParticipantPort;
 import com.kok.kokcore.room.port.out.LoadRoomPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.port.out.RetrieveStationsPort;
-import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
-import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import com.kok.kokcore.vote.port.out.DeleteVotePort;
-import com.kok.kokcore.vote.port.out.LoadCandidatePort;
 import com.kok.kokcore.vote.port.out.LoadVotePort;
 import com.kok.kokcore.vote.port.out.SaveVotePort;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +23,6 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
     private final SaveVotePort saveVotePort;
     private final LoadVotePort loadVotePort;
-    private final LoadCandidatePort loadCandidatePort;
     private final DeleteVotePort deleteVotePort;
     private final LoadRoomPort loadRoomPort;
     private final RetrieveStationsPort retrieveStationsPort;
@@ -38,35 +33,18 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         validate(roomId, memberId);
         validateRoomStatusIfNotOnVote(roomId);
         initiate(roomId, memberId);
-        List<Vote> votes = getVotes(roomId, memberId, agreedStationIds);
-        // 1. 멤버의 투표 내용 Hash 저장
-        saveVotePort.saveVoteMemberHash(votes);
 
-        // 2. 투표 완료 Set에 멤버 추가
+        // 1. 멤버가 투표한 stationId set 저장
+        saveVotePort.saveVotedStationsByRoomIdAndMemberId(agreedStationIds, roomId, memberId);
+
+        // 2. 각 후보에 대한 투표자 Set/ 투표 수 ZSet 갱신
+        for (Long stationId : agreedStationIds) {
+            saveVotePort.saveVotedMembersByRoomIdAndStationId(memberId, roomId, stationId);
+            saveVotePort.increaseVotedCountByRoomIdAndStationId(roomId, stationId);
+        }
+
+        // 3. 투표 완료 Set에 멤버 추가
         saveVotePort.saveVotedMemberSet(roomId, memberId);
-
-        // 3. 각 후보에 대한 Set/ZSet 업데이트
-        for (Vote vote : votes) {
-            saveVotePort.saveVoteStatusSet(vote);
-            saveVotePort.incrementVoteStatusCountZSet(vote);
-        }
-    }
-
-    private List<Vote> getVotes(String roomId, String memberId, List<Long> stationIds) {
-        List<Vote> votes = new ArrayList<>();
-        List<Candidate> candidates = loadCandidatePort.findByRoomId(roomId);
-        for (Candidate candidate : candidates) {
-            if (isAgree(stationIds, candidate)) {
-                votes.add(new Vote(candidate, memberId, VoteStatus.AGREE));
-                continue;
-            }
-            votes.add(new Vote(candidate, memberId, VoteStatus.DISAGREE));
-        }
-        return votes;
-    }
-
-    private static boolean isAgree(List<Long> agreedStationIds, Candidate candidate) {
-        return agreedStationIds.contains(candidate.getStationId());
     }
 
     private void initiate(String roomId, String memberId) {
@@ -77,7 +55,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
                 deleteVotePort.decrementVoteCountInZSet(vote);
             }
 
-            deleteVotePort.deleteMemberVoteHash(roomId, memberId);
+            deleteVotePort.deleteVotesByRoomIdAndMemberId(roomId, memberId);
             deleteVotePort.removeMemberFromVotedSet(roomId, memberId);
         }
     }
@@ -103,8 +81,8 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
     @Override
     public List<Member> getMembersByVote(Vote vote) {
-        List<String> memberIds = loadVotePort.findMemberIdsByRoomIdAndStationIdAndStatus(
-            vote.getRoomId(), vote.getStationId(), vote.getVoteStatus());
+        List<String> memberIds = loadVotePort.findMemberIdsByRoomIdAndStationId(
+            vote.getRoomId(), vote.getStationId());
         return getMembers(memberIds, vote.getRoomId());
     }
 
@@ -120,8 +98,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         validate(roomId);
         Room room = getRoom(roomId);
         validateRoomStatusIfVoteClosed(room);
-        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(
-            roomId, VoteStatus.AGREE);
+        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(roomId);
         return retrieveStationsPort.retrieveStation(stationId)
             .orElseThrow(
                 () -> new IllegalArgumentException("Station not found with id " + stationId));

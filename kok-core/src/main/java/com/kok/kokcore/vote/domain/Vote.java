@@ -1,6 +1,5 @@
 package com.kok.kokcore.vote.domain;
 
-import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -10,20 +9,14 @@ public class Vote {
 
     private final Candidate candidate;
     private final String memberId;
-    private final VoteStatus voteStatus;
 
-    public Vote(Candidate candidate, String memberId, VoteStatus voteStatus) {
+    public Vote(Candidate candidate, String memberId) {
         this.candidate = candidate;
         this.memberId = memberId;
-        this.voteStatus = voteStatus;
     }
 
-    public Vote(String roomId, String memberId, long stationId) {
-        this(new Candidate(roomId, stationId), memberId, VoteStatus.DISAGREE);
-    }
-
-    public Vote(String roomId, Long stationId, String memberId, String voteStatus) {
-        this(new Candidate(roomId, stationId), memberId, VoteStatus.findByName(voteStatus));
+    public Vote(String roomId, long stationId, String memberId) {
+        this(new Candidate(roomId, stationId), memberId);
     }
 
     public String getRoomId() {

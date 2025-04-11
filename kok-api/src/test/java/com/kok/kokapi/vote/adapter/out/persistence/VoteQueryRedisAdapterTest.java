@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.kok.kokapi.common.template.RepositoryTest;
 import com.kok.kokcore.vote.domain.Vote;
-import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +22,10 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
     @DisplayName("roomId와 memberId 조합으로 투표 정보가 존재하는지 확인한다.")
     void isExistsByRoomIdAndMemberId() {
         // given
-        String roomId = "room1";
-        String memberId = "memberA";
+        String roomId = "room";
+        String memberId = "member";
         String key = VoteKey.memberKey(roomId, memberId);
-        redisTemplate.opsForHash().putAll(key, Map.of("1", VoteStatus.AGREE.getName()));
+        redisTemplate.opsForSet().add(key, 1);
 
         // when
         boolean result = voteQueryRedisAdapter.isExistsByRoomIdAndMemberId(roomId, memberId);
@@ -49,12 +47,9 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         String roomId = "room2";
         String memberId = "memberB";
         String key = VoteKey.memberKey(roomId, memberId);
-        Vote vote = new Vote(roomId, 1L, memberId, VoteStatus.AGREE.getName());
-        Vote vote2 = new Vote(roomId, 2L, memberId, VoteStatus.DISAGREE.getName());
-        redisTemplate.opsForHash().putAll(key, Map.of(
-            "1", VoteStatus.AGREE.getName(),
-            "2", VoteStatus.DISAGREE.getName()
-        ));
+        Vote vote = new Vote(roomId, 1L, memberId);
+        Vote vote2 = new Vote(roomId, 2L, memberId);
+        redisTemplate.opsForSet().add(key, 1, 2);
 
         // when
         List<Vote> result = voteQueryRedisAdapter.findAllByRoomIdAndMemberId(roomId, memberId);
@@ -80,16 +75,16 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
 
     @Test
     @DisplayName("특정 stationId에 대해 투표한 memberId 리스트를 조회한다.")
-    void findMemberIdsByRoomIdAndStationIdAndStatus() {
+    void findMemberIdsByRoomIdAndStationId() {
         // given
         String roomId = "room4";
         long stationId = 11L;
-        String key = VoteKey.voteStatusMemberSetKey(VoteStatus.AGREE, roomId, stationId);
+        String key = VoteKey.votedMembersOfStationKey(roomId, stationId);
         redisTemplate.opsForSet().add(key, "member1", "member2");
 
         // when
-        List<String> result = voteQueryRedisAdapter.findMemberIdsByRoomIdAndStationIdAndStatus(
-            roomId, stationId, VoteStatus.AGREE);
+        List<String> result = voteQueryRedisAdapter.findMemberIdsByRoomIdAndStationId(roomId,
+            stationId);
 
         // then
         assertThat(result).containsExactlyInAnyOrder("member1", "member2");
@@ -100,13 +95,12 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
     void getFirstStationIdByRoomIdAndVoteStatus() {
         // given
         String roomId = "room5";
-        String key = VoteKey.voteStatusCountZSetKey(VoteStatus.AGREE, roomId);
+        String key = VoteKey.votedCountOfStationIdKey(roomId);
         redisTemplate.opsForZSet().add(key, "10", 5.0);
         redisTemplate.opsForZSet().add(key, "11", 8.0);
 
         // when
-        long result = voteQueryRedisAdapter.getFirstStationIdByRoomIdAndVoteStatus(
-            roomId, VoteStatus.AGREE);
+        long result = voteQueryRedisAdapter.getFirstStationIdByRoomIdAndVoteStatus(roomId);
 
         // then
         assertThat(result).isEqualTo(11);
@@ -117,12 +111,11 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
     void getFirstStationIdWhenNoVotes() {
         // given
         String roomId = "room6";
-        String key = VoteKey.voteStatusCountZSetKey(VoteStatus.AGREE, roomId);
+        String key = VoteKey.votedCountOfStationIdKey(roomId);
         redisTemplate.delete(key);
 
         // when
-        long result = voteQueryRedisAdapter.getFirstStationIdByRoomIdAndVoteStatus(
-            roomId, VoteStatus.AGREE);
+        long result = voteQueryRedisAdapter.getFirstStationIdByRoomIdAndVoteStatus(roomId);
 
         // then
         assertThat(result).isEqualTo(-1L);

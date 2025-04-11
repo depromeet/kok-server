@@ -8,7 +8,6 @@ import java.util.List;
 public record ResultResponse(
     long stationId,
     String stationName,
-    String voteStatus,
     int votedCount,
     List<VotedMemberResponse> members
 ) {
@@ -17,7 +16,6 @@ public record ResultResponse(
         return new ResultResponse(
             station.getId(),
             station.getName(),
-            vote.getVoteStatus().getName(),
             members.size(),
             members.stream().map(VotedMemberResponse::from).toList()
         );

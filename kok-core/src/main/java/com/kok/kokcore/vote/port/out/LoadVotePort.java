@@ -1,7 +1,6 @@
 package com.kok.kokcore.vote.port.out;
 
 import com.kok.kokcore.vote.domain.Vote;
-import com.kok.kokcore.vote.domain.vo.VoteStatus;
 import java.util.List;
 
 public interface LoadVotePort {
@@ -12,8 +11,7 @@ public interface LoadVotePort {
 
     int countMembersByRoomId(String roomId);
 
-    List<String> findMemberIdsByRoomIdAndStationIdAndStatus(String roomId, long stationId,
-        VoteStatus voteStatus);
+    List<String> findMemberIdsByRoomIdAndStationId(String roomId, long stationId);
 
-    long getFirstStationIdByRoomIdAndVoteStatus(String roomId, VoteStatus voteStatus);
+    long getFirstStationIdByRoomIdAndVoteStatus(String roomId);
 }
