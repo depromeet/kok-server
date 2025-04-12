@@ -162,4 +162,40 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         Set<Object> result = redisTemplate.opsForSet().members(key);
         assertThat(result).doesNotContain(memberId);
     }
+
+    @Test
+    @DisplayName("주어진 stationId에 대해 득표 수가 0으로 Zset을 초기화한다.")
+    void initiateVoteCountByRoomIdAndStationIds() {
+        // given
+        String roomId = "roomId";
+        List<Long> stationIds = List.of(1L, 2L, 3L);
+        String key = VoteKey.votedCountOfStationKey(roomId);
+
+        // when
+        voteCommandRedisAdapter.initiateVoteCountByRoomIdAndStationIds(roomId, stationIds);
+
+        // then
+        assertAll(
+            () -> assertThat(redisTemplate.opsForZSet().score(key, 1L)).isEqualTo(0.0),
+            () -> assertThat(redisTemplate.opsForZSet().score(key, 2L)).isEqualTo(0.0),
+            () -> assertThat(redisTemplate.opsForZSet().score(key, 3L)).isEqualTo(0.0)
+        );
+    }
+
+    @Test
+    @DisplayName("이미 득표 수가 존재하는 경우 ZSet 초기화 시 값을 덮어쓰지 않는다.")
+    void doesNotInitiateVoteCountDoesNotOverrideExistingScoreIfPresent() {
+        // given
+        String roomId = "roomId";
+        long stationId = 100;
+        String key = VoteKey.votedCountOfStationKey(roomId);
+        redisTemplate.opsForZSet().add(key, stationId, 5.0);
+
+        // when
+        voteCommandRedisAdapter.initiateVoteCountByRoomIdAndStationIds(roomId, List.of(stationId));
+
+        // then
+        Double score = redisTemplate.opsForZSet().score(key, stationId);
+        assertThat(score).isEqualTo(5.0);
+    }
 }

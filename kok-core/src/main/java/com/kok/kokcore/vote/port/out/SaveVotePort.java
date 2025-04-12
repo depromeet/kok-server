@@ -12,4 +12,6 @@ public interface SaveVotePort {
     void increaseVotedCountByRoomIdAndStationId(String roomId, long stationId);
 
     void saveVotedMemberByRoomId(String roomId, String memberId);
+
+    void initiateVoteCountByRoomIdAndStationIds(String roomId, List<Long> stationIds);
 }
