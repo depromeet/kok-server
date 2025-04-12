@@ -121,4 +121,21 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         // then
         assertThat(result).isEqualTo(-1L);
     }
+
+    @Test
+    @DisplayName("roomId에 대한 stationId들을 찬성 수 내림차순으로 조회한다.")
+    void findStationIdsByRoomIdOrderByVotedCount() {
+        // given
+        String roomId = "room7";
+        String key = VoteKey.votedCountOfStationKey(roomId);
+        redisTemplate.opsForZSet().add(key, "10", 5.0);
+        redisTemplate.opsForZSet().add(key, "11", 8.0);
+        redisTemplate.opsForZSet().add(key, "12", 2.0);
+
+        // when
+        List<Long> result = voteQueryRedisAdapter.findStationIdsByRoomIdOrderByVotedCount(roomId);
+
+        // then
+        assertThat(result).containsExactly(11L, 10L, 12L);
+    }
 }

@@ -14,4 +14,6 @@ public interface LoadVotePort {
     List<String> findMemberIdsByRoomIdAndStationId(String roomId, long stationId);
 
     long findFirstStationIdByRoomIdOrderByVotedCount(String roomId);
+
+    List<Long> findStationIdsByRoomIdOrderByVotedCount(String roomId);
 }

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
@@ -73,6 +74,24 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
             Object maxScoredStationId = sorted.iterator().next().getValue();
             return getStationId(maxScoredStationId);
         }, -1L);
+    }
+
+    @Override
+    public List<Long> findStationIdsByRoomIdOrderByVotedCount(String roomId) {
+        return RedisExecutor.runOrElseGet("getStationIdsByRoomIdOrderByVotedCount", () -> {
+            String key = VoteKey.votedCountOfStationKey(roomId);
+            Set<ZSetOperations.TypedTuple<Object>> sorted =
+                redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, -1);
+
+            if (Objects.isNull(sorted) || sorted.isEmpty()) {
+                return List.of();
+            }
+
+            return sorted.stream()
+                .map(TypedTuple::getValue)
+                .map(this::getStationId)
+                .toList();
+        }, List.of());
     }
 
     private Long getStationId(Object stationId) {
