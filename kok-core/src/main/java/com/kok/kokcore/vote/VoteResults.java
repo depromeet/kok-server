@@ -34,4 +34,8 @@ public class VoteResults {
             topResult.markClose();
         }
     }
+
+    public VoteResult getFinalResult() {
+        return voteResults.getFirst();
+    }
 }

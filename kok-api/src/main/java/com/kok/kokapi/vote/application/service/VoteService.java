@@ -113,8 +113,9 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         validate(roomId);
         Room room = getRoom(roomId);
         validateRoomStatusIfVoteClosed(room);
-        long stationId = loadVotePort.findFirstStationIdByRoomIdOrderByVotedCount(roomId);
-        return getStation(stationId);
+        List<Long> stationIds = loadVotePort.findStationIdsByRoomIdOrderByVotedCount(roomId);
+        VoteResults voteResults = getVoteResults(room, stationIds);
+        return getStation(voteResults.getFinalResult().getStationId());
     }
 
     private void validate(String roomId, String memberId) {
