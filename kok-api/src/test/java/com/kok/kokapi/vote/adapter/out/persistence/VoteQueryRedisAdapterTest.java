@@ -93,7 +93,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
 
     @Test
     @DisplayName("찬성 수가 가장 많은 stationId를 반환한다.")
-    void getFirstStationIdByRoomIdAndVoteStatus() {
+    void findFirstStationIdByRoomIdOrderByVotedCount() {
         // given
         String roomId = "room5";
         String key = VoteKey.votedCountOfStationKey(roomId);
@@ -101,7 +101,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         redisTemplate.opsForZSet().add(key, "11", 8.0);
 
         // when
-        long result = voteQueryRedisAdapter.getFirstStationIdByRoomIdAndVoteStatus(roomId);
+        long result = voteQueryRedisAdapter.findFirstStationIdByRoomIdOrderByVotedCount(roomId);
 
         // then
         assertThat(result).isEqualTo(11);
@@ -116,7 +116,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
         redisTemplate.delete(key);
 
         // when
-        long result = voteQueryRedisAdapter.getFirstStationIdByRoomIdAndVoteStatus(roomId);
+        long result = voteQueryRedisAdapter.findFirstStationIdByRoomIdOrderByVotedCount(roomId);
 
         // then
         assertThat(result).isEqualTo(-1L);

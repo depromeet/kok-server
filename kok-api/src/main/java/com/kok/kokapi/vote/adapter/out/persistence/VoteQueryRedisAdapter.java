@@ -60,7 +60,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
     }
 
     @Override
-    public long getFirstStationIdByRoomIdAndVoteStatus(String roomId) {
+    public long findFirstStationIdByRoomIdOrderByVotedCount(String roomId) {
         return RedisExecutor.runOrElseGet("getFirstStationIdByRoomIdAndVoteStatus", () -> {
             String key = VoteKey.votedCountOfStationKey(roomId);
             Set<ZSetOperations.TypedTuple<Object>> sorted =
