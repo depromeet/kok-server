@@ -6,14 +6,16 @@ import com.kok.kokcore.room.port.out.LoadRoomParticipantPort;
 import com.kok.kokcore.room.port.out.LoadRoomPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.port.out.RetrieveStationsPort;
+import com.kok.kokcore.vote.VoteResults;
 import com.kok.kokcore.vote.domain.Vote;
+import com.kok.kokcore.vote.domain.VoteResult;
 import com.kok.kokcore.vote.port.out.DeleteVotePort;
 import com.kok.kokcore.vote.port.out.LoadVotePort;
 import com.kok.kokcore.vote.port.out.SaveVotePort;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -79,24 +81,22 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     }
 
     @Override
-    public List<Vote> getVotesByMember(String roomId, String memberId) {
-        validate(roomId, memberId);
-        validateVote(roomId, memberId);
-        return loadVotePort.findAllByRoomIdAndMemberId(roomId, memberId);
+    public VoteResults getVoteResultsByRoomId(String roomId) {
+        validate(roomId);
+        validateRoomStatusIfNotOnVote(roomId);
+        List<Long> stationIds = loadVotePort.findStationIdsByRoomIdOrderByVotedCount(roomId);
+        return getVoteResults(roomId, stationIds);
     }
 
-    @Override
-    public List<Member> getMembersByVote(Vote vote) {
-        List<String> memberIds = loadVotePort.findMemberIdsByRoomIdAndStationId(
-            vote.getRoomId(), vote.getStationId());
-        return getMembers(memberIds, vote.getRoomId());
-    }
-
-    private List<Member> getMembers(List<String> memberIds, String roomId) {
-        return memberIds.stream()
-            .map(memberId -> loadRoomParticipantPort.findByRoomIdAndMemberId(roomId, memberId))
-            .flatMap(Optional::stream)
-            .toList();
+    private VoteResults getVoteResults(String roomId, List<Long> stationIds) {
+        List<VoteResult> voteResults = new ArrayList<>();
+        for (Long stationId : stationIds) {
+            List<String> memberIds = loadVotePort.findMemberIdsByRoomIdAndStationId(
+                roomId, stationId);
+            Station station = getStation(stationId);
+            voteResults.add(new VoteResult(roomId, stationId, memberIds, station.getPriority()));
+        }
+        return new VoteResults(voteResults);
     }
 
     @Override
@@ -104,10 +104,8 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         validate(roomId);
         Room room = getRoom(roomId);
         validateRoomStatusIfVoteClosed(room);
-        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(roomId);
-        return retrieveStationsPort.retrieveStation(stationId)
-            .orElseThrow(
-                () -> new IllegalArgumentException("Station not found with id " + stationId));
+        long stationId = loadVotePort.findFirstStationIdByRoomIdOrderByVotedCount(roomId);
+        return getStation(stationId);
     }
 
     private void validate(String roomId, String memberId) {
@@ -136,12 +134,10 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         }
     }
 
-    private void validateVote(String roomId, String memberId) {
-        if (!loadVotePort.isExistsByRoomIdAndMemberId(roomId, memberId)) {
-            throw new IllegalArgumentException(
-                String.format("Not voted by member with id: %s, in room with id: %s",
-                    memberId, roomId));
-        }
+    private Station getStation(long stationId) {
+        return retrieveStationsPort.retrieveStation(stationId)
+            .orElseThrow(
+                () -> new IllegalArgumentException("Station not found with id " + stationId));
     }
 
     private Room getRoom(String roomId) {

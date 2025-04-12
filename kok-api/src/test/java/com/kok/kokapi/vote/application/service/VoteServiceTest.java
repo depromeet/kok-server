@@ -8,12 +8,16 @@ import com.kok.kokapi.common.template.ServiceTest;
 import com.kok.kokapi.fixture.MemberFixture;
 import com.kok.kokapi.room.adapter.out.persistence.RoomParticipantSaveAdapter;
 import com.kok.kokapi.room.adapter.out.persistence.RoomSaveRedisAdapter;
+import com.kok.kokapi.station.adapter.out.persistence.StationRepository;
 import com.kok.kokapi.vote.adapter.out.persistence.CandidateCommandRedisAdapter;
 import com.kok.kokapi.vote.adapter.out.persistence.VoteKey;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
+import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.vote.VoteResults;
 import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.domain.Vote;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,15 +38,23 @@ class VoteServiceTest extends ServiceTest {
     private RoomParticipantSaveAdapter roomParticipantSaveAdapter;
     @Autowired
     private CandidateCommandRedisAdapter candidateCommandRedisAdapter;
+    @Autowired
+    private StationRepository stationRepository;
 
     private Room room;
     private Member member;
     private Member member2;
     private Candidate candidate;
     private Candidate candidate2;
+    private Station station;
+    private Station station2;
 
     @BeforeEach
     void init() {
+        station = stationRepository.save(
+            new Station("station", BigDecimal.valueOf(33), BigDecimal.valueOf(127), 3));
+        station2 = stationRepository.save(
+            new Station("station2", BigDecimal.valueOf(32), BigDecimal.valueOf(128), 2));
         member = MemberFixture.createLeader();
         member2 = MemberFixture.createFollower();
         room = Room.create("room", 3, member);
@@ -50,8 +62,8 @@ class VoteServiceTest extends ServiceTest {
         roomSaveRedisAdapter.save(room);
         roomParticipantSaveAdapter.joinRoom(room.getId(), member);
         roomParticipantSaveAdapter.joinRoom(room.getId(), member2);
-        candidate = new Candidate(room.getId(), 1);
-        candidate2 = new Candidate(room.getId(), 2);
+        candidate = new Candidate(room.getId(), station.getId());
+        candidate2 = new Candidate(room.getId(), station2.getId());
         candidateCommandRedisAdapter.saveAll(List.of(candidate, candidate2));
     }
 
@@ -69,10 +81,8 @@ class VoteServiceTest extends ServiceTest {
         Set<Object> storedVotes = redisTemplate.opsForSet().members(memberKey);
         Set<Object> votedMemberIds = redisTemplate.opsForSet().members(votedMembersKey);
 
-        assertAll(
-            () -> assertThat(storedVotes).containsExactlyInAnyOrder(1),
-            () -> assertThat(votedMemberIds).containsExactlyInAnyOrder(member.getMemberId())
-        );
+        assertAll(() -> assertThat(storedVotes).containsExactlyInAnyOrder(1),
+            () -> assertThat(votedMemberIds).containsExactlyInAnyOrder(member.getMemberId()));
     }
 
     @DisplayName("사용자 투표 정보를 저장하기 전에 이전 투표 내역을 삭제한다.")
@@ -92,10 +102,8 @@ class VoteServiceTest extends ServiceTest {
         Long memberSize = redisTemplate.opsForSet().size(memberKey);
         Long votedMembersSize = redisTemplate.opsForSet().size(votedMembersKey);
 
-        assertAll(
-            () -> assertThat(memberSize).isEqualTo(2),
-            () -> assertThat(votedMembersSize).isZero()
-        );
+        assertAll(() -> assertThat(memberSize).isEqualTo(2),
+            () -> assertThat(votedMembersSize).isZero());
     }
 
     @DisplayName("사용자가 투표를 완료했으면 true를 반환한다.")
@@ -141,9 +149,9 @@ class VoteServiceTest extends ServiceTest {
         Room locationInputRoom = Room.create("inputRoom", 3, member);
         roomSaveRedisAdapter.save(locationInputRoom);
 
-        assertThatThrownBy(() -> voteService.countVotedMembers(locationInputRoom.getId()))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Room is not on vote status");
+        assertThatThrownBy(
+            () -> voteService.countVotedMembers(locationInputRoom.getId())).isInstanceOf(
+            IllegalStateException.class).hasMessageContaining("Room is not on vote status");
     }
 
     @DisplayName("방에 속하지 않은 멤버가 투표하면 예외가 발생한다.")
@@ -151,16 +159,30 @@ class VoteServiceTest extends ServiceTest {
     void throwExceptionWhenMemberNotInRoom() {
         String nonParticipantId = "unknown";
 
-        assertThatThrownBy(() -> voteService.saveVotes(room.getId(), nonParticipantId, List.of()))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Member not found with id");
+        assertThatThrownBy(
+            () -> voteService.saveVotes(room.getId(), nonParticipantId, List.of())).isInstanceOf(
+            IllegalArgumentException.class).hasMessageContaining("Member not found with id");
     }
 
-    @DisplayName("아직 투표하지 않은 사용자가 투표 내역 조회 시 예외가 발생한다.")
+    @DisplayName("roomId로 투표 결과를 조회하면 찬성 수 내림차순으로 정렬된 후보 정보가 반환된다.")
     @Test
-    void throwExceptionWhenGetVotesWithoutVoting() {
-        assertThatThrownBy(() -> voteService.getVotesByMember(room.getId(), member.getMemberId()))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Not voted by member with id");
+    void getVoteResultsByRoomId() {
+        // given
+        voteService.saveVotes(room.getId(), member.getMemberId(),
+            List.of(candidate2.getStationId()));
+        voteService.saveVotes(room.getId(), member2.getMemberId(),
+            List.of(candidate.getStationId(), candidate2.getStationId()));
+
+        // when
+        VoteResults results = voteService.getVoteResultsByRoomId(room.getId());
+
+        // then
+        assertAll(
+            () -> assertThat(results.getVoteResults()).hasSize(2),
+            () -> assertThat(results.getVoteResults().getFirst().getCandidate().getStationId())
+                .isEqualTo(station2.getId()),
+            () -> assertThat(results.getVoteResults().getLast().getCandidate().getStationId())
+                .isEqualTo(station.getId())
+        );
     }
 }
