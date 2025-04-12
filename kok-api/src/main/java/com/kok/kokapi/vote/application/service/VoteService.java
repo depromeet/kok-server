@@ -90,7 +90,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         List<Long> stationIds = loadVotePort.findStationIdsByRoomIdOrderByVotedCount(roomId);
         VoteResults voteResults = getVoteResults(room, stationIds);
         int votedCount = loadVotePort.countVotedMembersByRoomId(roomId);
-        if (room.getVotedRatio(votedCount) > MINIMUM_VOTED_RATIO) {
+        if (room.getVotedRatio(votedCount) >= MINIMUM_VOTED_RATIO) {
             voteResults.applyResultTag();
         }
         return voteResults;
