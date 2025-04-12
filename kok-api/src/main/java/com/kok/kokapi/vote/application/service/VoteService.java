@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
+    private static final int MINIMUM_VOTED_RATIO = 60;
+
     private final SaveVotePort saveVotePort;
     private final LoadVotePort loadVotePort;
     private final DeleteVotePort deleteVotePort;
@@ -77,24 +79,31 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     public int countVotedMembers(String roomId) {
         validate(roomId);
         validateRoomStatusIfNotOnVote(roomId);
-        return loadVotePort.countMembersByRoomId(roomId);
+        return loadVotePort.countVotedMembersByRoomId(roomId);
     }
 
     @Override
     public VoteResults getVoteResultsByRoomId(String roomId) {
         validate(roomId);
         validateRoomStatusIfNotOnVote(roomId);
+        Room room = getRoom(roomId);
         List<Long> stationIds = loadVotePort.findStationIdsByRoomIdOrderByVotedCount(roomId);
-        return getVoteResults(roomId, stationIds);
+        VoteResults voteResults = getVoteResults(room, stationIds);
+        int votedCount = loadVotePort.countVotedMembersByRoomId(roomId);
+        if (room.getVotedRatio(votedCount) > MINIMUM_VOTED_RATIO) {
+            voteResults.applyResultTag();
+        }
+        return voteResults;
     }
 
-    private VoteResults getVoteResults(String roomId, List<Long> stationIds) {
+    private VoteResults getVoteResults(Room room, List<Long> stationIds) {
         List<VoteResult> voteResults = new ArrayList<>();
         for (Long stationId : stationIds) {
             List<String> memberIds = loadVotePort.findMemberIdsByRoomIdAndStationId(
-                roomId, stationId);
+                room.getId(), stationId);
             Station station = getStation(stationId);
-            voteResults.add(new VoteResult(roomId, stationId, memberIds, station.getPriority()));
+            voteResults.add(
+                new VoteResult(room.getId(), stationId, memberIds, station.getPriority()));
         }
         return new VoteResults(voteResults);
     }

@@ -43,7 +43,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
     }
 
     @Override
-    public int countMembersByRoomId(String roomId) {
+    public int countVotedMembersByRoomId(String roomId) {
         return RedisExecutor.runOrElseGet("countMembersByRoomId", () -> {
             String key = VoteKey.voteCompletedMembersKey(roomId);
             Long count = redisTemplate.opsForSet().size(key);

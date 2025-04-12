@@ -12,7 +12,7 @@ public class VoteResult {
     private final Candidate candidate;
     private final List<String> memberIds;
     private final long priority;
-    private final ResultTag resultTag;
+    private ResultTag resultTag;
 
     public VoteResult(String roomId, long stationId, List<String> memberIds, long priority) {
         this(new Candidate(roomId, stationId), memberIds, priority, ResultTag.NONE);
@@ -28,5 +28,13 @@ public class VoteResult {
 
     public int getVotedCount() {
         return memberIds.size();
+    }
+
+    public void markTop() {
+        resultTag = ResultTag.TOP;
+    }
+
+    public void markClose() {
+        resultTag = ResultTag.CLOSE;
     }
 }

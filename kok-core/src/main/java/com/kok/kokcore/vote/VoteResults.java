@@ -17,4 +17,21 @@ public class VoteResults {
                 .thenComparing(VoteResult::getPriority, Comparator.reverseOrder()))
             .toList();
     }
+
+    public void applyResultTag() {
+        int topVotedCount = voteResults.getFirst().getVotedCount();
+
+        List<VoteResult> topResults = voteResults.stream()
+            .filter(voteResult -> voteResult.getVotedCount() == topVotedCount)
+            .toList();
+
+        if (topResults.size() == 1) {
+            topResults.getFirst().markTop();
+            return;
+        }
+
+        for (VoteResult topResult : topResults) {
+            topResult.markClose();
+        }
+    }
 }

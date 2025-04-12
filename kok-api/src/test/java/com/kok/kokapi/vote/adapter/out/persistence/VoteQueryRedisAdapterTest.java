@@ -61,14 +61,14 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
 
     @Test
     @DisplayName("roomId에 대해 투표 완료한 멤버 수를 반환한다.")
-    void countMembersByRoomId() {
+    void countVotedMembersByRoomId() {
         // given
         String roomId = "room3";
         redisTemplate.opsForSet()
             .add(VoteKey.voteCompletedMembersKey(roomId), "member1", "member2", "member3");
 
         // when
-        int count = voteQueryRedisAdapter.countMembersByRoomId(roomId);
+        int count = voteQueryRedisAdapter.countVotedMembersByRoomId(roomId);
 
         // then
         assertThat(count).isEqualTo(3);

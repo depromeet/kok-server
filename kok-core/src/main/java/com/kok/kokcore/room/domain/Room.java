@@ -92,4 +92,11 @@ public class Room implements Serializable {
     public int getNotVotedCount(int votedCount) {
         return capacity - votedCount;
     }
+
+    public int getVotedRatio(int votedCount) {
+        if (capacity == 0) {
+            return 0;
+        }
+        return (int) ((double) votedCount / capacity * 100);
+    }
 }

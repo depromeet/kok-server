@@ -9,7 +9,7 @@ public interface LoadVotePort {
 
     List<Vote> findAllByRoomIdAndMemberId(String roomId, String memberId);
 
-    int countMembersByRoomId(String roomId);
+    int countVotedMembersByRoomId(String roomId);
 
     List<String> findMemberIdsByRoomIdAndStationId(String roomId, long stationId);
 
