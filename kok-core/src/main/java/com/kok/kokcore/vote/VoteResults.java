@@ -13,8 +13,8 @@ public class VoteResults {
     public VoteResults(List<VoteResult> voteResults) {
         this.voteResults = voteResults.stream()
             .sorted(Comparator
-                .comparing(VoteResult::getVotedCount).reversed()
-                .thenComparing(VoteResult::getPriority).reversed())
+                .comparing(VoteResult::getVotedCount, Comparator.reverseOrder())
+                .thenComparing(VoteResult::getPriority, Comparator.reverseOrder()))
             .toList();
     }
 }
