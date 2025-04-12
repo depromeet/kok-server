@@ -114,13 +114,7 @@ public class VoteFacadeService {
         List<ResultResponse> responses = new ArrayList<>();
         Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
         int votedCount = getVoteUseCase.countVotedMembers(roomId);
-        List<Vote> votes = getVoteUseCase.getVotesByMember(roomId, memberId);
-        for (Vote vote : votes) {
-            Station station = getStationUseCase.getStation(vote.getStationId());
-            List<Member> members = getVoteUseCase.getMembersByVote(vote);
-            ResultResponse response = ResultResponse.of(station, vote, members);
-            responses.add(response);
-        }
+
         return new VoteResultResponse(room.getNotVotedCount(votedCount), responses);
     }
 

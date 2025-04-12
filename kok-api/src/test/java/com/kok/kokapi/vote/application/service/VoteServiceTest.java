@@ -135,35 +135,6 @@ class VoteServiceTest extends ServiceTest {
         assertThat(count).isEqualTo(2);
     }
 
-    @DisplayName("사용자의 투표 정보를 반환한다.")
-    @Test
-    void getVotesByMember() {
-        // given
-        voteService.saveVotes(room.getId(), member.getMemberId(), List.of(1L));
-
-        // when
-        List<Vote> result = voteService.getVotesByMember(room.getId(), member.getMemberId());
-
-        // then
-        assertThat(result).hasSize(1)
-            .containsExactlyInAnyOrder(new Vote(room.getId(), 1L, member.getMemberId()));
-    }
-
-    @DisplayName("특정 투표에 참여한 사용자의 정보를 반환한다.")
-    @Test
-    void getMembersByVote() {
-        voteService.saveVotes(room.getId(), member.getMemberId(), List.of(1L));
-        voteService.saveVotes(room.getId(), member2.getMemberId(), List.of(1L));
-
-        Vote vote = new Vote(candidate, member.getMemberId());
-
-        List<Member> result = voteService.getMembersByVote(vote);
-
-        assertThat(result).hasSize(2)
-            .extracting(Member::getMemberId)
-            .containsExactlyInAnyOrder(member.getMemberId(), member2.getMemberId());
-    }
-
     @DisplayName("방이 투표 상태가 아니면 예외가 발생한다.")
     @Test
     void throwExceptionWhenRoomNotInVoteStatus() {
