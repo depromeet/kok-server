@@ -37,4 +37,8 @@ public class VoteResult {
     public void markClose() {
         resultTag = ResultTag.CLOSE;
     }
+
+    public long getStationId() {
+        return candidate.getStationId();
+    }
 }

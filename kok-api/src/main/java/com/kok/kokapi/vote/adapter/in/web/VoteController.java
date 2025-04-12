@@ -6,8 +6,8 @@ import com.kok.kokapi.station.application.service.StationFacadeService;
 import com.kok.kokapi.vote.adapter.in.dto.request.VoteRequest;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
+import com.kok.kokapi.vote.adapter.in.dto.response.VoteCurrentResultResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.VoteDeadlineResponse;
-import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultStationResponse;
 import com.kok.kokapi.vote.application.service.VoteFacadeService;
 import com.kok.kokcore.room.domain.Room;
@@ -20,7 +20,6 @@ import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,8 +53,7 @@ public class VoteController {
         @PathVariable String memberId,
         @RequestBody VoteRequest voteRequest
     ) {
-        Set<Station> stations = stationFacadeService.getCandidateStation(roomId);
-        voteFacadeService.saveVotes(roomId, memberId, voteRequest.agreedStationIds(), stations);
+        voteFacadeService.saveVotes(roomId, memberId, voteRequest.agreedStationIds());
         return ResponseEntity.ok(ApiResponseDto.success(null));
     }
 
@@ -84,11 +82,11 @@ public class VoteController {
         return ResponseEntity.ok(ApiResponseDto.success(null));
     }
 
-    @Operation(summary = "투표 결과 조회", description = "방 ID와 사용자 ID에 대해 사용자 기준으로 후보지별 투표 결과를 조회합니다.")
-    @GetMapping("/votes/{roomId}/{memberId}")
-    public ResponseEntity<ApiResponseDto<VoteResultResponse>> getVoteResult(
-        @PathVariable String roomId, @PathVariable String memberId) {
-        VoteResultResponse response = voteFacadeService.getVoteResult(roomId, memberId);
+    @Operation(summary = "투표 현황 조회", description = "방 ID에 대해 현재까지 투표 결과를 조회합니다.")
+    @GetMapping("/votes/{roomId}/results/current")
+    public ResponseEntity<ApiResponseDto<VoteCurrentResultResponse>> getVoteResult(
+        @PathVariable String roomId) {
+        VoteCurrentResultResponse response = voteFacadeService.getVoteCurrentResult(roomId);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 

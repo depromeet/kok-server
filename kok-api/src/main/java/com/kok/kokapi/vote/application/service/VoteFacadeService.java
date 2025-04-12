@@ -7,7 +7,7 @@ import com.kok.kokapi.public_transportation.application.service.TmapPublicTransp
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.ResultResponse;
-import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultResponse;
+import com.kok.kokapi.vote.adapter.in.dto.response.VoteCurrentResultResponse;
 import com.kok.kokcore.location.domain.Location;
 import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import com.kok.kokcore.room.domain.Member;
@@ -19,7 +19,8 @@ import com.kok.kokcore.station.usecase.GetStationUseCase;
 import com.kok.kokcore.station.usecase.RetrieveRouteUseCase;
 import com.kok.kokcore.station.usecase.SystemRecommendUseCase;
 import com.kok.kokcore.station.usecase.UserRecommendUseCase;
-import com.kok.kokcore.vote.domain.Vote;
+import com.kok.kokcore.vote.VoteResults;
+import com.kok.kokcore.vote.domain.VoteResult;
 import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
@@ -37,7 +38,6 @@ import org.springframework.stereotype.Service;
 public class VoteFacadeService {
 
     private final GetCandidateUseCase getCandidateUseCase;
-    private final GetStationUseCase getStationUseCase;
     private final RetrieveRouteUseCase retrieveRouteUseCase;
     private final GetVoteUseCase getVoteUseCase;
     private final GetRoomUseCase getRoomUseCase;
@@ -47,6 +47,7 @@ public class VoteFacadeService {
     private final ReadLocationUseCase readLocationUseCase;
     private final SystemRecommendUseCase systemRecommendUseCase;
     private final UserRecommendUseCase userRecommendUseCase;
+    private final GetStationUseCase getStationUseCase;
 
     public List<CandidateResponse> getCandidates(String roomId, String memberId) {
         List<Station> recommendedStations = systemRecommendUseCase.systemRecommendStation(roomId);
@@ -110,17 +111,21 @@ public class VoteFacadeService {
         return responses;
     }
 
-    public VoteResultResponse getVoteResult(String roomId, String memberId) {
+    public VoteCurrentResultResponse getVoteCurrentResult(String roomId) {
         List<ResultResponse> responses = new ArrayList<>();
         Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
         int votedCount = getVoteUseCase.countVotedMembers(roomId);
-
-        return new VoteResultResponse(room.getNotVotedCount(votedCount), responses);
+        VoteResults voteResults = getVoteUseCase.getVoteResultsByRoomId(roomId);
+        for (VoteResult voteResult : voteResults.getVoteResults()) {
+            Station station = getStationUseCase.getStation(voteResult.getStationId());
+            List<Member> members = getRoomUseCase.getParticipantsByRoomIdInMemberIds(
+                roomId, voteResult.getMemberIds());
+            responses.add(ResultResponse.of(station, voteResult, members));
+        }
+        return new VoteCurrentResultResponse(room.getNotVotedCount(votedCount), responses);
     }
 
-    public void saveVotes(
-        String roomId, String memberId, List<Long> agreedStationIds, Set<Station> stations) {
-        getCandidateUseCase.saveAndGetCandidates(roomId, stations);
+    public void saveVotes(String roomId, String memberId, List<Long> agreedStationIds) {
         saveVoteUseCase.saveVotes(roomId, memberId, agreedStationIds);
     }
 
