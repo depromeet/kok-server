@@ -4,6 +4,7 @@ import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.vote.domain.Candidate;
 import com.kok.kokcore.vote.port.out.LoadCandidatePort;
 import com.kok.kokcore.vote.port.out.SaveCandidatePort;
+import com.kok.kokcore.vote.port.out.SaveVotePort;
 import com.kok.kokcore.vote.usecase.GetCandidateUseCase;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +17,7 @@ public class CandidateService implements GetCandidateUseCase {
 
     private final SaveCandidatePort saveCandidatePort;
     private final LoadCandidatePort loadCandidatePort;
+    private final SaveVotePort saveVotePort;
 
     @Override
     public List<Candidate> saveAndGetCandidates(String roomId, Set<Station> stations) {
@@ -24,7 +26,14 @@ public class CandidateService implements GetCandidateUseCase {
                 .map(station -> new Candidate(roomId, station.getId()))
                 .toList();
             saveCandidatePort.saveAll(candidates);
+            saveVotePort.initiateVoteCountByRoomIdAndStationIds(roomId, getStationIds(candidates));
         }
         return loadCandidatePort.findByRoomId(roomId);
+    }
+
+    private List<Long> getStationIds(List<Candidate> candidates) {
+        return candidates.stream()
+            .map(Candidate::getStationId)
+            .toList();
     }
 }

@@ -6,18 +6,16 @@ import com.kok.kokcore.room.port.out.LoadRoomParticipantPort;
 import com.kok.kokcore.room.port.out.LoadRoomPort;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.port.out.RetrieveStationsPort;
-import com.kok.kokcore.vote.domain.Candidate;
+import com.kok.kokcore.vote.VoteResults;
 import com.kok.kokcore.vote.domain.Vote;
-import com.kok.kokcore.vote.domain.vo.VoteStatus;
+import com.kok.kokcore.vote.domain.VoteResult;
 import com.kok.kokcore.vote.port.out.DeleteVotePort;
-import com.kok.kokcore.vote.port.out.LoadCandidatePort;
 import com.kok.kokcore.vote.port.out.LoadVotePort;
 import com.kok.kokcore.vote.port.out.SaveVotePort;
 import com.kok.kokcore.vote.usecase.GetVoteUseCase;
 import com.kok.kokcore.vote.usecase.SaveVoteUseCase;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +23,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
+    private static final int MINIMUM_VOTED_RATIO = 60;
+
     private final SaveVotePort saveVotePort;
     private final LoadVotePort loadVotePort;
-    private final LoadCandidatePort loadCandidatePort;
     private final DeleteVotePort deleteVotePort;
     private final LoadRoomPort loadRoomPort;
     private final RetrieveStationsPort retrieveStationsPort;
@@ -38,47 +37,36 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         validate(roomId, memberId);
         validateRoomStatusIfNotOnVote(roomId);
         initiate(roomId, memberId);
-        List<Vote> votes = getVotes(roomId, memberId, agreedStationIds);
-        // 1. 멤버의 투표 내용 Hash 저장
-        saveVotePort.saveVoteMemberHash(votes);
 
-        // 2. 투표 완료 Set에 멤버 추가
-        saveVotePort.saveVotedMemberSet(roomId, memberId);
+        // 1. 멤버가 투표한 stationId set 저장
+        saveVotePort.saveVotedStationsByRoomIdAndMemberId(agreedStationIds, roomId, memberId);
 
-        // 3. 각 후보에 대한 Set/ZSet 업데이트
-        for (Vote vote : votes) {
-            saveVotePort.saveVoteStatusSet(vote);
-            saveVotePort.incrementVoteStatusCountZSet(vote);
+        // 2. 각 후보에 대한 투표자 Set/ 투표 수 ZSet 갱신
+        for (Long stationId : agreedStationIds) {
+            saveVotePort.saveVotedMemberByRoomIdAndStationId(memberId, roomId, stationId);
+            saveVotePort.increaseVotedCountByRoomIdAndStationId(roomId, stationId);
         }
-    }
 
-    private List<Vote> getVotes(String roomId, String memberId, List<Long> stationIds) {
-        List<Vote> votes = new ArrayList<>();
-        List<Candidate> candidates = loadCandidatePort.findByRoomId(roomId);
-        for (Candidate candidate : candidates) {
-            if (isAgree(stationIds, candidate)) {
-                votes.add(new Vote(candidate, memberId, VoteStatus.AGREE));
-                continue;
-            }
-            votes.add(new Vote(candidate, memberId, VoteStatus.DISAGREE));
-        }
-        return votes;
-    }
-
-    private static boolean isAgree(List<Long> agreedStationIds, Candidate candidate) {
-        return agreedStationIds.contains(candidate.getStationId());
+        // 3. 투표 완료 Set에 멤버 추가
+        saveVotePort.saveVotedMemberByRoomId(roomId, memberId);
     }
 
     private void initiate(String roomId, String memberId) {
         if (loadVotePort.isExistsByRoomIdAndMemberId(roomId, memberId)) {
             List<Vote> votes = loadVotePort.findAllByRoomIdAndMemberId(roomId, memberId);
+            // 1. 각 후보에 대한 투표자 Set/ 투표 수 ZSet 갱신
             for (Vote vote : votes) {
-                deleteVotePort.removeMemberFromVoteStatusSet(vote);
-                deleteVotePort.decrementVoteCountInZSet(vote);
+                deleteVotePort.deleteVotedMemberByRoomIdAndStationId(
+                    vote.getMemberId(), vote.getRoomId(), vote.getStationId());
+                deleteVotePort.decreaseVotedCountByRoomIdAndStationId(
+                    vote.getRoomId(), vote.getStationId());
             }
 
-            deleteVotePort.deleteMemberVoteHash(roomId, memberId);
-            deleteVotePort.removeMemberFromVotedSet(roomId, memberId);
+            // 2. 멤버가 투표한 stationId set 제거
+            deleteVotePort.deleteVotedStationsByRoomIdAndMemberId(roomId, memberId);
+
+            //3. 투표 완료 set에서 멤버 제거
+            deleteVotePort.deleteVotedMemberByRoomId(roomId, memberId);
         }
     }
 
@@ -91,28 +79,33 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     public int countVotedMembers(String roomId) {
         validate(roomId);
         validateRoomStatusIfNotOnVote(roomId);
-        return loadVotePort.countMembersByRoomId(roomId);
+        return loadVotePort.countVotedMembersByRoomId(roomId);
     }
 
     @Override
-    public List<Vote> getVotesByMember(String roomId, String memberId) {
-        validate(roomId, memberId);
-        validateVote(roomId, memberId);
-        return loadVotePort.findAllByRoomIdAndMemberId(roomId, memberId);
+    public VoteResults getVoteResultsByRoomId(String roomId) {
+        validate(roomId);
+        validateRoomStatusIfNotOnVote(roomId);
+        Room room = getRoom(roomId);
+        List<Long> stationIds = loadVotePort.findStationIdsByRoomIdOrderByVotedCount(roomId);
+        VoteResults voteResults = getVoteResults(room, stationIds);
+        int votedCount = loadVotePort.countVotedMembersByRoomId(roomId);
+        if (room.getVotedRatio(votedCount) >= MINIMUM_VOTED_RATIO) {
+            voteResults.applyResultTag();
+        }
+        return voteResults;
     }
 
-    @Override
-    public List<Member> getMembersByVote(Vote vote) {
-        List<String> memberIds = loadVotePort.findMemberIdsByRoomIdAndStationIdAndStatus(
-            vote.getRoomId(), vote.getStationId(), vote.getVoteStatus());
-        return getMembers(memberIds, vote.getRoomId());
-    }
-
-    private List<Member> getMembers(List<String> memberIds, String roomId) {
-        return memberIds.stream()
-            .map(memberId -> loadRoomParticipantPort.findByRoomIdAndMemberId(roomId, memberId))
-            .flatMap(Optional::stream)
-            .toList();
+    private VoteResults getVoteResults(Room room, List<Long> stationIds) {
+        List<VoteResult> voteResults = new ArrayList<>();
+        for (Long stationId : stationIds) {
+            List<String> memberIds = loadVotePort.findMemberIdsByRoomIdAndStationId(
+                room.getId(), stationId);
+            Station station = getStation(stationId);
+            voteResults.add(
+                new VoteResult(room.getId(), stationId, memberIds, station.getPriority()));
+        }
+        return new VoteResults(voteResults);
     }
 
     @Override
@@ -120,11 +113,9 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         validate(roomId);
         Room room = getRoom(roomId);
         validateRoomStatusIfVoteClosed(room);
-        long stationId = loadVotePort.getFirstStationIdByRoomIdAndVoteStatus(
-            roomId, VoteStatus.AGREE);
-        return retrieveStationsPort.retrieveStation(stationId)
-            .orElseThrow(
-                () -> new IllegalArgumentException("Station not found with id " + stationId));
+        List<Long> stationIds = loadVotePort.findStationIdsByRoomIdOrderByVotedCount(roomId);
+        VoteResults voteResults = getVoteResults(room, stationIds);
+        return getStation(voteResults.getFinalResult().getStationId());
     }
 
     private void validate(String roomId, String memberId) {
@@ -153,12 +144,10 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         }
     }
 
-    private void validateVote(String roomId, String memberId) {
-        if (!loadVotePort.isExistsByRoomIdAndMemberId(roomId, memberId)) {
-            throw new IllegalArgumentException(
-                String.format("Not voted by member with id: %s, in room with id: %s",
-                    memberId, roomId));
-        }
+    private Station getStation(long stationId) {
+        return retrieveStationsPort.retrieveStation(stationId)
+            .orElseThrow(
+                () -> new IllegalArgumentException("Station not found with id " + stationId));
     }
 
     private Room getRoom(String roomId) {

@@ -68,4 +68,11 @@ public class RoomQueryService implements GetRoomUseCase {
     public long getParticipantsCount(String roomId) {
         return readLocationPort.countParticipantsById(roomId);
     }
+
+    @Override
+    public List<Member> getParticipantsByRoomIdInMemberIds(String roomId, List<String> memberIds) {
+        return getParticipants(roomId).stream()
+            .filter(member -> memberIds.contains(member.getMemberId()))
+            .toList();
+    }
 }

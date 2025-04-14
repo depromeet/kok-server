@@ -1,15 +1,17 @@
 package com.kok.kokcore.vote.port.out;
 
-import com.kok.kokcore.vote.domain.Vote;
 import java.util.List;
 
 public interface SaveVotePort {
 
-    void saveVoteMemberHash(List<Vote> votes);
+    void saveVotedStationsByRoomIdAndMemberId(List<Long> stationIds, String roomId,
+        String memberId);
 
-    void saveVoteStatusSet(Vote vote);
+    void saveVotedMemberByRoomIdAndStationId(String memberId, String roomId, long stationId);
 
-    void incrementVoteStatusCountZSet(Vote vote);
+    void increaseVotedCountByRoomIdAndStationId(String roomId, long stationId);
 
-    void saveVotedMemberSet(String roomId, String memberId);
+    void saveVotedMemberByRoomId(String roomId, String memberId);
+
+    void initiateVoteCountByRoomIdAndStationIds(String roomId, List<Long> stationIds);
 }

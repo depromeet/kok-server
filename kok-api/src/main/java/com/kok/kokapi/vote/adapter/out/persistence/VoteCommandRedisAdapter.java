@@ -1,7 +1,6 @@
 package com.kok.kokapi.vote.adapter.out.persistence;
 
 import com.kok.kokapi.common.util.RedisExecutor;
-import com.kok.kokcore.vote.domain.Vote;
 import com.kok.kokcore.vote.port.out.DeleteVotePort;
 import com.kok.kokcore.vote.port.out.SaveVotePort;
 import java.time.Duration;
@@ -22,24 +21,20 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public void saveVoteMemberHash(List<Vote> votes) {
-        validate(votes);
-        String roomId = votes.getFirst().getRoomId();
-        String memberId = votes.getFirst().getMemberId();
-        String memberHashKey = VoteKey.memberKey(roomId, memberId);
+    public void saveVotedStationsByRoomIdAndMemberId(List<Long> stationIds, String roomId,
+        String memberId) {
+        String memberKey = VoteKey.votedStationsByMemberKey(roomId, memberId);
         RedisExecutor.runOrThrow("saveVoteMemberHash", () -> {
-            for (Vote vote : votes) {
-                String field = VoteKey.stationField(vote.getStationId());
-                String status = vote.getVoteStatus().getName();
-                redisTemplate.opsForHash().put(memberHashKey, field, status);
+            for (Long stationId : stationIds) {
+                redisTemplate.opsForSet().add(memberKey, stationId);
             }
-            redisTemplate.expire(memberHashKey, getTTL(memberHashKey));
+            redisTemplate.expire(memberKey, getTTL(memberKey));
         });
     }
 
     @Override
-    public void saveVotedMemberSet(String roomId, String memberId) {
-        String votedMemberSetKey = VoteKey.voteKey(roomId);
+    public void saveVotedMemberByRoomId(String roomId, String memberId) {
+        String votedMemberSetKey = VoteKey.voteCompletedMembersKey(roomId);
         RedisExecutor.runOrThrow("saveVotedMemberSet", () -> {
             redisTemplate.opsForSet().add(votedMemberSetKey, memberId);
             redisTemplate.expire(votedMemberSetKey, getTTL(votedMemberSetKey));
@@ -47,56 +42,64 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
     }
 
     @Override
-    public void saveVoteStatusSet(Vote vote) {
-        String key = VoteKey.voteStatusMemberSetKey(vote);
+    public void initiateVoteCountByRoomIdAndStationIds(String roomId, List<Long> stationIds) {
+        String key = VoteKey.votedCountOfStationKey(roomId);
+        RedisExecutor.runOrThrow("initiateVoteCountByRoomIdAndStationIds", () -> {
+            for (Long stationId : stationIds) {
+                redisTemplate.opsForZSet().addIfAbsent(key, stationId, 0);
+                redisTemplate.expire(key, getTTL(key));
+            }
+        });
+    }
+
+    @Override
+    public void saveVotedMemberByRoomIdAndStationId(String memberId, String roomId,
+        long stationId) {
+        String key = VoteKey.votedMembersOfStationKey(roomId, stationId);
         RedisExecutor.runOrThrow("saveVoteStatusSet", () -> {
-            redisTemplate.opsForSet().add(key, vote.getMemberId());
+            redisTemplate.opsForSet().add(key, memberId);
             redisTemplate.expire(key, getTTL(key));
         });
     }
 
     @Override
-    public void incrementVoteStatusCountZSet(Vote vote) {
-        String key = VoteKey.voteStatusCountZSetKey(vote);
+    public void increaseVotedCountByRoomIdAndStationId(String roomId, long stationId) {
+        String key = VoteKey.votedCountOfStationKey(roomId);
         RedisExecutor.runOrThrow("incrementVoteStatusCountZSet", () -> {
-            redisTemplate.opsForZSet().incrementScore(key, vote.getStationId(), 1);
+            redisTemplate.opsForZSet().incrementScore(key, stationId, 1);
             redisTemplate.expire(key, getTTL(key));
         });
     }
 
-    private void validate(List<Vote> votes) {
-        if (Objects.isNull(votes) || votes.isEmpty()) {
-            throw new IllegalArgumentException("No votes to save");
-        }
-    }
-
     @Override
-    public void removeMemberFromVoteStatusSet(Vote vote) {
-        String key = VoteKey.voteStatusMemberSetKey(vote);
+    public void deleteVotedMemberByRoomIdAndStationId(
+        String memberId, String roomId, long stationId
+    ) {
+        String key = VoteKey.votedMembersOfStationKey(roomId, stationId);
         RedisExecutor.runOrThrow("removeMemberFromVoteStatusSet", () ->
-            redisTemplate.opsForSet().remove(key, vote.getMemberId())
+            redisTemplate.opsForSet().remove(key, memberId)
         );
     }
 
     @Override
-    public void decrementVoteCountInZSet(Vote vote) {
-        String key = VoteKey.voteStatusCountZSetKey(vote);
+    public void decreaseVotedCountByRoomIdAndStationId(String roomId, long stationId) {
+        String key = VoteKey.votedCountOfStationKey(roomId);
         RedisExecutor.runOrThrow("decrementVoteCountInZSet", () ->
-            redisTemplate.opsForZSet().incrementScore(key, vote.getStationId(), -1)
+            redisTemplate.opsForZSet().incrementScore(key, stationId, -1)
         );
     }
 
     @Override
-    public void deleteMemberVoteHash(String roomId, String memberId) {
-        String key = VoteKey.memberKey(roomId, memberId);
+    public void deleteVotedStationsByRoomIdAndMemberId(String roomId, String memberId) {
+        String key = VoteKey.votedStationsByMemberKey(roomId, memberId);
         RedisExecutor.runOrThrow("deleteMemberVoteHash", () ->
             redisTemplate.delete(key)
         );
     }
 
     @Override
-    public void removeMemberFromVotedSet(String roomId, String memberId) {
-        String key = VoteKey.voteKey(roomId);
+    public void deleteVotedMemberByRoomId(String roomId, String memberId) {
+        String key = VoteKey.voteCompletedMembersKey(roomId);
         RedisExecutor.runOrThrow("removeMemberFromVotedSet", () ->
             redisTemplate.opsForSet().remove(key, memberId)
         );
