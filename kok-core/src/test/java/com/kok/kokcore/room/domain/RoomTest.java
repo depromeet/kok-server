@@ -213,4 +213,43 @@ class RoomTest {
         // then
         assertThat(notVoted).isEqualTo(3);
     }
+
+    @DisplayName("출발지 입력 마감 시간을 초과하면 true를 반환한다.")
+    @Test
+    void shouldEndVoteByDeadlineExceeded() {
+        // given
+        Room room = Room.create("room", 2, new Member("member", "profile.svg", MemberRole.LEADER));
+
+        // when
+        boolean result = room.shouldEndVote(1, LocalDateTime.now().plusHours(18));
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("모든 참가자가 투표를 완료하면 true를 반환한다.")
+    @Test
+    void shouldEndVoteByAllParticipantCompleted() {
+        // given
+        Room room = Room.create("room", 2, new Member("member", "profile.svg", MemberRole.LEADER));
+
+        // when
+        boolean result = room.shouldEndVote(2, LocalDateTime.now().plusHours(17));
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("출발지 입력 마감 시간을 초과하지도, 출발지 입력을 완료하지도 않았으면 false를 반환한다.")
+    @Test
+    void hasNotVoteEnded() {
+        // given
+        Room room = Room.create("room", 2, new Member("member", "profile.svg", MemberRole.LEADER));
+
+        // when
+        boolean result = room.shouldEndVote(1, LocalDateTime.now().plusHours(17));
+
+        // then
+        assertThat(result).isFalse();
+    }
 }

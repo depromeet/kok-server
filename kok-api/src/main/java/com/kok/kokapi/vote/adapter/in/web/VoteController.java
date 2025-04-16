@@ -69,7 +69,7 @@ public class VoteController {
     @GetMapping("/votes/{roomId}/deadline")
     public ResponseEntity<ApiResponseDto<VoteDeadlineResponse>> getVoteDeadline(
         @PathVariable String roomId) {
-        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
+        Room room = updateRoomUseCase.updateRoomStatus(roomId, LocalDateTime.now());
         int candidateCount = voteFacadeService.countCandidates(roomId);
         VoteDeadlineResponse response = VoteDeadlineResponse.of(room, candidateCount);
         return ResponseEntity.ok(ApiResponseDto.success(response));

@@ -13,4 +13,8 @@ public enum RoomStatus {
     public boolean isVoteResult() {
         return this.equals(VOTE_RESULT);
     }
+
+    public boolean isVote() {
+        return this.equals(VOTE);
+    }
 }
