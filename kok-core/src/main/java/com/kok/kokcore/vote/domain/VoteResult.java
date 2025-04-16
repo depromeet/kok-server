@@ -11,18 +11,16 @@ public class VoteResult {
 
     private final Candidate candidate;
     private final List<String> memberIds;
-    private final long priority;
     private ResultTag resultTag;
 
-    public VoteResult(String roomId, long stationId, List<String> memberIds, long priority) {
-        this(new Candidate(roomId, stationId), memberIds, priority, ResultTag.NONE);
+    public VoteResult(String roomId, long stationId, List<String> memberIds) {
+        this(new Candidate(roomId, stationId), memberIds, ResultTag.NONE);
     }
 
     public VoteResult(
-        Candidate candidate, List<String> memberIds, long priority, ResultTag resultTag) {
+        Candidate candidate, List<String> memberIds, ResultTag resultTag) {
         this.candidate = candidate;
         this.memberIds = memberIds;
-        this.priority = priority;
         this.resultTag = resultTag;
     }
 

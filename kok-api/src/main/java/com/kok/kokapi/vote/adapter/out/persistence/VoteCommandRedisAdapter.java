@@ -42,14 +42,12 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
     }
 
     @Override
-    public void initiateVoteCountByRoomIdAndStationIds(String roomId, List<Long> stationIds) {
+    public void initiateVoteScoreByRoomIdAndStationIdsAndStationPriority(
+        String roomId, Long stationId, Long priority
+    ) {
         String key = VoteKey.votedCountOfStationKey(roomId);
-        RedisExecutor.runOrThrow("initiateVoteCountByRoomIdAndStationIds", () -> {
-            for (Long stationId : stationIds) {
-                redisTemplate.opsForZSet().addIfAbsent(key, stationId, 0);
-                redisTemplate.expire(key, getTTL(key));
-            }
-        });
+        redisTemplate.opsForZSet().addIfAbsent(key, stationId, priority);
+        redisTemplate.expire(key, getTTL(key));
     }
 
     @Override

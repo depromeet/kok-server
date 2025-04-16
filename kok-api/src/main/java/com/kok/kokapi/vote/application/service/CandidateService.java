@@ -26,14 +26,16 @@ public class CandidateService implements GetCandidateUseCase {
                 .map(station -> new Candidate(roomId, station.getId()))
                 .toList();
             saveCandidatePort.saveAll(candidates);
-            saveVotePort.initiateVoteCountByRoomIdAndStationIds(roomId, getStationIds(candidates));
+            initiateVoteScore(roomId, stations);
         }
         return loadCandidatePort.findByRoomId(roomId);
     }
 
-    private List<Long> getStationIds(List<Candidate> candidates) {
-        return candidates.stream()
-            .map(Candidate::getStationId)
-            .toList();
+    private void initiateVoteScore(String roomId, Set<Station> stations) {
+        for (Station station : stations) {
+            saveVotePort.initiateVoteScoreByRoomIdAndStationIdsAndStationPriority(
+                roomId, station.getId(), station.getPriority()
+            );
+        }
     }
 }

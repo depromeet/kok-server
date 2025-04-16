@@ -101,9 +101,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         for (Long stationId : stationIds) {
             List<String> memberIds = loadVotePort.findMemberIdsByRoomIdAndStationId(
                 room.getId(), stationId);
-            Station station = getStation(stationId);
-            voteResults.add(
-                new VoteResult(room.getId(), stationId, memberIds, station.getPriority()));
+            voteResults.add(new VoteResult(room.getId(), stationId, memberIds));
         }
         return new VoteResults(voteResults);
     }

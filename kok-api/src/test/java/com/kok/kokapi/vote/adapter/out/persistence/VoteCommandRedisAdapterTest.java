@@ -164,22 +164,20 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
     }
 
     @Test
-    @DisplayName("주어진 stationId에 대해 득표 수가 0으로 Zset을 초기화한다.")
+    @DisplayName("주어진 stationId에 대해 점수를 station priority으로 Zset을 초기화한다.")
     void initiateVoteCountByRoomIdAndStationIds() {
         // given
         String roomId = "roomId";
-        List<Long> stationIds = List.of(1L, 2L, 3L);
+        long stationId = 100;
+        long priority = 10;
         String key = VoteKey.votedCountOfStationKey(roomId);
 
         // when
-        voteCommandRedisAdapter.initiateVoteCountByRoomIdAndStationIds(roomId, stationIds);
+        voteCommandRedisAdapter.initiateVoteScoreByRoomIdAndStationIdsAndStationPriority(roomId,
+            stationId, priority);
 
         // then
-        assertAll(
-            () -> assertThat(redisTemplate.opsForZSet().score(key, 1L)).isEqualTo(0.0),
-            () -> assertThat(redisTemplate.opsForZSet().score(key, 2L)).isEqualTo(0.0),
-            () -> assertThat(redisTemplate.opsForZSet().score(key, 3L)).isEqualTo(0.0)
-        );
+        assertThat(redisTemplate.opsForZSet().score(key, 1L)).isEqualTo(10.0);
     }
 
     @Test
@@ -188,11 +186,13 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         // given
         String roomId = "roomId";
         long stationId = 100;
+        long priority = 10;
         String key = VoteKey.votedCountOfStationKey(roomId);
         redisTemplate.opsForZSet().add(key, stationId, 5.0);
 
         // when
-        voteCommandRedisAdapter.initiateVoteCountByRoomIdAndStationIds(roomId, List.of(stationId));
+        voteCommandRedisAdapter.initiateVoteScoreByRoomIdAndStationIdsAndStationPriority(roomId,
+            stationId, priority);
 
         // then
         Double score = redisTemplate.opsForZSet().score(key, stationId);
