@@ -10,6 +10,7 @@ import com.kok.kokcore.room.port.out.UpdateRoomPort;
 import com.kok.kokcore.room.usecase.CreateRoomUseCase;
 import com.kok.kokcore.room.usecase.JoinRoomUseCase;
 import com.kok.kokcore.room.usecase.UpdateRoomUseCase;
+import com.kok.kokcore.vote.port.out.LoadVotePort;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class RoomCommandService implements CreateRoomUseCase, UpdateRoomUseCase 
     private final LoadRoomPort loadRoomPort;
     private final ReadLocationPort readLocationPort;
     private final UpdateRoomPort updateRoomPort;
+    private final LoadVotePort loadVotePort;
     private final JoinRoomUseCase joinRoomUseCase;
 
     @Override
@@ -44,6 +46,12 @@ public class RoomCommandService implements CreateRoomUseCase, UpdateRoomUseCase 
         }
     }
 
+    private boolean shouldUpdateVoteDeadline(Room room, LocalDateTime current) {
+        List<Location> locations = readLocationPort.findLocationsByRoomId(room.getId());
+        int locationInputCount = locations.size();
+        return room.shouldEndLocationInput(locationInputCount, current);
+    }
+
     @Override
     public void closeVote(String roomId) {
         Room room = getRoom(roomId);
@@ -51,15 +59,34 @@ public class RoomCommandService implements CreateRoomUseCase, UpdateRoomUseCase 
         updateRoomPort.update(room);
     }
 
+    @Override
+    public Room updateRoomStatus(String roomId, LocalDateTime current) {
+        Room room = getRoom(roomId);
+        if (shouldEndLocationInput(room, current)) {
+            room.startVote();
+        }
+        if (shouldEndVote(room, current)) {
+            room.closeVote();
+            room.updateVoteDeadline(current);
+        }
+        updateRoomPort.update(room);
+        return room;
+    }
+
+    private boolean shouldEndLocationInput(Room room, LocalDateTime current) {
+        List<Location> locations = readLocationPort.findLocationsByRoomId(room.getId());
+        int locationInputCount = locations.size();
+        return room.shouldEndLocationInput(locationInputCount, current);
+    }
+
+    private boolean shouldEndVote(Room room, LocalDateTime current) {
+        int votedCount = loadVotePort.countVotedMembersByRoomId(room.getId());
+        return room.shouldEndVote(votedCount, current);
+    }
+
     private Room getRoom(String roomId) {
         return loadRoomPort.findRoomById(roomId)
             .orElseThrow(
                 () -> new IllegalArgumentException("Cannot find room with roomId: " + roomId));
-    }
-
-    private boolean shouldUpdateVoteDeadline(Room room, LocalDateTime current) {
-        List<Location> locations = readLocationPort.findLocationsByRoomId(room.getId());
-        int locationInputCount = locations.size();
-        return room.shouldEndLocationInput(locationInputCount, current);
     }
 }

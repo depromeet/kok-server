@@ -8,7 +8,6 @@ import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.domain.vo.MemberRole;
 import com.kok.kokcore.room.port.out.SaveRoomPort;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,7 @@ class RoomQueryServiceTest extends ServiceTest {
         Room room = saveRoomPort.save(Room.create("room", 2, member));
 
         // when
-        Room result = roomQueryService.findRoomById(room.getId(), LocalDateTime.now());
+        Room result = roomQueryService.findRoomById(room.getId());
 
         // then
         assertThat(result).isEqualTo(room);
@@ -41,7 +40,7 @@ class RoomQueryServiceTest extends ServiceTest {
         String roomId = "unknownId";
 
         // when & then
-        assertThatThrownBy(() -> roomQueryService.findRoomById(roomId, LocalDateTime.now()))
+        assertThatThrownBy(() -> roomQueryService.findRoomById(roomId))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Room not found with id: " + roomId);
     }

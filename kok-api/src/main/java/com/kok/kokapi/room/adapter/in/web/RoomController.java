@@ -17,6 +17,7 @@ import com.kok.kokcore.room.domain.vo.MemberRole;
 import com.kok.kokcore.room.usecase.CreateRoomUseCase;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.room.usecase.JoinRoomUseCase;
+import com.kok.kokcore.room.usecase.UpdateRoomUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
@@ -37,12 +38,13 @@ public class RoomController {
     private final CreateRoomUseCase createRoomUseCase;
     private final JoinRoomUseCase joinRoomUseCase;
     private final ReadLocationUseCase readLocationUseCase;
+    private final UpdateRoomUseCase updateRoomUseCase;
 
     @Operation(summary = "약속방 조회", description = "약속방 ID를 통해 약속방을 조회합니다. 투표 모드에 대한 값을 포함합니다.")
     @GetMapping("/rooms/{roomId}")
     public ResponseEntity<ApiResponseDto<RoomDetailResponse>> getRoomDetail(
         @PathVariable String roomId) {
-        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
+        Room room = updateRoomUseCase.updateRoomStatus(roomId, LocalDateTime.now());
         long participantsCount = getRoomUseCase.getParticipantsCount(roomId);
         RoomDetailResponse response = RoomDetailResponse.of(room, participantsCount);
         return ResponseEntity.ok(ApiResponseDto.success(response));
@@ -52,7 +54,7 @@ public class RoomController {
     @GetMapping("/rooms/{roomId}/status")
     public ResponseEntity<ApiResponseDto<RoomStatusResponse>> getRoomStatus(
         @PathVariable String roomId) {
-        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
+        Room room = updateRoomUseCase.updateRoomStatus(roomId, LocalDateTime.now());
         RoomStatusResponse response = RoomStatusResponse.of(room);
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
@@ -81,7 +83,7 @@ public class RoomController {
     @GetMapping("/rooms/{roomId}/participants")
     public ResponseEntity<ApiResponseDto<RoomParticipantsResponse>> getParticipants(
         @PathVariable String roomId) {
-        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
+        Room room = updateRoomUseCase.updateRoomStatus(roomId, LocalDateTime.now());
         List<Member> participants = getRoomUseCase.getParticipants(room.getId());
         List<Location> locations = readLocationUseCase.readLocations(room.getId());
 
@@ -94,8 +96,7 @@ public class RoomController {
     @PostMapping("/rooms/{roomId}/join")
     public ResponseEntity<ApiResponseDto<JoinRoomResponse>> joinRoom(@PathVariable String roomId,
         @Valid @RequestBody JoinRoomParticipantRequest request) {
-
-        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
+        Room room = updateRoomUseCase.updateRoomStatus(roomId, LocalDateTime.now());
 
         Member participant = new Member(request.nickname(), request.profile(), MemberRole.FOLLOWER);
         int participantCount = joinRoomUseCase.joinRoom(roomId, participant);

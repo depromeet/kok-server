@@ -99,4 +99,13 @@ public class Room implements Serializable {
         }
         return (int) ((double) votedCount / capacity * 100);
     }
+
+    public boolean shouldEndVote(int votedCount, LocalDateTime current) {
+        return this.status.isVote() && (isAllVoted(votedCount)
+            || current.isAfter(voteLimitDateTime));
+    }
+
+    private boolean isAllVoted(int votedCount) {
+        return votedCount == capacity;
+    }
 }

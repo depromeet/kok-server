@@ -123,4 +123,48 @@ class RoomCommandServiceTest extends ServiceTest {
 
         assertThat(updatedRoom.getStatus()).isEqualTo(RoomStatus.VOTE_RESULT);
     }
+
+    @DisplayName("모든 인원이 출발지를 입력하면 updateRoomStatus를 통해 상태가 VOTE로 전환된다.")
+    @Test
+    void updateRoomStatusChangesToVote() {
+        // given
+        Location location1 = new Location(room.getId(), member.getMemberId(), PointFixture.create(),
+            "서울시 마포구");
+        Location location2 = new Location(room.getId(), member2.getMemberId(),
+            PointFixture.create(), "서울시 강서구");
+        locationRepository.save(location1);
+        locationRepository.save(location2);
+
+        // when
+        Room updatedRoom = roomCommandService.updateRoomStatus(room.getId(), LocalDateTime.now());
+
+        // then
+        assertThat(updatedRoom.getStatus()).isEqualTo(RoomStatus.VOTE);
+    }
+
+    @DisplayName("모든 인원이 투표를 완료하면 updateRoomStatus를 통해 상태가 VOTE_RESULT로 전환된다.")
+    @Test
+    void updateRoomStatusChangesToVoteResult() {
+        // given
+        LocalDateTime now = LocalDateTime.now().withNano(0);
+
+        Location location1 = new Location(room.getId(), member.getMemberId(), PointFixture.create(),
+            "서울시 마포구");
+        Location location2 = new Location(room.getId(), member2.getMemberId(),
+            PointFixture.create(), "서울시 강서구");
+        locationRepository.save(location1);
+        locationRepository.save(location2);
+        roomCommandService.updateRoomStatus(room.getId(), now);
+
+        Room voteStartedRoom = roomQueryRedisAdapter.findRoomById(room.getId()).get();
+        voteStartedRoom.updateVoteDeadline(now);
+        voteStartedRoom.startVote();
+        roomSaveRedisAdapter.update(voteStartedRoom);
+
+        // when
+        Room updatedRoom = roomCommandService.updateRoomStatus(room.getId(), now.plusHours(13));
+
+        // then
+        assertThat(updatedRoom.getStatus()).isEqualTo(RoomStatus.VOTE_RESULT);
+    }
 }
