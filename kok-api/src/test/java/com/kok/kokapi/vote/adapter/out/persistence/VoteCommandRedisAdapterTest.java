@@ -165,7 +165,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
 
     @Test
     @DisplayName("주어진 stationId에 대해 점수를 station priority으로 Zset을 초기화한다.")
-    void initiateVoteCountByRoomIdAndStationIds() {
+    void initiateVoteScoreByRoomIdAndStationIdsAndPriority() {
         // given
         String roomId = "roomId";
         long stationId = 100;
@@ -173,16 +173,16 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         String key = VoteKey.votedScoreOfStationKey(roomId);
 
         // when
-        voteCommandRedisAdapter.initiateVoteScoreByRoomIdAndStationIdsAndStationPriority(roomId,
-            stationId, priority);
+        voteCommandRedisAdapter.initiateVoteScoreByRoomIdAndStationIdsAndStationPriority(
+            roomId, stationId, priority);
 
         // then
-        assertThat(redisTemplate.opsForZSet().score(key, 1L)).isEqualTo(10.0);
+        assertThat(redisTemplate.opsForZSet().score(key, 100)).isEqualTo(10.0);
     }
 
     @Test
     @DisplayName("이미 득표 수가 존재하는 경우 ZSet 초기화 시 값을 덮어쓰지 않는다.")
-    void doesNotInitiateVoteCountDoesNotOverrideExistingScoreIfPresent() {
+    void doesNotInitiateVoteScoreDoesNotOverrideExistingScoreIfPresent() {
         // given
         String roomId = "roomId";
         long stationId = 100;
