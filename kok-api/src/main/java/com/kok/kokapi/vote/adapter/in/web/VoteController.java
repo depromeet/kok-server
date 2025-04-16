@@ -2,7 +2,6 @@ package com.kok.kokapi.vote.adapter.in.web;
 
 import com.kok.kokapi.common.response.ApiResponseDto;
 import com.kok.kokapi.config.annotion.V1Controller;
-import com.kok.kokapi.station.application.service.StationFacadeService;
 import com.kok.kokapi.vote.adapter.in.dto.request.VoteRequest;
 import com.kok.kokapi.vote.adapter.in.dto.response.CandidateResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.MemberVoteStatusResponse;
@@ -11,7 +10,6 @@ import com.kok.kokapi.vote.adapter.in.dto.response.VoteDeadlineResponse;
 import com.kok.kokapi.vote.adapter.in.dto.response.VoteResultStationResponse;
 import com.kok.kokapi.vote.application.service.VoteFacadeService;
 import com.kok.kokcore.room.domain.Room;
-import com.kok.kokcore.room.usecase.GetRoomUseCase;
 import com.kok.kokcore.room.usecase.UpdateRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
@@ -32,8 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class VoteController {
 
     private final VoteFacadeService voteFacadeService;
-    private final StationFacadeService stationFacadeService;
-    private final GetRoomUseCase getRoomUseCase;
     private final GetVoteUseCase getVoteUseCase;
     private final RetrieveRouteUseCase retrieveRouteUseCase;
     private final UpdateRoomUseCase updateRoomUseCase;
@@ -73,13 +69,6 @@ public class VoteController {
         int candidateCount = voteFacadeService.countCandidates(roomId);
         VoteDeadlineResponse response = VoteDeadlineResponse.of(room, candidateCount);
         return ResponseEntity.ok(ApiResponseDto.success(response));
-    }
-
-    @Operation(summary = "투표 종료", description = "방 ID에 대하여 투표 상태를 종료(VOTE_RESULT)로 변경합니다.")
-    @PostMapping("/votes/{roomId}/close")
-    public ResponseEntity<ApiResponseDto<Void>> closeVote(@PathVariable String roomId) {
-        updateRoomUseCase.closeVote(roomId);
-        return ResponseEntity.ok(ApiResponseDto.success(null));
     }
 
     @Operation(summary = "투표 현황 조회", description = "방 ID에 대해 현재까지 투표 결과를 조회합니다.")

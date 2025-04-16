@@ -13,6 +13,7 @@ import com.kok.kokcore.location.usecase.ReadLocationUseCase;
 import com.kok.kokcore.room.domain.Member;
 import com.kok.kokcore.room.domain.Room;
 import com.kok.kokcore.room.usecase.GetRoomUseCase;
+import com.kok.kokcore.room.usecase.UpdateRoomUseCase;
 import com.kok.kokcore.station.domain.entity.Route;
 import com.kok.kokcore.station.domain.entity.Station;
 import com.kok.kokcore.station.usecase.GetStationUseCase;
@@ -48,6 +49,7 @@ public class VoteFacadeService {
     private final SystemRecommendUseCase systemRecommendUseCase;
     private final UserRecommendUseCase userRecommendUseCase;
     private final GetStationUseCase getStationUseCase;
+    private final UpdateRoomUseCase updateRoomUseCase;
 
     public List<CandidateResponse> getCandidates(String roomId, String memberId) {
         List<Station> recommendedStations = systemRecommendUseCase.systemRecommendStation(roomId);
@@ -113,7 +115,7 @@ public class VoteFacadeService {
 
     public VoteCurrentResultResponse getVoteCurrentResult(String roomId) {
         List<ResultResponse> responses = new ArrayList<>();
-        Room room = getRoomUseCase.findRoomById(roomId, LocalDateTime.now());
+        Room room = updateRoomUseCase.updateRoomStatus(roomId, LocalDateTime.now());
         int votedCount = getVoteUseCase.countVotedMembers(roomId);
         VoteResults voteResults = getVoteUseCase.getVoteResultsByRoomId(roomId);
         for (VoteResult voteResult : voteResults.getVoteResults()) {
@@ -127,6 +129,7 @@ public class VoteFacadeService {
 
     public void saveVotes(String roomId, String memberId, List<Long> agreedStationIds) {
         saveVoteUseCase.saveVotes(roomId, memberId, agreedStationIds);
+        updateRoomUseCase.updateRoomStatus(roomId, LocalDateTime.now());
     }
 
     public int countCandidates(String roomId) {
