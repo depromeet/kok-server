@@ -45,7 +45,7 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
     public void initiateVoteScoreByRoomIdAndStationIdsAndStationPriority(
         String roomId, Long stationId, Long priority
     ) {
-        String key = VoteKey.votedCountOfStationKey(roomId);
+        String key = VoteKey.votedScoreOfStationKey(roomId);
         redisTemplate.opsForZSet().addIfAbsent(key, stationId, priority);
         redisTemplate.expire(key, getTTL(key));
     }
@@ -62,7 +62,7 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
 
     @Override
     public void increaseVotedCountByRoomIdAndStationId(String roomId, long stationId) {
-        String key = VoteKey.votedCountOfStationKey(roomId);
+        String key = VoteKey.votedScoreOfStationKey(roomId);
         RedisExecutor.runOrThrow("incrementVoteStatusCountZSet", () -> {
             redisTemplate.opsForZSet().incrementScore(key, stationId, 1);
             redisTemplate.expire(key, getTTL(key));
@@ -81,7 +81,7 @@ public class VoteCommandRedisAdapter implements SaveVotePort, DeleteVotePort {
 
     @Override
     public void decreaseVotedCountByRoomIdAndStationId(String roomId, long stationId) {
-        String key = VoteKey.votedCountOfStationKey(roomId);
+        String key = VoteKey.votedScoreOfStationKey(roomId);
         RedisExecutor.runOrThrow("decrementVoteCountInZSet", () ->
             redisTemplate.opsForZSet().incrementScore(key, stationId, -1)
         );

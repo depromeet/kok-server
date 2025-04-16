@@ -96,7 +96,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
     void findFirstStationIdByRoomIdOrderByVotedCount() {
         // given
         String roomId = "room5";
-        String key = VoteKey.votedCountOfStationKey(roomId);
+        String key = VoteKey.votedScoreOfStationKey(roomId);
         redisTemplate.opsForZSet().add(key, "10", 5.0);
         redisTemplate.opsForZSet().add(key, "11", 8.0);
 
@@ -112,7 +112,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
     void getFirstStationIdWhenNoVotes() {
         // given
         String roomId = "room6";
-        String key = VoteKey.votedCountOfStationKey(roomId);
+        String key = VoteKey.votedScoreOfStationKey(roomId);
         redisTemplate.delete(key);
 
         // when
@@ -127,7 +127,7 @@ class VoteQueryRedisAdapterTest extends RepositoryTest {
     void findStationIdsByRoomIdOrderByVotedCount() {
         // given
         String roomId = "room7";
-        String key = VoteKey.votedCountOfStationKey(roomId);
+        String key = VoteKey.votedScoreOfStationKey(roomId);
         redisTemplate.opsForZSet().add(key, "10", 5.0);
         redisTemplate.opsForZSet().add(key, "11", 8.0);
         redisTemplate.opsForZSet().add(key, "12", 2.0);

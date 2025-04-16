@@ -63,7 +63,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
     @Override
     public long findFirstStationIdByRoomIdOrderByVotedCount(String roomId) {
         return RedisExecutor.runOrElseGet("getFirstStationIdByRoomIdAndVoteStatus", () -> {
-            String key = VoteKey.votedCountOfStationKey(roomId);
+            String key = VoteKey.votedScoreOfStationKey(roomId);
             Set<ZSetOperations.TypedTuple<Object>> sorted =
                 redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, 0);
 
@@ -79,7 +79,7 @@ public class VoteQueryRedisAdapter implements LoadVotePort {
     @Override
     public List<Long> findStationIdsByRoomIdOrderByVotedCount(String roomId) {
         return RedisExecutor.runOrElseGet("getStationIdsByRoomIdOrderByVotedCount", () -> {
-            String key = VoteKey.votedCountOfStationKey(roomId);
+            String key = VoteKey.votedScoreOfStationKey(roomId);
             Set<ZSetOperations.TypedTuple<Object>> sorted =
                 redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, -1);
 

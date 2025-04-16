@@ -8,7 +8,7 @@ public enum VoteKey {
 
     VOTE_COMPLETED_MEMBERS_SET("votedDoneMembers:%s"),                 // Set<memberId>
     VOTED_STATIONS_BY_MEMBER_SET("memberVoted:%s:%s"),                 // Set<StationId>
-    VOTED_COUNT_OF_STATION_ZSET("votedCount:%s"),                      // ZSET<stationId, score>
+    VOTED_SCORE_OF_STATION_ZSET("votedScore:%s"),                      // ZSET<stationId, score>
     VOTED_MEMBERS_OF_STATION_SET("votedMembers:%s:%d")                 // Set<memberId> per station
     ;
 
@@ -24,9 +24,9 @@ public enum VoteKey {
         return String.format(VOTED_STATIONS_BY_MEMBER_SET.format, roomId, memberId);
     }
 
-    // stationId별 투표 수 저장 key
-    public static String votedCountOfStationKey(String roomId) {
-        return String.format(VOTED_COUNT_OF_STATION_ZSET.format, roomId);
+    // stationId별 점수 (투표 수 + 가중치) 저장 key
+    public static String votedScoreOfStationKey(String roomId) {
+        return String.format(VOTED_SCORE_OF_STATION_ZSET.format, roomId);
     }
 
     // stationId별 memberId 저장 key

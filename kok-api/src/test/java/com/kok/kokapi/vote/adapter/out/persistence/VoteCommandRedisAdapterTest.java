@@ -85,7 +85,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
 
         // then
         Double score = redisTemplate.opsForZSet()
-            .score(VoteKey.votedCountOfStationKey(roomId), vote.getStationId());
+            .score(VoteKey.votedScoreOfStationKey(roomId), vote.getStationId());
 
         assertThat(score).isEqualTo(1.0);
     }
@@ -97,7 +97,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         String roomId = "roomId";
         long stationId = 100;
         Vote vote = new Vote(new Candidate(roomId, stationId), "memberId");
-        String key = VoteKey.votedCountOfStationKey(roomId);
+        String key = VoteKey.votedScoreOfStationKey(roomId);
         redisTemplate.opsForZSet().add(key, vote.getStationId(), 2.0);
 
         // when
@@ -170,7 +170,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         String roomId = "roomId";
         long stationId = 100;
         long priority = 10;
-        String key = VoteKey.votedCountOfStationKey(roomId);
+        String key = VoteKey.votedScoreOfStationKey(roomId);
 
         // when
         voteCommandRedisAdapter.initiateVoteScoreByRoomIdAndStationIdsAndStationPriority(roomId,
@@ -187,7 +187,7 @@ class VoteCommandRedisAdapterTest extends RepositoryTest {
         String roomId = "roomId";
         long stationId = 100;
         long priority = 10;
-        String key = VoteKey.votedCountOfStationKey(roomId);
+        String key = VoteKey.votedScoreOfStationKey(roomId);
         redisTemplate.opsForZSet().add(key, stationId, 5.0);
 
         // when
