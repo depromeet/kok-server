@@ -78,15 +78,15 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
     @Override
     public int countVotedMembers(String roomId) {
         validate(roomId);
-        validateRoomStatusIfNotOnVote(roomId);
+        validateRoomStatusIfBeforeVote(roomId);
         return loadVotePort.countVotedMembersByRoomId(roomId);
     }
 
     @Override
     public VoteResults getVoteResultsByRoomId(String roomId) {
         validate(roomId);
+        validateRoomStatusIfBeforeVote(roomId);
         Room room = getRoom(roomId);
-        validateRoomStatusIfBeforeVote(room);
         List<Long> stationIds = loadVotePort.findStationIdsByRoomIdOrderByVotedCount(roomId);
         VoteResults voteResults = getVoteResults(room, stationIds);
         int votedCount = loadVotePort.countVotedMembersByRoomId(roomId);
@@ -96,7 +96,8 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
         return voteResults;
     }
 
-    private void validateRoomStatusIfBeforeVote(Room room) {
+    private void validateRoomStatusIfBeforeVote(String roomId) {
+        Room room = getRoom(roomId);
         if (room.isNotOnVote()) {
             throw new IllegalStateException(
                 "Room is not on vote yet, but status: " + room.getStatus());
