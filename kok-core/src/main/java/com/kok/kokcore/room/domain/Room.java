@@ -61,6 +61,10 @@ public class Room implements Serializable {
             || current.isAfter(locationInputLimitDateTime));
     }
 
+    public boolean isBeforeVote() {
+        return this.status.isLocationInput();
+    }
+
     public boolean isNotOnVote() {
         return this.status.isLocationInput() || this.status.isVoteResult();
     }
