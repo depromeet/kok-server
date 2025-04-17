@@ -98,7 +98,7 @@ public class VoteService implements SaveVoteUseCase, GetVoteUseCase {
 
     private void validateRoomStatusIfBeforeVote(String roomId) {
         Room room = getRoom(roomId);
-        if (room.isNotOnVote()) {
+        if (room.isBeforeVote()) {
             throw new IllegalStateException(
                 "Room is not on vote yet, but status: " + room.getStatus());
         }
