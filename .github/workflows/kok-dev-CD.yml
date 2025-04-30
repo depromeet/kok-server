@@ -34,7 +34,7 @@ jobs:
       - name: Deploy to Dev Server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.AWS_HOST }}
+          host: ${{ secrets.AWS_DEV_HOST }}
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_KEY }}
           script: |
