@@ -1,10 +1,11 @@
 name: kok-dev-CD (Deploy to Dev)
 
 on:
-  push:
-    branches:
-      - develop
-      - deploy/dev_cd # 배포 테스트 브랜치
+  workflow_dispatch:
+  #push:
+  #  branches:
+  #    - develop
+  #    - deploy/dev_cd # 배포 테스트 브랜치
 
 jobs:
   deploy:
