@@ -1,13 +1,10 @@
 name: kok-dev-CD (Deploy to Dev)
 
 on:
-  pull_request:
+  push:
     branches:
       - develop
-  #push:
-  #  branches:
-  #    - develop
-  #    - deploy/dev_cd # 배포 테스트 브랜치
+      - deploy/dev_cd # 배포 테스트 브랜치
 
 jobs:
   deploy:
