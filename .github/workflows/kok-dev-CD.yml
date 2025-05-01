@@ -31,7 +31,7 @@ jobs:
 
       - name: Upload `docker-compose.yml` to AWS
         run: |
-          scp -i /tmp/AWS_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-dev.yml ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+          scp -i /tmp/AWS_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-dev.yml ${{ secrets.AWS_USER }}@${{ secrets.AWS_DEV_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
 
       - name: Deploy to Dev Server
         uses: appleboy/ssh-action@v1.0.3
