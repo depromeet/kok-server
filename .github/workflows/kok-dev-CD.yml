@@ -1,7 +1,9 @@
 name: kok-dev-CD (Deploy to Dev)
 
 on:
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - develop
   #push:
   #  branches:
   #    - develop
