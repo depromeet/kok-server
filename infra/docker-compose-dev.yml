@@ -10,7 +10,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=dev
     ports:
-      - "80:8080"
+      - "8080:8080"
     networks:
       - kok-network
 
