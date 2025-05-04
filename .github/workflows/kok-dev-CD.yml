@@ -21,26 +21,27 @@ jobs:
 
 
       - name: Create SSH key file
-        run: echo "${{ secrets.NCP_KEY }}" > /tmp/NCP_KEY.pem
+        run: echo "${{ secrets.AWS_KEY }}" > /tmp/AWS_KEY.pem
 
       - name: Set permissions for SSH key file
-        run: chmod 400 /tmp/NCP_KEY.pem
+        run: chmod 400 /tmp/AWS_KEY.pem
 
-      - name: Upload `docker-compose.yml` to NCP
+      - name: Upload `docker-compose.yml` to AWS
         run: |
-          scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-dev.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+          scp -i /tmp/AWS_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-dev.yml ${{ secrets.AWS_USER }}@${{ secrets.AWS_DEV_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
 
       - name: Deploy to Dev Server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.NCP_HOST }}
-          username: ${{ secrets.NCP_USER }}
-          key: ${{ secrets.NCP_KEY }}
+          host: ${{ secrets.AWS_DEV_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_KEY }}
           script: |
             cd ${{ secrets.COMPOSE_FILE_PATH }}
             
             sed -i '/^KOK_DEV_TAG = /d' .env
             echo "KOK_DEV_TAG = ${{ env.LATEST_TAG }}" >> .env
+            
             sudo docker compose -f docker-compose-dev.yml pull
             sudo docker compose -f docker-compose-dev.yml down
             sudo docker compose -f docker-compose-dev.yml up -d
