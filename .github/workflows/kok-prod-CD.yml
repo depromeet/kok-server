@@ -17,90 +17,24 @@ jobs:
           echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
 
       - name: Create SSH key file
-        run: echo "${{ secrets.NCP_KEY }}" > /tmp/NCP_KEY.pem
+        run: echo "${{ secrets.AWS_KEY }}" > /tmp/AWS_KEY.pem
 
       - name: Set permissions for SSH key file
-        run: chmod 600 /tmp/NCP_KEY.pem
+        run: chmod 600 /tmp/AWS_KEY.pem
 
-      - name: Upload Compose files & nginx.conf to NCP
+      - name: Upload Compose files & deploy.sh to AWS
         run: |
-          scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-blue.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
-          scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-green.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
-          scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-env.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
-          scp -i /tmp/NCP_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-nginx.yml ${{ secrets.NCP_USER }}@${{ secrets.NCP_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+          scp -i /tmp/AWS_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-blue.yml ${{ secrets.AWS_USER }}@${{ secrets.AWS_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+          scp -i /tmp/AWS_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-green.yml ${{ secrets.AWS_USER }}@${{ secrets.AWS_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+          scp -i /tmp/AWS_KEY.pem -o StrictHostKeyChecking=no infra/deploy.sh ${{ secrets.AWS_USER }}@${{ secrets.AWS_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
 
-      - name: Deploy to NCP (Blue-Green Auto + DB/Redis Check)
+      - name: Deploy to AWS via deploy.sh
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.NCP_PROD_HOST }}
-          username: ${{ secrets.NCP_USER }}
-          key: ${{ secrets.NCP_KEY }}
+          host: ${{ secrets.AWS_PROD_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_KEY }}
           script: |
             cd ${{ secrets.COMPOSE_FILE_PATH }}
-
-            # .env에 최신 태그 기록
-            sed -i '/^KOK_PROD_TAG=/d' .env || true
-            echo "KOK_PROD_TAG=${{ env.LATEST_TAG }}" >> .env
-            
-            echo "🔍 nginx 컨테이너 상태 확인..."
-            if ! docker compose -f docker-compose-nginx.yml ps | grep -q "Up"; then
-              echo "🚀 nginx 시작"
-              docker compose -f docker-compose-nginx.yml up -d
-            else
-              echo "✅ nginx 이미 실행 중"
-            fi
-            
-            
-            echo "🔍 ENV 컨테이너 상태 확인..."
-            if ! docker compose -f docker-compose-env.yml ps | grep -q "Up"; then
-              echo "🚀 ENV 시작"
-              docker compose -f docker-compose-env.yml up -d
-            else
-              echo "✅ ENV 이미 실행 중"
-            fi
-
-            # 현재 사용 중인 Blue/Green 확인
-            CURRENT_ENV=$(grep -o 'proxy_pass http://kok-[a-z]\+' nginx.conf | awk -F/ '{print $3}')
-            echo "현재 사용 중인 환경: $CURRENT_ENV"
-
-            if [[ "$CURRENT_ENV" == "kok-blue" ]]; then
-              NEW_ENV="kok-green"
-              OLD_ENV="kok-blue"
-              COMPOSE_FILE="docker-compose-green.yml"
-              NEW_PORT=8082
-            else
-              NEW_ENV="kok-blue"
-              OLD_ENV="kok-green"
-              COMPOSE_FILE="docker-compose-blue.yml"
-              NEW_PORT=8081
-            fi
-
-            echo "새로운 환경으로 배포: $NEW_ENV"
-
-            # 새 환경 배포
-            docker compose -f $COMPOSE_FILE pull
-            docker compose -f $COMPOSE_FILE up -d
-
-            echo "🩺 Health Check (60초 대기)"
-            sleep 60
-            HEALTH=$(curl -s https://prod-api.kokokok.com/v1/api/health)
-            echo "Health Check 결과: $HEALTH"
-            CODE=$(echo "$HEALTH" | jq -r '.code')
-            DATA=$(echo "$HEALTH" | jq -r '.data')
-            
-            if [[ "$CODE" != "200" || "$DATA" != "OK" ]]; then
-              echo "❌ Health Check 실패 (code: $CODE, data: $DATA), 롤백!"
-              docker compose -f $COMPOSE_FILE stop $NEW_ENV
-              docker compose -f $COMPOSE_FILE rm -f $NEW_ENV
-              exit 1
-            fi
-            
-            echo "⚙️ nginx.conf 트래픽을 $NEW_ENV로 변경"
-            sed -i "s|proxy_pass http://$OLD_ENV:8080;|proxy_pass http://$NEW_ENV:8080;|" nginx.conf
-
-            echo "🔄 Nginx 설정 reload"
-            docker restart kok-nginx
-
-            echo "🧹 이전 환경($OLD_ENV) 정리"
-            docker compose -f docker-compose-${OLD_ENV#kok-}.yml stop $OLD_ENV
-            docker compose -f docker-compose-${OLD_ENV#kok-}.yml rm -f $OLD_ENV
+            chmod +x deploy.sh
+            ./deploy.sh "${{ env.LATEST_TAG }}"
