@@ -34,7 +34,7 @@ docker compose -f $COMPOSE_FILE up -d
 
 echo "🩺 Health Check (60초 대기)"
 sleep 60
-HEALTH=$(curl -s https://prod-api.kokokok.com/v1/api/health)
+HEALTH=$(curl -s http://localhost:$NEW_PORT/v1/api/health)
 echo "Health Check 결과: $HEALTH"
 CODE=$(echo "$HEALTH" | jq -r '.code')
 DATA=$(echo "$HEALTH" | jq -r '.data')
