@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RandomProfileService implements CreateRandomProfileUseCase {
 
-    @Value("${ncp.object-storage-url}")
+    @Value("${aws.object-storage-url}")
     private String objectStorageUrl;
 
     private static final List<String> ADJECTIVES = List.of(
