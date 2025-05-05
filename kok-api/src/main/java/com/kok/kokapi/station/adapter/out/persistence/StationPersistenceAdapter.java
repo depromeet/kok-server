@@ -1,0 +1,91 @@
+package com.kok.kokapi.station.adapter.out.persistence;
+
+import com.kok.kokapi.config.geometry.PointConverter;
+import com.kok.kokcore.station.domain.entity.Station;
+import com.kok.kokcore.station.port.out.ReadStationsPort;
+import com.kok.kokcore.station.port.out.RetrieveStationsPort;
+import com.kok.kokcore.station.port.out.SaveStationsPort;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Point;
+import org.springframework.data.util.Pair;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+@Repository
+@Slf4j
+@RequiredArgsConstructor
+public class StationPersistenceAdapter implements SaveStationsPort, ReadStationsPort,
+    RetrieveStationsPort {
+
+    private final PointConverter pointConverter;
+
+    private static final String INSERT_STATION_SQL = """
+            INSERT INTO station (name, latitude, longitude, priority)
+            VALUES (:name, :latitude, :longitude, :priority)
+        """;
+    private static final Function<Station, MapSqlParameterSource> mapToParams = station ->
+        new MapSqlParameterSource()
+            .addValue("name", station.getName())
+            .addValue("latitude", station.getLatitude())
+            .addValue("longitude", station.getLongitude())
+            .addValue("priority", station.getPriority());
+
+    private final StationRepository stationRepository;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
+
+    @Override
+    public List<Station> saveStations(List<Station> stations) {
+        if (stations.isEmpty()) {
+            log.debug("No stations to save.");
+            return List.of();
+        }
+        return batchInsertStations(stations);
+    }
+
+    private List<Station> batchInsertStations(List<Station> stations) {
+        MapSqlParameterSource[] batchParams = stations.stream()
+            .map(mapToParams)
+            .toArray(MapSqlParameterSource[]::new);
+        int[] batched = jdbcTemplate.batchUpdate(INSERT_STATION_SQL, batchParams);
+        log.debug("Successfully saved a total of {} stations out of {}.", batched.length,
+            stations.size());
+        List<String> names = stations.stream().map(Station::getName).toList();
+        return stationRepository.findAllByNameIn(names);
+    }
+
+    @Override
+    public boolean hasNoStations() {
+        return !stationRepository.existsAny();
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Station> retrieveStation(Long stationId) {
+        return stationRepository.findStationById(stationId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Station> retrieveInRangeStations(Point centroid, double dist) {
+        Pair<BigDecimal, BigDecimal> lonLat = pointConverter.toCoordinates(centroid);
+        return stationRepository.findInRangeStationsByCentroid(
+            lonLat.getFirst(),
+            lonLat.getSecond(),
+            dist
+        );
+    }
+
+    @Override
+    public List<Station> retrieveStationsByKeyword(String keyword) {
+        return stationRepository.findByNameContaining(keyword);
+    }
+}
+

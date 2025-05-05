@@ -1,0 +1,40 @@
+name: kok-prod-CD (Deploy to Prod - Blue-Green Auto)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get Latest Docker Image Tag
+        id: latest_tag
+        run: |
+          LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/kok-prod/tags" | jq -r '.results[0].name')
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Create SSH key file
+        run: echo "${{ secrets.AWS_KEY }}" > /tmp/AWS_KEY.pem
+
+      - name: Set permissions for SSH key file
+        run: chmod 600 /tmp/AWS_KEY.pem
+
+      - name: Upload Compose files & deploy.sh to AWS
+        run: |
+          scp -i /tmp/AWS_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-blue.yml ${{ secrets.AWS_USER }}@${{ secrets.AWS_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+          scp -i /tmp/AWS_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-green.yml ${{ secrets.AWS_USER }}@${{ secrets.AWS_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+          scp -i /tmp/AWS_KEY.pem -o StrictHostKeyChecking=no infra/deploy.sh ${{ secrets.AWS_USER }}@${{ secrets.AWS_PROD_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+
+      - name: Deploy to AWS via deploy.sh
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_PROD_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_KEY }}
+          script: |
+            cd ${{ secrets.COMPOSE_FILE_PATH }}
+            chmod +x deploy.sh
+            ./deploy.sh "${{ env.LATEST_TAG }}"

@@ -1,0 +1,1 @@
+ALTER TABLE route DROP COLUMN code;

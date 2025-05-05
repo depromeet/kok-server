@@ -1,0 +1,36 @@
+spring:
+  profiles:
+    active: test
+  flyway:
+    enabled: true
+    connect-retries: 30
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.spatial.dialect.mysql.MySQLSpatialDialect
+    defer-datasource-initialization: false
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+### 실제 외부 API 호출을 피하기 위해 가짜 값을 사용합니다.
+ncp:
+  object-storage-url: mock
+tmap-sub:
+  key: mock
+  url: mock
+  keyname: mock
+tmap-complex:
+  key: mock
+  url: mock
+  keyname: mock
+google:
+  places:
+    api:
+      key: mock
+swagger:
+  appname: mock

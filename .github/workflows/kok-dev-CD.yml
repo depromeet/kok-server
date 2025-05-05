@@ -1,0 +1,47 @@
+name: kok-dev-CD (Deploy to Dev)
+
+on:
+  push:
+    branches:
+      - develop
+      - deploy/dev_cd # 배포 테스트 브랜치
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get Latest Docker Image Tag
+        id: latest_tag
+        run: |
+          LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/kok-dev/tags" | jq -r '.results[0].name')
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+
+      - name: Create SSH key file
+        run: echo "${{ secrets.AWS_KEY }}" > /tmp/AWS_KEY.pem
+
+      - name: Set permissions for SSH key file
+        run: chmod 400 /tmp/AWS_KEY.pem
+
+      - name: Upload `docker-compose.yml` to AWS
+        run: |
+          scp -i /tmp/AWS_KEY.pem -o StrictHostKeyChecking=no infra/docker-compose-dev.yml ${{ secrets.AWS_USER }}@${{ secrets.AWS_DEV_HOST }}:${{ secrets.COMPOSE_FILE_PATH }}
+
+      - name: Deploy to Dev Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_DEV_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_KEY }}
+          script: |
+            cd ${{ secrets.COMPOSE_FILE_PATH }}
+            
+            sed -i '/^KOK_DEV_TAG = /d' .env
+            echo "KOK_DEV_TAG = ${{ env.LATEST_TAG }}" >> .env
+            
+            sudo docker compose -f docker-compose-dev.yml pull
+            sudo docker compose -f docker-compose-dev.yml down
+            sudo docker compose -f docker-compose-dev.yml up -d

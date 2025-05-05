@@ -1,0 +1,75 @@
+spring:
+  jackson:
+    time-zone: Asia/Seoul
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.spatial.dialect.mysql.MySQLSpatialDialect
+    open-in-view: false
+    defer-datasource-initialization: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  data:
+    redis:
+      host: ${REDIS_HOST} # redis도 서버 내부에서 처리.
+      port: ${REDIS_PORT}
+      timeout: 5000
+#    redis:
+#      cluster:
+#        nodes:
+#          - ${REDIS_HOST1}:${REDIS_PORT}
+#          - ${REDIS_HOST2}:${REDIS_PORT}
+#          - ${REDIS_HOST3}:${REDIS_PORT}
+#        max-redirects: 3
+#      timeout: 5000
+#      sentinel:
+#        master: ${REDIS_SENTINEL_MASTER}
+#        nodes:
+#          - ${REDIS_SENTINEL_HOST1}:${REDIS_SENTINEL_PORT1}
+#          - ${REDIS_SENTINEL_HOST2}:${REDIS_SENTINEL_PORT2}
+#          - ${REDIS_SENTINEL_HOST3}:${REDIS_SENTINEL_PORT3}
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    enabled: false
+    path: /swagger
+
+# open-api: http://data.seoul.go.kr/dataList/OA-21232/S/1/datasetView.do
+station:
+  base-url: http://openapi.seoul.go.kr:8088
+  secret-key: ${STATION_SECRET_KEY}
+  service: subwayStationMaster
+  format: json
+  start-idx: 1
+  end-idx: 1000
+
+aws:
+  object-storage-url: ${OBJECT_STORAGE_URL}
+google:
+  places:
+    api:
+      key: ${GOOGLE_API_KEY}
+tmap-sub:
+  key: ${TMAP_KEY}
+  url: "https://apis.openapi.sk.com/transit/routes/sub"
+  keyname: "appKey"
+tmap-complex:
+  key: ${TMAP_KEY}
+  url: "https://apis.openapi.sk.com/transit/routes"
+  keyname: "appKey"
+
+swagger:
+  appname: "https://prod-api.kokokok.com"
