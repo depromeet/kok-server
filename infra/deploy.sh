@@ -7,7 +7,7 @@ sed -i '/^KOK_PROD_TAG=/d' .env || true
 echo "KOK_PROD_TAG=$LATEST_TAG" >> .env
 
 # 현재 사용 중인 Blue/Green 확인
-CURRENT_PORT=$(grep -o 'localhost:[0-9]\+' /etc/nginx/conf.d/service-url.inc | awk -F: '{print $2}')
+CURRENT_PORT=$(grep -o '127.0.0.1:[0-9]\+' /etc/nginx/conf.d/service-url.inc | awk -F: '{print $2}')
 
 if [ "$CURRENT_PORT" == "8081" ]; then
   CURRENT_ENV="kok-blue"
@@ -34,7 +34,7 @@ docker compose -f $COMPOSE_FILE up -d
 
 echo "🩺 Health Check (60초 대기)"
 sleep 60
-HEALTH=$(curl -s http://localhost:$NEW_PORT/v1/api/health)
+HEALTH=$(curl -s http://127.0.0.1:$NEW_PORT/v1/api/health)
 echo "Health Check 결과: $HEALTH"
 CODE=$(echo "$HEALTH" | jq -r '.code')
 DATA=$(echo "$HEALTH" | jq -r '.data')
